@@ -1,7 +1,3 @@
-/*
-** server.c -- a stream socket server demo
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,10 +10,12 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
-#define PORT "3490"  // the port users will be connecting to
-
-#define BACKLOG 10   // how many pending connections queue will hold
+#define PORT "8080"
+#define BACKLOG 10
+#define MAXDATASIZE 1048576 // 1MB max file size
 
 void sigchld_handler(int s)
 {
@@ -37,6 +35,45 @@ void *get_in_addr(struct sockaddr *sa)
         return &(((struct sockaddr_in*)sa)->sin_addr);
     }
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+char* read_html_file(const char* filename, size_t* filesize)
+{
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1)
+    {
+        perror("open");
+        return NULL;
+    }
+
+    struct stat st;
+    if (fstat(fd, &st) == -1)
+    {
+        perror("fstat");
+        close(fd);
+        return NULL;
+    }
+
+    *filesize = st.st_size;
+    char* buffer = malloc(*filesize);
+    if (!buffer)
+    {
+        perror("malloc");
+        close(fd);
+        return NULL;
+    }
+
+    ssize_t bytes_read = read(fd, buffer, *filesize);
+    if (bytes_read == -1)
+    {
+        perror("read");
+        free(buffer);
+        close(fd);
+        return NULL;
+    }
+
+    close(fd);
+    return buffer;
 }
 
 int main(void)
@@ -84,7 +121,6 @@ int main(void)
             perror("server: bind");
             continue;
         }
-
         break;
     }
 
@@ -121,36 +157,54 @@ int main(void)
             perror("accept");
             continue;
         }
+
+        if (recv(new_fd, str, 1023, 0) < 0)
+        {
+            printf("recv\n");
+            return 1;
+        }
+        printf("Received message = %s\n", str);
+
         inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
         printf("server: got connection from %s\n", s);
     
         if (!fork())
         {
             close(sockfd); // child doesn't need the listener
-            while (1)
+
+            // Read the HTML file
+            size_t filesize;
+            char* html_content = read_html_file("index.html", &filesize);
+            if (!html_content)
             {
-                memset(str, 0, sizeof(str)); // Clear the buffer
-                int numbytes = recv(new_fd, str, sizeof(str) - 1, 0);
-                if (numbytes <= 0)
-                {
-                    // Handle the end of the connection or error
-                    if (numbytes == 0)
-                        printf("server: client disconnected\n");
-                    else
-                        perror("recv");
-                    break;
-                }
-                str[numbytes] = '\0'; // Null-terminate the received string
-                printf("msg received: %s", str);
-                send(new_fd, reply, strlen(reply), 0);
+                fprintf(stderr, "Failed to read index.html\n");
+                close(new_fd);
+                exit(1);
             }
+
+            // Prepare HTTP response
+            char http_header[MAXDATASIZE];
+            snprintf(http_header, sizeof(http_header),
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/html\r\n"
+                "Content-Length: %zu\r\n"
+                "\r\n", filesize);
+
+            // Send HTTP header
+            send(new_fd, http_header, strlen(http_header), 0);
+
+            // Send HTML content
+            send(new_fd, html_content, filesize, 0);
+
+            free(html_content);
             close(new_fd);
             exit(0);
         }
         close(new_fd);  // parent doesn't need this
     }
-}
 
+    return 0;
+}
 
 /*
 ======================================= :SIG ACTION: ========================================
@@ -185,4 +239,5 @@ Here, it's NULL, meaning we don't care about the old action.
 Error Handling:
 perror("sigaction"): If sigaction() fails, this will print an error message to stderr.
 exit(1): Terminates the program if the call to sigaction() fails.
+
 */
