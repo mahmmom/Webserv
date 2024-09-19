@@ -63,7 +63,10 @@ class CloseException : public std::exception
         const char* what() const throw();
 };
 
-class PollException : public std::exception
+/*
+    My section
+*/
+class KqueueException : public std::exception
 {
     public:
         const char* what() const throw();

@@ -50,7 +50,7 @@ const char* CloseException::what() const throw()
     return "Close error";
 }
 
-const char* PollException::what() const throw()
+const char* KqueueException::what() const throw()
 {
-    return "Poll error";
+    return "Kqueue error";
 }

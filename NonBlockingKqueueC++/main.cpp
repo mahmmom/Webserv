@@ -6,8 +6,8 @@ int main()
 {
     try
     {
-        NonBlockingServer server(8080);
-        std::cout << "Server started on port 8080" << std::endl;
+        NonBlockingServer server(9000);
+        std::cout << "Server started on port 9000" << std::endl;
         server.run();
         return 0;
     }
