@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "Errors.hpp"
+#include "../HTTPRequest/HTTPRequest.hpp"
 
 int NonBlockingServer::count = 0;
 
@@ -114,6 +115,8 @@ void NonBlockingServer::handleClientRead(int client_socket)
 					<< " (bytes recieved: " << bytes_read << ")"
 					<< std::endl << std::endl;
 
+            HTTPRequest Request(buffer);
+
             struct kevent change_event;
             EV_SET(&change_event, client_socket, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
             templist.push_back(change_event);
@@ -126,44 +129,6 @@ void NonBlockingServer::handleClientWrite(int client_socket)
     std::map<int, Client>::iterator it = clients.find(client_socket);
     if (it != clients.end())
     {
-        // if (count == 0)
-        // {
-        //     int pid = fork();
-        //     if (pid == 0){
-        //         signal(SIGPIPE, SIG_IGN);   // Signal Handling (SIGPIPE): When sending 
-        //                                     // data to a closed socket, the system can 
-        //                                     // send a SIGPIPE signal to the process. 
-        //                                     // By default, this signal terminates the process.
-        //                                     // In your case, if the client closes the connection 
-        //                                     // while the server is still sending data, the child 
-        //                                     // process may receive SIGPIPE, causing it to terminate 
-        //                                     // silently without reaching your exit(0) or printing 
-        //                                     // the perror messages.
-        //         std::string response = "Hello from server XD";
-        //         int bytes_sent;
-        //         int i = 0;
-        //         do {
-        //             bytes_sent = send(client_socket, response.c_str(), response.length(), 0);
-        //             std::cout << "[" << i << "] " << "Sent from server " << bytes_sent << " bytes to client_socket " << client_socket << std::endl;
-        //             i++;
-        //         } while (bytes_sent != -1);
-        //         if (bytes_sent == -1 && errno != EWOULDBLOCK) {
-        //             perror ("Send"); // probably should remove this
-        //         } 
-        //         else if ((bytes_sent == -1 && errno == EWOULDBLOCK)) {
-        //             perror("*Send");
-        //         }
-        //         std::cout << "exit" << std::endl;
-        //         exit(0);
-        //     }
-        //     std::string& buffer = it->second.getBuffer();
-        //     buffer.erase(0, 20);
-        //     count++;
-        //     struct kevent change_event;
-        //     EV_SET(&change_event, client_socket, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-        //     templist.push_back(change_event);
-        //     return ;
-        // }
         std::string buffer_head = "Relay from server: ";
         std::string& buffer = it->second.getBuffer();
         int bytes_sent = send(client_socket, (buffer_head + buffer).c_str(), (buffer_head + buffer).length(), 0);
