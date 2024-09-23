@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
 
 	std::stringstream ss;
-	ss 	<< "GET /truffle/muffle?full%20name=joe%20bloggs%20floggs&sex=male HTTP/1.1\r\n"
+	ss 	<< "  GET  /truffle/muffle?full%20name=joe%20bloggs%20floggs&sex=male   HTTP/1.1\r\n"
 		<< "User-Agent: PostmanRuntime/7.39.1\r\n"
 		<< "Accept: */*\r\n"
 		<< "Cache-Control: no-cache\r\n"

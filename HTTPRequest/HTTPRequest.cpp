@@ -1,5 +1,6 @@
 
 #include "HTTPRequest.hpp"
+#include <algorithm>
 
 void	HTTPRequest::debugger()
 {
@@ -27,6 +28,11 @@ void	HTTPRequest::debugger()
         std::cout << it->first << ": " << it->second << std::endl;
     }
 	std::cout << "===========================\n" << std::endl;
+
+	std::cout << "============ STATUS ============" << std::endl;
+	std::cout << "Status -> " << status << std::endl;
+	std::cout << "================================\n" << std::endl;
+
 	std::cout << "*********************************************\n" << std::endl;
 }
 
@@ -116,7 +122,7 @@ void	HTTPRequest::extractQueries(const std::string& querieString)
 bool	HTTPRequest::processURI(std::string& uriTok)
 {
 	if (uriTok.find("/") == std::string::npos)
-		return (false);
+		return (false); // confirmed
 	if (uriTok.find("%20") != std::string::npos) {	// Note 1
 		for (size_t i = 0; i < uriTok.length(); i++) {
 			size_t pos = uriTok.find("%20", i);
@@ -142,18 +148,42 @@ bool	HTTPRequest::processURI(std::string& uriTok)
 	Note 2: pos != 0 makes sure that there are no weird characters
 			before HTTP/ so for example: hiHTTP/1.1 would be 
 			rejected.
+	
+	Note 3: this checks if there is anything after the version besides 
+			a space, which should be rejected.
 */
 bool	HTTPRequest::processVersion(std::string& versionTok)
 {
 	if (versionTok.empty()) // Note 1
-		return (false);
+		return (setStatus(400), false); // CONFIRMED
 	size_t pos = versionTok.find("HTTP/");
 	if (pos == std::string::npos && pos != 0) // Note 2
-		return (false);
+		return (setStatus(400), false); // CONFIRMED
 	if (versionTok.substr(5, 3) != "1.1")
-		return (false);
+		return (setStatus(505), false);	// CONFIRMED
+	if (versionTok.substr(8).find_first_not_of(" ") != std::string::npos) // Note 3
+		return (setStatus(400), false); // CONFIRMED
 	version = versionTok;
 	return (true);
+}
+
+bool HTTPRequest::isRequestLineComplete(const std::string& requestLine)
+{
+    size_t pos = 0;
+    size_t tokenCount = 0;
+
+    while (pos != std::string::npos) {
+        // Find the first non-space character
+        pos = requestLine.find_first_not_of(' ', pos);
+        if (pos == std::string::npos)
+            break;
+        tokenCount++;
+
+        // Find the next space after the token
+        pos = requestLine.find_first_of(' ', pos);
+    }
+
+    return tokenCount == 3;
 }
 
 bool	HTTPRequest::processRequestLine(const std::string& requestLine)
@@ -165,31 +195,36 @@ bool	HTTPRequest::processRequestLine(const std::string& requestLine)
 	size_t						pos;
 	std::vector<std::string>	allowedMethods;
 
-	std::cout << "HERE???" << std::endl;
 	allowedMethods.push_back("GET");
 	allowedMethods.push_back("POST");
 	allowedMethods.push_back("HEAD");
 	allowedMethods.push_back("DELETE");
 
+	if (!isRequestLineComplete(requestLine))
+		return (setStatus(400), false);
+
 	i = 0;
 	pos = 0;
-	pos = requestLine.find(" ", pos);
-	if (pos == std::string::npos)
-		return (false);
-	methodTok = requestLine.substr(0, pos);
+	i = requestLine.find_first_not_of(" ", pos);
+	pos = requestLine.find(" ", i);
+	if (pos == std::string::npos) 
+		return (setStatus(400), false);
+	methodTok = requestLine.substr(i, pos - i);
 	if (std::find(allowedMethods.begin(), allowedMethods.end(), methodTok) == allowedMethods.end())
-		return (false);
+		return (setStatus(501), false);
 	method = methodTok;
 
-	i = pos + 1;
+	i = requestLine.find_first_not_of(" ", pos);
 	pos = requestLine.find(" ", i);
 	if (pos == std::string::npos)
-		return (false);
+		return(setStatus(400), false);
 	uriTok = requestLine.substr(i, pos - i);
 	if (!processURI(uriTok))
-		return (false);
+		return(false);
 
-	i = pos + 1;
+	i = requestLine.find_first_not_of(" ", pos);
+	if (i == std::string::npos)
+		return (setStatus(400), false);
 	versionTok = requestLine.substr(i);
 	if (!processVersion(versionTok))
 		return (false);
@@ -215,6 +250,16 @@ bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields) {
 		headers[name] = value;
 	}
 	return (true);
+}
+
+void HTTPRequest::setStatus(const int& status)
+{
+	this->status = status;
+}
+
+const int& HTTPRequest::getStatus() const
+{
+	return (status);
 }
 
 /* 
