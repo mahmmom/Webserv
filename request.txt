@@ -7,6 +7,15 @@ Host: 127.0.0.1:8080
 Accept-Encoding: gzip, deflate, br
 Connection: keep-alive
 
+GET / HTTP/1.1
+User-Agent: PostmanRuntime/7.39.1
+Accept: */*
+Cache-Control: no-cache
+Postman-Token: 8c92cfb8-5d90-4678-8fc4-236b944e6dbd
+Host: 127.0.0.1:8080
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
 
 POST / HTTP/1.1
 User-Agent: PostmanRuntime/7.39.1

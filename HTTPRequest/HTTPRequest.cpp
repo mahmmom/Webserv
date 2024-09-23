@@ -45,13 +45,22 @@ HTTPRequest::HTTPRequest(const std::string& full_request) {
 }
 
 /*
-	Note 1: remember, that .find() returns the pos from the beginning
+	Note 1: If there were no two consecutive \r\n in the whole request,
+			then that means that the requests were incomplete as a proper 
+			HTTP request as to have an empty line at the bottom of it. 
+			Thus, if there is no empty line at the bottom, it will  
+			assume that there is at least one more header field which was 
+			not sent. In this case, HTTP servers do not return a status code, 
+			they wait for more to come (or discard the request). For us, I 
+			guess it is easier to just discard and disconnect the client.
+
+	Note 2: remember, that .find() returns the pos from the beginning
 			of the string (fullRequest) and not at an offset from i. 
 			I need the offset for the third argument of the substring 
 			because it the len argument. Thus, I calculate the offset 
 			(aka len) myself as pos - i.
 
-	Note 2: .find() returns the index (or position) at which the first 
+	Note 3: .find() returns the index (or position) at which the first 
 			occurence of the str argument ("\r\n") in this case and thus, 
 			for the next iteration, meaning that i is now at the \r position.
 			So to skip past both \r and \n, we add a further 2 to the len 
@@ -60,22 +69,23 @@ HTTPRequest::HTTPRequest(const std::string& full_request) {
 void HTTPRequest::tokenizeHeaderFields(const std::string& fullRequest) {
 	std::vector<std::string>	headerFields;
 
-	// std::cout << "HERE1" << std::endl;
+	if (fullRequest.find("\r\n\r\n") == std::string::npos) { // Note 1
+		std::cout << "Incomplete headers" << std::endl;
+		return ;
+	}
+
 	for (size_t i = 0; i < fullRequest.size();) {
 		size_t pos = fullRequest.find("\r\n", i);
 		if (pos == std::string::npos)
-			return ;	// set status to bad request here
-		std::string	field = fullRequest.substr(i, pos - i); // Note 1
+			return ;	// set status to bad request here (NEVERMIND, NO DON'T!)
+		std::string	field = fullRequest.substr(i, pos - i); // Note 2
 		if (field.empty())
 			break ;
 		headerFields.push_back(field);
-		i += (pos - i) + 2;	// Note 2
+		i += (pos - i) + 2;	// Note 3
 	}
-	// std::cout << "HERE2" << std::endl;
 	processRequestLine(headerFields[0]);
-	// std::cout << "HERE3" << std::endl;
 	buildHeaderMap(headerFields);
-	// std::cout << "HERE4" << std::endl;
 
 	debugger();
 }
@@ -232,8 +242,17 @@ bool	HTTPRequest::processRequestLine(const std::string& requestLine)
 	return (true);
 }
 
-bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields) {
+bool	HTTPRequest::processHostField(std::string& hostValue)
+{
+	if (hostValue.find(" ") != std::string::npos)
+		return (setStatus(400), false);
+	return (true);
+}
+
+bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields)
+{
 	
+	bool hostFound = false;
 
 	std::vector<std::string>::const_iterator it = headerFields.begin() + 1;
 	for (; it != headerFields.end(); it++) {
@@ -248,7 +267,14 @@ bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields) {
 		pos = field.find_first_not_of(" ", pos + 1); // pos + 1 to skip the ":"
 		value = field.substr(pos, field.length());
 		headers[name] = value;
+		if (name == "host") {
+			if (!processHostField(value))
+				return (false);
+			hostFound = true;
+		}
 	}
+	if (!hostFound)
+		return (setStatus(400), false);
 	return (true);
 }
 

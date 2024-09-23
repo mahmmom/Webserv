@@ -18,8 +18,9 @@ class HTTPRequest
 		std::vector<std::string>			queries;
 		std::map<std::string, std::string>	headers;
 
-		void	tokenizeHeaderFields(const std::string& fullRequest);
+		bool	processHostField(std::string& hostValue);
 		bool	buildHeaderMap(std::vector<std::string>& headerFields);
+		void	tokenizeHeaderFields(const std::string& fullRequest);
 
 		bool	processRequestLine(const std::string& requestLine);
 		bool 	isRequestLineComplete(const std::string& requestLine);
