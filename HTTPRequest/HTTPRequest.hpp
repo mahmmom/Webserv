@@ -19,6 +19,8 @@ class HTTPRequest
 		std::map<std::string, std::string>	headers;
 
 		bool	processHostField(std::string& hostValue);
+		bool	processPostRequest();
+		bool	checkDuplicates(std::string& headerFieldName);
 		bool	buildHeaderMap(std::vector<std::string>& headerFields);
 		void	tokenizeHeaderFields(const std::string& fullRequest);
 
@@ -36,7 +38,8 @@ class HTTPRequest
 
 		void	debugger();
 	public:
-		const int& getStatus() const;
+		const std::string&	getMethod() const;
+		const int& 			getStatus() const;
 		HTTPRequest(const std::string& full_request);
 		~HTTPRequest();
 };

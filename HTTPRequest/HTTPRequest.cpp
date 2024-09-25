@@ -196,6 +196,15 @@ bool HTTPRequest::isRequestLineComplete(const std::string& requestLine)
     return tokenCount == 3;
 }
 
+/*
+	Note 1:	As per RFC 7230 3.1.1, this is how a request-line should look:
+			request-line   = method SP request-target SP HTTP-version CRLF
+			Now Nginx has its implementation where if there is a SP before the
+			method, it rejects the request. But with the other SP's, technically
+			although there should only be a single one, Nginx accepts multiple
+			spaces and even accepts trailing spaces (those that come after the 
+			HTTP-version). So that's why I have the if i != 0 check.
+*/
 bool	HTTPRequest::processRequestLine(const std::string& requestLine)
 {
 	std::string					methodTok;
@@ -217,7 +226,7 @@ bool	HTTPRequest::processRequestLine(const std::string& requestLine)
 	pos = 0;
 	i = requestLine.find_first_not_of(" ", pos);
 	pos = requestLine.find(" ", i);
-	if (pos == std::string::npos) 
+	if ((i != 0) || pos == std::string::npos) // Note 1
 		return (setStatus(400), false);
 	methodTok = requestLine.substr(i, pos - i);
 	if (std::find(allowedMethods.begin(), allowedMethods.end(), methodTok) == allowedMethods.end())
@@ -249,11 +258,48 @@ bool	HTTPRequest::processHostField(std::string& hostValue)
 	return (true);
 }
 
+bool	HTTPRequest::processPostRequest()
+{
+	/*
+		If there is no content-length, our server will consider
+		that acceptable only if we are using transfer-encoding AND 
+		this transfer-encoding has to be chunked!
+	*/
+	if (headers.find("content-length") == headers.end())
+	{
+		std::map<std::string, std::string>::const_iterator it;
+		it = headers.find("transfer-encoding");
+		if (it == headers.end() || it->second != "chunked")
+			return (setStatus(411), false); // RFC 7230 3.3.3
+	}
+	if (headers.find("content-length") != headers.end()) {
+		if (headers.find("transfer-encoding") != headers.end())
+			return (headers.erase("content-length"), true); // RFC 2616 SECTION 4.4 bullet point 3
+		if (headers.find("content-length")->second.find_first_not_of("0123456789") != std::string::npos)
+			return (setStatus(400), false); // RFC 7230 3.3.2		
+	}
+	return (true);
+}
+
+bool	HTTPRequest::checkDuplicates(std::string& headerFieldName)
+{
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
+		if (it->first == headerFieldName)
+			return (false);
+	}
+	return (true);
+}
+
+/*
+	Nginx ignores header field entries where there is a whitespace 
+	before the ":", instead of completely rejecting the request. 
+	But RFC 7230 3.2 clearly states: 
+		header-field   = field-name ":" OWS field-value OWS 
+	where OWS is optional white space. There is no OWS before 
+	the ":" though.
+*/
 bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields)
 {
-	
-	bool hostFound = false;
-
 	std::vector<std::string>::const_iterator it = headerFields.begin() + 1;
 	for (; it != headerFields.end(); it++) {
 		std::string	field = *it;
@@ -263,18 +309,27 @@ bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields)
 
 		size_t pos = field.find(":", 0);
 		name = field.substr(0, pos);
+		if (name.find(" ") != std::string::npos) // Note 1
+			continue ;
 		transform(name.begin(), name.end(), name.begin(), ::tolower);
+		if (name == "host" || name == "content-length" || name == "transfer-encoding") {
+			if (!checkDuplicates(name))
+				return (setStatus(400), false);
+		}
 		pos = field.find_first_not_of(" ", pos + 1); // pos + 1 to skip the ":"
 		value = field.substr(pos, field.length());
 		headers[name] = value;
 		if (name == "host") {
 			if (!processHostField(value))
 				return (false);
-			hostFound = true;
 		}
 	}
-	if (!hostFound)
+	if (headers.find("host") == headers.end())
 		return (setStatus(400), false);
+	if (this->getMethod() == "POST") {
+		if (!processPostRequest())
+			return (false);
+	}
 	return (true);
 }
 
@@ -283,12 +338,17 @@ void HTTPRequest::setStatus(const int& status)
 	this->status = status;
 }
 
+const std::string&	HTTPRequest::getMethod() const
+{
+	return (method);
+}
+
 const int& HTTPRequest::getStatus() const
 {
 	return (status);
 }
 
-/* 
+/*
 		ORTHODOX CANONICAL FORM
 */
 HTTPRequest::HTTPRequest() {}

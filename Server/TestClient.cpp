@@ -50,15 +50,17 @@ int main(int argc, char *argv[])
 
 
 	std::stringstream ss;
-	ss 	<< "  GET  /truffle/muffle?full%20name=joe%20bloggs%20floggs&sex=male   HTTP/1.1\r\n"
-		<< "User-Agent: PostmanRuntime/7.39.1\r\n";
-		// << "Accept: */*\r\n"
-		// << "Cache-Control: no-cache\r\n"
-		// << "Postman-Token: 8c92cfb8-5d90-4678-8fc4-236b944e6dbd\r\n"
-		// << "Host: 127.0.0.1:9000\r\n"
-		// << "Accept-Encoding: gzip, deflate, br\r\n"
-		// << "Connection: keep-alive\r\n"
-		// << "\r\n";
+	ss 	<< "POST  /truffle/muffle?full%20name=joe%20bloggs%20floggs&sex=male   HTTP/1.1\r\n"
+		<< "User-Agent: PostmanRuntime/7.39.1\r\n"
+		<< "Accept: */*\r\n"
+		<< "Cache-Control: no-cache\r\n"
+		<< "Postman-Token: 8c92cfb8-5d90-4678-8fc4-236b944e6dbd\r\n"
+		<< "Host: 127.0.0.1:9000\r\n"
+		<< "Accept-Encoding: gzip, deflate, br\r\n"
+		<< "Connection: keep-alive\r\n"
+		<< "Content-length: -821787\r\n"
+		<< "Transfer-encoding: chunked\r\n"
+		<< "\r\n";
 
 	std::string str = ss.str();
 	if (send(sock_fd, str.c_str(), str.size(), 0) == -1) {
