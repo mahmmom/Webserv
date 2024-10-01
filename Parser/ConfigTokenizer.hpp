@@ -9,15 +9,24 @@
 #include <iterator>
 #include <sstream>
 #include <cstdlib>
+#include <exception>
 
 class ConfigTokenizer
 {
 	private:
-		static void	extract_white_spaces(std::string& configLine);
-		static void	extract_comments(std::string& configLine);
-		static void	split_line(std::string& configLine, std::vector<std::string>& tokens);
-	public:	
+		static void	extractPadding(std::string& configLine);
+		static void	extractComments(std::string& configLine);
+		static void	splitByWSpace(std::string& configLine, std::vector<std::string>& tokens);
+		static void splitByDelims(std::vector<std::string>& tokens, std::vector<std::string>& tempTokens);
+	public:
+		class InvalidConfigFileException;
 		static void	tokenize(std::string& configFileName);
+};
+
+class ConfigTokenizer::InvalidConfigFileException : public std::exception
+{
+	public:
+		const char* what() const throw();
 };
 
 #endif

@@ -1,19 +1,26 @@
 
 #include "ConfigTokenizer.hpp"
 
-void	ConfigTokenizer::extract_white_spaces(std::string& configLine)
+const char* ConfigTokenizer::InvalidConfigFileException::what() const throw()
 {
-	size_t	start = configLine.find_first_not_of(" \t");
+	return ("Unable to open config file");
+}
+
+void	ConfigTokenizer::extractPadding(std::string& configLine)
+{
+	std::string whitespaces = " \t\n\r\f\v";
+
+	size_t	start = configLine.find_first_not_of(whitespaces);
 	if (start != std::string::npos)
 		configLine = configLine.substr(start);
 	else
 		configLine.clear();
-	size_t	end = configLine.find_last_not_of(" \t");
+	size_t	end = configLine.find_last_not_of(whitespaces);
 	if (end != std::string::npos)
 		configLine = configLine.substr(0, end + 1);
 }
 
-void	ConfigTokenizer::extract_comments(std::string& configLine)
+void	ConfigTokenizer::extractComments(std::string& configLine)
 {
 	size_t	pos = configLine.find("#");
 
@@ -21,20 +28,36 @@ void	ConfigTokenizer::extract_comments(std::string& configLine)
 		configLine = configLine.substr(0, pos);
 }
 
-void	ConfigTokenizer::split_line(std::string& configLine, std::vector<std::string>& tokens)
+void	ConfigTokenizer::splitByWSpace(std::string& configLine, std::vector<std::string>&tempTokens)
 {
 	std::istringstream 			stream(configLine);
 
 	std::istream_iterator<std::string> begin(stream); // initialization constructor constructors an istream iterator that is associated with stream passed as an argument
 	std::istream_iterator<std::string> end; // default constructor constructs an end-of-stream iterator.
 	for (std::istream_iterator<std::string> it = begin; it != end; it++) {
-		size_t pos = (*it).find(";");
-		if (pos != std::string::npos) {
-			tokens.push_back((*it).substr(0, pos));
-			tokens.push_back((*it).substr(pos));
-			continue ;
+		tempTokens.push_back(*it);
+	}
+}
+
+void	ConfigTokenizer::splitByDelims(std::vector<std::string>& tokens, std::vector<std::string>& tempTokens)
+{
+	for (size_t i = 0; i < tempTokens.size(); i++) {
+		std::string	build;
+
+		for (std::string::iterator it = tempTokens[i].begin(); it != tempTokens[i].end(); it++) {
+			if (*it == '{' || *it == '}' || *it == ';') {
+				if (!build.empty()) // handle something like [{random}] to give [{, random, }] not [{, }, random]
+				{
+					tokens.push_back(build);
+					build.clear();
+				}
+				tokens.push_back(std::string(1, *it));
+			}
+			else
+				build += *it;
 		}
-		tokens.push_back(*it);
+		if (!build.empty())	// if a line only had { then dont push an empty line to the token list
+			tokens.push_back(build);
 	}
 }
 
@@ -44,20 +67,20 @@ void	ConfigTokenizer::tokenize(std::string& configFileName)
 	std::vector<std::string>	tokens;
 
 	configStream.open(configFileName.c_str());
-	if (!configStream.is_open()) {
-		std::cerr << "Unable to open file" << configFileName << std::endl;
-		exit(1);
-	}
+	if (!configStream.is_open())
+		throw (ConfigTokenizer::InvalidConfigFileException());
+
 	while (configStream.good()){
-		std::string	configLine;
+		std::string					configLine;
+		std::vector<std::string>	tempTokens;
 
 		std::getline(configStream, configLine);
-		extract_comments(configLine);
-		extract_white_spaces(configLine);
+		extractComments(configLine);
+		extractPadding(configLine);
 		if (configLine.empty())
 			continue ;
-		split_line(configLine, tokens);
-		std::cout << configLine << "." << std::endl;
+		splitByWSpace(configLine, tempTokens);
+		splitByDelims(tokens, tempTokens);
 	}
 
 	std::cout << "==========================" << std::endl;

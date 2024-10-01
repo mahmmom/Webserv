@@ -4,7 +4,12 @@
 
 int main()
 {
-	ConfigParser Parser(std::string("nginx.conf"));
-
-	Parser.go();
+	try 
+	{
+		ConfigParser Parser(std::string("nginx.conf"));
+		Parser.go();
+	}
+	catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	}
 }
