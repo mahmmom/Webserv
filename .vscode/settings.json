@@ -64,6 +64,10 @@
 		"utility": "cpp",
 		"vector": "cpp",
 		"__functional_03": "cpp",
-		"memory_resource": "cpp"
+		"memory_resource": "cpp",
+		"deque": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"stack": "cpp"
 	}
 }
