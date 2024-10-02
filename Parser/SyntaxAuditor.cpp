@@ -13,7 +13,7 @@ void SyntaxAuditor::checkBraces(std::vector<std::string>& tokens)
 	for (size_t i = 0; i < tokens.size(); i++) {
 		if (tokens[i] == "{") {
 			if (i == 0)
-				; // throw
+				throw (SyntaxError(UNEXPECTED_OPENING_BRACE)); // throw
 			else if (i > 0 && tokens[i - 1] == "{")
 				throw (SyntaxError(UNEXPECTED_OPENING_BRACE));
 			else if (i > 0 && tokens[i - 1] == "}")
@@ -32,6 +32,19 @@ void SyntaxAuditor::checkBraces(std::vector<std::string>& tokens)
 		throw(SyntaxError(BRACE_MISMATCH)); // throw exception, there was a { without a closing }
 }
 
+/*
+	Note 1: if (tokens[i] == "deny") because deny is the only thing that's not a method 
+			that I will allow after lim_except so this keyword gets a special case; but 
+			still, it must also be preceded by a {. So it handles a case like this:
+
+			location / {
+				limit_except GET POST 
+				deny { all;
+			}
+
+			I want it to say in that "limit_except and its associated methods was not followed 
+			by a {"" instead of "invalid method used with limit_except" 
+*/
 void SyntaxAuditor::checkRequiredContexts(std::vector<std::string>& tokens)
 {
 	if (std::find(tokens.begin(), tokens.end(), "http") == tokens.end())
@@ -76,7 +89,7 @@ void SyntaxAuditor::checkRequiredContexts(std::vector<std::string>& tokens)
 			{
 				if (tokens[i] == "}")
 					throw (SyntaxError(UNEXPECTED_CLOSING_BRACE));
-				if (tokens[i] == "deny")
+				if (tokens[i] == "deny" || tokens[i] == ";")
 					throw (SyntaxError(INVALID_LIM_EXCEPT_DIR));
 				throw (SyntaxError(INVALID_LIM_EXCEPT_METHOD));
 			}
