@@ -1,6 +1,6 @@
 
-#ifndef CONFIG_TOKENIZER_HPP
-# define CONFIG_TOKENIZER_HPP
+#ifndef CONFIGTOKENIZER_HPP
+# define CONFIGTOKENIZER_HPP
 
 #include <string>
 #include <vector>

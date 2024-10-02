@@ -1,11 +1,12 @@
-#ifndef SYNTAX_AUDITOR_HPP
-# define SYNTAX_AUDITOR_HPP
+#ifndef SYNTAXAUDITOR_HPP
+# define SYNTAXAUDITOR_HPP
 
 #include <vector>
 #include <stack>
 #include <string>
 #include <iostream>
 #include <exception>
+#include <algorithm>
 
 /*
 	UNEXPECTED_EOF:	shows when you have a full set of braces that have been

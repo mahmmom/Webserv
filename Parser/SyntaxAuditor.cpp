@@ -47,9 +47,9 @@ void SyntaxAuditor::checkBraces(std::vector<std::string>& tokens)
 */
 void SyntaxAuditor::checkRequiredContexts(std::vector<std::string>& tokens)
 {
-	if (std::find(tokens.begin(), tokens.end(), "http") == tokens.end())
+	if (std::find(tokens.begin(), tokens.end(), std::string("http")) == tokens.end())
 		throw (SyntaxError(MISSING_HTTP));
-	if (std::find(tokens.begin(), tokens.end(), "server") == tokens.end())
+	if (std::find(tokens.begin(), tokens.end(), std::string("server")) == tokens.end())
 		throw (SyntaxError(MISSING_SERVER));
 
 	for (size_t i = 0; i < tokens.size(); i++) {
