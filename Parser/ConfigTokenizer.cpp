@@ -61,7 +61,7 @@ void	ConfigTokenizer::splitByDelims(std::vector<std::string>& tokens, std::vecto
 	}
 }
 
-void	ConfigTokenizer::tokenize(std::string& configFileName)
+std::vector<std::string>	ConfigTokenizer::tokenize(std::string& configFileName)
 {
 	std::ifstream 				configStream;
 	std::vector<std::string>	tokens;
@@ -83,8 +83,5 @@ void	ConfigTokenizer::tokenize(std::string& configFileName)
 		splitByDelims(tokens, tempTokens);
 	}
 
-	std::cout << "==========================" << std::endl;
-	for (size_t i = 0; i < tokens.size(); i++) {
-		std::cout << tokens[i] << std::endl;
-	}
+	return (tokens);
 }
