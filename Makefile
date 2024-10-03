@@ -8,7 +8,7 @@ HTTPDIR = HTTPRequest
 HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp)
 HTTPOBJS = $(addprefix $(OBJDIR)/, $(HTTPSRCS:$(HTTPDIR)/%.cpp=%.o))
 
-SERVERSRCS1 = $(addprefix $(SERVERDIR)/, main.cpp NonBlockingServer.cpp Client.cpp Errors.cpp)
+SERVERSRCS1 = $(addprefix $(SERVERDIR)/, main.cpp NonBlockingServer_MacOS.cpp NonBlockingServer_Linux.cpp ServerManager.cpp Client.cpp Errors.cpp)
 SERVEROBJS1 = $(addprefix $(OBJDIR)/, $(SERVERSRCS1:$(SERVERDIR)/%.cpp=%.o))
 
 SERVERSRCS2 = $(addprefix $(SERVERDIR)/, TestClient.cpp)
