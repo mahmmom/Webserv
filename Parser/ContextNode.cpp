@@ -26,6 +26,11 @@ void	ContextNode::addChild(ConfigNode* child)
 	children.push_back(child);
 }
 
+void	ContextNode::addMethod(std::string& method)
+{
+	methods.push_back(method);
+}
+
 const std::string&	ContextNode::getContextName() const
 {
 	return (contextName);
@@ -39,4 +44,8 @@ const std::string&	ContextNode::getPath() const
 const std::vector<ConfigNode*>&	ContextNode::getChildren() const
 {
 	return (children);
+}
+
+const std::vector<std::string>& ContextNode::getMethods() const {
+    return methods;
 }
