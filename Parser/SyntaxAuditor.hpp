@@ -37,6 +37,7 @@
 #define INVALID_LIM_EXCEPT_METHOD	"invalid method used with limit_except"
 #define UNEXPECTED_SEMICOLON		"Unexpected ;"
 #define MISSING_SEMICOLON			"Directive is missing a ;"
+#define	UNKNOWN_CONTEXT				"Unknown context present in file"
 
 class SyntaxAuditor
 {

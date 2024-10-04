@@ -96,6 +96,25 @@ void SyntaxAuditor::checkRequiredContexts(std::vector<std::string>& tokens)
 			else if (tokens[i] != "{")
 				throw (SyntaxError(INVALID_LIM_EXCEPT_DIR));
 		}
+		else if (tokens[i] == "{") {
+			int		check = 0;
+			int		j = static_cast<int>(i);
+
+			if (i - 1 >= 0 && tokens[i - 1] != "http")
+				check++;
+			if (i - 1 >= 0 && tokens[i - 1] != "server")
+				check++;
+			if (i - 2 >=0 && tokens[i - 2] != "location")
+				check++;
+			while (j > 0 && tokens[j] != "limit_except" && tokens[j] != "}")
+				j--;
+			if ((j == 0) || (tokens[j] == "}"))
+				check++;
+			if (check == 4)
+				throw (SyntaxError(UNKNOWN_CONTEXT));
+			if (tokens[i - 1] == "berver")
+				std::cout << "check is " << check << std::endl;
+		}
 	}
 }
 
