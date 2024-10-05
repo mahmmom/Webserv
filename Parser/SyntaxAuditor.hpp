@@ -41,12 +41,13 @@
 
 class SyntaxAuditor
 {
-	public:
-		class SyntaxError;
+	private:
 		static void checkBraces(std::vector<std::string>& tokens);
 		static void checkRequiredContexts(std::vector<std::string>& tokens);
 		static void checkContextsHierarchy(std::vector<std::string>& tokens);
 		static void checkDirectives(std::vector<std::string>& tokens);
+	public:
+		class SyntaxError;
 		static void checkConfigSyntax(std::vector<std::string>& tokens);
 };
 
