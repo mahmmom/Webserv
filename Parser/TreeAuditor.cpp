@@ -93,9 +93,9 @@ void	TreeAuditor::checkDirectiveLogic(ConfigNode* node)
 	}
 }
 
-int	TreeAuditor::directiveInstanceCounter(ContextNode* contextNode, std::string& directiveName)
+int	TreeAuditor::directiveInstanceCounter(ContextNode* parentNode, const std::string& directiveName)
 {
-	std::vector<ConfigNode *>children = contextNode->getChildren();
+	std::vector<ConfigNode *>children = parentNode->getChildren();
 	std::vector<ConfigNode *>::const_iterator it;
 	int	count = 0;
 
@@ -110,7 +110,19 @@ int	TreeAuditor::directiveInstanceCounter(ContextNode* contextNode, std::string&
 
 void	TreeAuditor::checkDuplicateDirectives(ConfigNode* node)
 {
-	;	
+	if (node->getType() == Context) {
+		ContextNode* contextNode = static_cast<ContextNode *>(node);
+		std::vector<ConfigNode*>::const_iterator it;
+		for (it = contextNode->getChildren().begin(); it != contextNode->getChildren().end(); it++) {
+			if ((*it)->getType() == Context) {
+				checkDuplicateDirectives(*it);
+			}
+			else {
+				if (directiveInstanceCounter(static_cast<ContextNode *>(node), static_cast<DirectiveNode* >(*it)->getDirectiveName()) != 1)
+					throw (std::runtime_error("\"" + static_cast<DirectiveNode* >(*it)->getDirectiveName() + "\" directive is duplicated"));
+			}
+		}
+	}
 }
 
 void	TreeAuditor::checkTreeLogic(ConfigNode* rootNode)

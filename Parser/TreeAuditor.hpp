@@ -31,7 +31,7 @@ class TreeAuditor
 		void	checkDirective(DirectiveNode* dirNode, std::pair<ArgsRequired, DirectiveDependency> pair);
 		void	checkParent(DirectiveNode* node);
 		void	checkDirectiveLogic(ConfigNode* rootNode);
-		int		directiveInstanceCounter(ContextNode* contextNode, std::string& directiveName);
+		int		directiveInstanceCounter(ContextNode* parentNode, const std::string& directiveName);
 		void	checkDuplicateDirectives(ConfigNode* rootNode);
 	public:
 		TreeAuditor();
