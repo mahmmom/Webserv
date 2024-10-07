@@ -115,6 +115,19 @@ void	TreeAuditor::checkDuplicateDirectives(ConfigNode* node)
 		std::vector<ConfigNode*>::const_iterator it;
 		for (it = contextNode->getChildren().begin(); it != contextNode->getChildren().end(); it++) {
 			if ((*it)->getType() == Context) {
+
+				if (static_cast<ContextNode *>(*it)->getContextName() == "location") {
+					std::vector<ConfigNode *>children = static_cast<ContextNode *>(*it)->getChildren();
+					std::vector<ConfigNode *>::iterator it;
+					size_t	lim_except_count = 0;
+					for (it = children.begin(); it != children.end(); it++) {
+						if ((*it)->getType() == Context && static_cast<ContextNode *>(*it)->getContextName() == "limit_except")
+							lim_except_count++;
+						if (lim_except_count > 1)
+							throw (std::runtime_error("\"limit_except\" directive is duplicated"));
+					}
+				}
+
 				checkDuplicateDirectives(*it);
 			}
 			else {
