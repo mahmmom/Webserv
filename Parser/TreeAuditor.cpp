@@ -115,7 +115,6 @@ void	TreeAuditor::checkDuplicateDirectives(ConfigNode* node)
 		std::vector<ConfigNode*>::const_iterator it;
 		for (it = contextNode->getChildren().begin(); it != contextNode->getChildren().end(); it++) {
 			if ((*it)->getType() == Context) {
-
 				if (static_cast<ContextNode *>(*it)->getContextName() == "location") {
 					std::vector<ConfigNode *>children = static_cast<ContextNode *>(*it)->getChildren();
 					std::vector<ConfigNode *>::iterator it;
@@ -127,12 +126,15 @@ void	TreeAuditor::checkDuplicateDirectives(ConfigNode* node)
 							throw (std::runtime_error("\"limit_except\" directive is duplicated"));
 					}
 				}
-
 				checkDuplicateDirectives(*it);
 			}
 			else {
-				if (directiveInstanceCounter(static_cast<ContextNode *>(node), static_cast<DirectiveNode* >(*it)->getDirectiveName()) != 1)
-					throw (std::runtime_error("\"" + static_cast<DirectiveNode* >(*it)->getDirectiveName() + "\" directive is duplicated"));
+				ContextNode *parentNode = static_cast<ContextNode *>(node);
+				DirectiveNode *dirNode = static_cast<DirectiveNode* >(*it);
+				if (directiveInstanceCounter(parentNode, dirNode->getDirectiveName()) != 1)
+					if (dirNode->getDirectiveName() != "error_page" && dirNode->getDirectiveName() != "listen"
+							&& dirNode->getDirectiveName() != "index")
+						throw (std::runtime_error("\"" + static_cast<DirectiveNode* >(*it)->getDirectiveName() + "\" directive is duplicated"));
 			}
 		}
 	}
