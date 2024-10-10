@@ -46,6 +46,9 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 				serverSettings.setIndex(directive->getArguments()); // ibid
 		}
 	}
+
+	std::cout << "\n====== SERVER CONTEXT LEVEL ======\n";
+	serverSettings.debugger();
 }
 
 /*
@@ -104,10 +107,51 @@ void LoadSettings::proccessHTTPNode(ContextNode* root)
 			processServerNode(serverNode, serverSettings);
 		}
 	}
+
+	std::cout << "\n======== HTTP CONTEXT LEVEL ========\n";
+	this->debugger();
 }
 
 LoadSettings::LoadSettings(ConfigNode* root)
 {
 	ContextNode* rootNode= static_cast<ContextNode* >(root);
 	proccessHTTPNode(rootNode);
+}
+
+void LoadSettings::debugger() const
+{
+	// Print HttpRoot, HttpAutoIndex, and HttpClientMaxBodySize
+	std::cout << "HttpRoot: " << HttpRoot << std::endl;
+	std::cout << "HttpAutoIndex: " << HttpAutoIndex << std::endl;
+	std::cout << "HttpClientMaxBodySize: " << HttpClientMaxBodySize << std::endl;
+
+	// Print HttpErrorArgs
+	std::cout << "HttpErrorArgs:" << std::endl;
+	for (std::vector<DirectiveNode*>::const_iterator it = HttpErrorArgs.begin(); it != HttpErrorArgs.end(); ++it) {
+		if (*it) {
+			std::cout << "  Directive: " << (*it)->getDirectiveName() << std::endl;
+			std::cout << "  Arguments: ";
+			const std::vector<std::string>& args = (*it)->getArguments();
+			for (std::vector<std::string>::const_iterator argIt = args.begin(); argIt != args.end(); ++argIt) {
+				std::cout << *argIt << " ";
+			}
+			std::cout << std::endl;
+			std::cout << "  Number of arguments: " << (*it)->getNumOfArguments() << std::endl;
+		}
+	}
+
+	// Print HttpIndexArgs
+	std::cout << "HttpIndexArgs:" << std::endl;
+	for (std::vector<DirectiveNode*>::const_iterator it = HttpIndexArgs.begin(); it != HttpIndexArgs.end(); ++it) {
+		if (*it) {
+			std::cout << "  Directive: " << (*it)->getDirectiveName() << std::endl;
+			std::cout << "  Arguments: ";
+			const std::vector<std::string>& args = (*it)->getArguments();
+			for (std::vector<std::string>::const_iterator argIt = args.begin(); argIt != args.end(); ++argIt) {
+				std::cout << *argIt << " ";
+			}
+			std::cout << std::endl;
+			std::cout << "  Number of arguments: " << (*it)->getNumOfArguments() << std::endl;
+		}
+	}
 }

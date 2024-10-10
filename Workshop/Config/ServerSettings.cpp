@@ -6,4 +6,6 @@ ServerSettings::ServerSettings(std::string& HttpRoot,
 		std::string& HttpErrorPagesContext, std::vector<DirectiveNode* >& HttpErrorArgs, 
 		std::vector<DirectiveNode* >& HttpIndexArgs)
 		: BaseSettings(HttpRoot, HttpAutoIndex, HttpClientMaxBodySize, HttpErrorPagesContext, HttpErrorArgs, HttpIndexArgs)
-{}
+{
+	(void) port; // for now
+}

@@ -1,12 +1,12 @@
 
 #include "ConfigParser.hpp"
-#include "ConfigTokenizer.hpp"
-#include "SyntaxAuditor.hpp"
-#include "TreeGenerator.hpp"
-#include "TreeAuditor.hpp"
 
 ConfigParser::ConfigParser(const std::string& filename) : _configFileName(filename) {}
 
+ConfigNode* ConfigParser::getConfigTreeRoot()
+{
+	return (_configTreeRoot);
+}
 
 void	ConfigParser::go()
 {
@@ -18,9 +18,8 @@ void	ConfigParser::go()
 	// }
 	SyntaxAuditor::checkConfigSyntax(_tokens);
 
-	ConfigNode* root = TreeGenerator::generateTree(_tokens);
+	_configTreeRoot = TreeGenerator::generateTree(_tokens);
 
 	TreeAuditor	treeAudit;
-
-	treeAudit.checkTreeLogic(root);
+	treeAudit.checkTreeLogic(_configTreeRoot);
 }

@@ -8,9 +8,12 @@ BaseSettings::BaseSettings(std::string& HttpRoot,
 							std::vector<DirectiveNode* >& HttpErrorArgs, 
 							std::vector<DirectiveNode* >& HttpIndexArgs)
 {
-	setRoot(HttpRoot);
-	setAutoIndex(HttpAutoIndex);
-	setClientMaxBodySize(HttpClientMaxBodySize);
+	if (!HttpRoot.empty())
+		setRoot(HttpRoot);
+	if (!HttpAutoIndex.empty())
+		setAutoIndex(HttpAutoIndex);
+	if (!HttpClientMaxBodySize.empty())
+		setClientMaxBodySize(HttpClientMaxBodySize);
 	for (size_t i = 0; i < HttpErrorArgs.size(); i++)
 		setErrorPages(HttpErrorArgs[i]->getArguments(), HttpErrorPagesContext);
 	for (size_t i = 0; i < HttpIndexArgs.size(); i++)
@@ -32,15 +35,28 @@ BaseSettings::BaseSettings(std::string serverRoot,
 {
 }
 
+/*
+	Notes:
+		Note 1: The idea is that we will later append the URI from
+				the request to the root from the config file. So 
+				since the request always contains a slash for the 
+				URI in a request line, like "GET /"" or "GET /content", 
+				then we do not want to have a double slash in the full 
+				path. Thus, we just detach that slash from the root if 
+				the user inputted a slash at the end.
+*/
 void	BaseSettings::setRoot(const std::string& root)
 {
-	(void) root; // for now
+	if (root.back() == '/')
+		this->root = root.substr(0, root.length() - 1);
+	else
+		this->root = root;
 }
 
 void	BaseSettings::setAutoIndex(const std::string& autoIndex)
 {
 	if (autoIndex.empty() || (autoIndex != "on" && autoIndex != "off"))
-		throw (std::runtime_error("invalid value \"" + autoIndex + "\" in \"autoIndex\" directive"));
+		throw (std::runtime_error("invalid value \"" + autoIndex + "\" in \"autoindex\" directive"));
 	this->autoIndex = autoIndex;
 }
 
@@ -163,9 +179,25 @@ void	BaseSettings::setErrorPages(const std::vector<std::string>& errorArgs, cons
 	}
 }
 
+/*
+	RULES:
+		Relative paths can be used anywhere, for example:
+			index content/index.html random.html;
+		
+		But absolute paths (those that begin with a /) can only be used as the 
+		last entry in the index directive, for example:
+			index random.html /Users/randomGuy/Desktop/website/content/www/index.html;
+		
+		Meaning that the following is NOT allowed:
+			index /Users/randomGuy/Desktop/website/content/www/index.html random.html;
+*/
 void	BaseSettings::setIndex(const std::vector<std::string>& indexArgs)
 {
-	(void) indexArgs; // for now
+	for (size_t i = 0; i < indexArgs.size() - 1; i++) {
+		if (indexArgs[i][0] == '/')
+			throw (std::runtime_error("only the last index in \"index\" directive should be absolute"));
+	}
+	this->index = indexArgs;
 }
 
 std::string BaseSettings::getRoot() const
@@ -196,4 +228,32 @@ std::vector<std::string> BaseSettings::getIndex() const
 size_t BaseSettings::getClientMaxBodySize() const
 {
 	return (clientMaxBodySize);
+}
+
+void BaseSettings::debugger() const
+{
+	// Print root and autoIndex
+	std::cout << "root: " << root << std::endl;
+	std::cout << "autoIndex: " << autoIndex << std::endl;
+
+	// Print clientMaxBodySize
+	std::cout << "clientMaxBodySize: " << clientMaxBodySize << std::endl;
+
+	// Print errorPages
+	std::cout << "errorPages:" << std::endl;
+	for (std::map<int, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it) {
+		std::cout << "  [" << it->first << "] = " << it->second << std::endl;
+	}
+
+	// Print errorPagesLevel
+	std::cout << "errorPagesLevel:" << std::endl;
+	for (std::map<int, std::string>::const_iterator it = errorPagesLevel.begin(); it != errorPagesLevel.end(); ++it) {
+		std::cout << "  [" << it->first << "] = " << it->second << std::endl;
+	}
+
+	// Print index
+	std::cout << "index:" << std::endl;
+	for (std::vector<std::string>::const_iterator it = index.begin(); it != index.end(); ++it) {
+		std::cout << "  " << *it << std::endl;
+	}
 }

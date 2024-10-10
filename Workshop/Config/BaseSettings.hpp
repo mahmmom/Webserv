@@ -14,10 +14,10 @@ class BaseSettings {
 	protected:
 		std::string					root; //
 		std::string					autoIndex; //
+		size_t						clientMaxBodySize; //
 		std::map<int, std::string>	errorPages; //
 		std::map<int, std::string>	errorPagesLevel; //
 		std::vector<std::string>	index; //
-		size_t						clientMaxBodySize; //
 		// std::map<int, std::string>	returnDirective;
 
 	public:
@@ -44,6 +44,8 @@ class BaseSettings {
 		void	setClientMaxBodySize(const std::string& clientMaxBodySize);
 		void	setErrorPages(const std::vector<std::string>& errorArgs, const std::string& errorPagesContext);
 		void	setIndex(const std::vector<std::string>& indexArgs);
+
+		void	debugger() const;
 };
 
 #endif

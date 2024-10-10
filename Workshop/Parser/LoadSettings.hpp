@@ -22,6 +22,7 @@ class LoadSettings
 		void proccessHTTPNode(ContextNode* root);
 	public:
 		LoadSettings(ConfigNode* root);
+		void	debugger() const;
 };
 
 #endif
