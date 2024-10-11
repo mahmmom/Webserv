@@ -8,6 +8,8 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <limits>
+#include "ReturnDirective.hpp"
 #include "../Parser/DirectiveNode.hpp"
 
 class BaseSettings {
@@ -18,20 +20,25 @@ class BaseSettings {
 		std::map<int, std::string>	errorPages; //
 		std::map<int, std::string>	errorPagesLevel; //
 		std::vector<std::string>	index; //
-		// std::map<int, std::string>	returnDirective;
+		ReturnDirective				returnDirective;
 
 	public:
-		BaseSettings(std::string& HttpRoot, 
-			std::string& HttpAutoIndex, std::string& HttpClientMaxBodySize,
-			std::string& HttpErrorPagesContext, std::vector<DirectiveNode* >& HttpErrorArgs,
-			std::vector<DirectiveNode* >& HttpIndexArgs);
+		// Constructors
+		BaseSettings(std::string& HttpRoot, 							// This constructor is used as a base class constructor 
+						std::string& HttpAutoIndex, 					// when defining the ServerSettings class directly from 
+						std::string& HttpClientMaxBodySize,				// the tree where all the attributes are still in 
+						std::string& HttpErrorPagesContext, 			// string format. So basically when we are at the 
+						std::vector<DirectiveNode* >& HttpErrorArgs,	// http level of the LoadSettings functions and it 
+						std::vector<DirectiveNode* >& HttpIndexArgs);	// is used to create a ServerSettings class.
 
-		BaseSettings(std::string serverRoot, 
-			std::string serverAutoIndex, size_t serverClientMaxBodySize,
-			std::map<int, std::string> serverErrorPages, 
-			std::map<int, std::string> serverPageLevel, 
-			std::vector<std::string> serverIndex);
+		BaseSettings(std::string serverRoot, 							// This constructor is used as a base class constructor when 
+						std::string serverAutoIndex, 					// defining the LocationSettings class where it takes the  
+						size_t serverClientMaxBodySize,					// ServerSettings attributes directly. So since the ServerSettings
+						std::map<int, std::string> serverErrorPages,	// has all its attributes properly set in the appropriate 
+						std::map<int, std::string> serverPageLevel, 	// corresponding data types, we extract them in that form as opposed
+						std::vector<std::string> serverIndex);			// to the first scenario, where all the data is still std::string.
 
+		// Getters
 		std::string getRoot() const;
 		std::string getAutoindex() const;
 		size_t getClientMaxBodySize() const;
@@ -39,11 +46,13 @@ class BaseSettings {
 		std::map<int, std::string> getErrorPagesLevel() const;
 		std::vector<std::string> getIndex() const;
 
+		// Setters
 		void	setRoot(const std::string& root);
 		void	setAutoIndex(const std::string& autoindex);
 		void	setClientMaxBodySize(const std::string& clientMaxBodySize);
 		void	setErrorPages(const std::vector<std::string>& errorArgs, const std::string& errorPagesContext);
 		void	setIndex(const std::vector<std::string>& indexArgs);
+		void	setReturn(const std::vector<std::string>& returnArgs);
 
 		void	debugger() const;
 };

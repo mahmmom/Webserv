@@ -10,12 +10,18 @@ BaseSettings::BaseSettings(std::string& HttpRoot,
 {
 	if (!HttpRoot.empty())
 		setRoot(HttpRoot);
+
 	if (!HttpAutoIndex.empty())
 		setAutoIndex(HttpAutoIndex);
+
 	if (!HttpClientMaxBodySize.empty())
 		setClientMaxBodySize(HttpClientMaxBodySize);
+	else
+		clientMaxBodySize = std::numeric_limits<size_t>::max();
+
 	for (size_t i = 0; i < HttpErrorArgs.size(); i++)
 		setErrorPages(HttpErrorArgs[i]->getArguments(), HttpErrorPagesContext);
+
 	for (size_t i = 0; i < HttpIndexArgs.size(); i++)
 		setIndex(HttpIndexArgs[i]->getArguments());
 }
@@ -200,6 +206,30 @@ void	BaseSettings::setIndex(const std::vector<std::string>& indexArgs)
 	this->index = indexArgs;
 }
 
+void	BaseSettings::setReturn(const std::vector<std::string>& returnArgs)
+{
+	std::stringstream ss(returnArgs[0]);
+	int	statusCode;
+
+	ss >> statusCode;
+	if (returnArgs.size() > 1) 
+	{
+		if (ss.fail() || !ss.eof())
+			throw (std::runtime_error("invalid return code \"" + returnArgs[0] + "\""));
+		if (statusCode < 0 || statusCode > 999)
+			throw (std::runtime_error("invalid return code \"" + returnArgs[0] + "\""));
+		returnDirective.setStatusCode(statusCode);
+		returnDirective.setTextOrURL(returnArgs[1]);
+	}
+	else
+	{
+		if (ss.fail() || !ss.eof())
+			return (returnDirective.setTextOrURL(returnArgs[0]), void());
+		if (statusCode < 0 || statusCode > 999)
+			throw (std::runtime_error("invalid return code \"" + returnArgs[0] + "\""));
+	}
+}
+
 std::string BaseSettings::getRoot() const
 {
 	return (root);
@@ -256,4 +286,9 @@ void BaseSettings::debugger() const
 	for (std::vector<std::string>::const_iterator it = index.begin(); it != index.end(); ++it) {
 		std::cout << "  " << *it << std::endl;
 	}
+
+	std::cout << "returnDirective:" << std::endl;
+	std::cout << "    statusCode: " << returnDirective.getStatusCode() << std::endl;
+	std::cout << "    textOrURL : " << returnDirective.getTextOrURL() << std::endl;
+
 }

@@ -13,7 +13,10 @@ class LocationSettings : public BaseSettings
 		std::string					path;
 		std::vector<std::string>	allowedMethods;
 	public:
-		LocationSettings(std::string& path, const ServerSettings& serverSettings);
+		void setAllowedMethods(const std::vector<std::string>& allowedMethods);
+		LocationSettings(const std::string& path, const ServerSettings& serverSettings);
+
+		void debugger() const;
 };
 
 #endif

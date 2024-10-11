@@ -1,6 +1,45 @@
 
 #include "LoadSettings.hpp"
 
+void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettings& locationSettings)
+{
+	std::vector<ConfigNode* >children = locationNode->getChildren();
+	std::vector<ConfigNode* >::iterator it;
+
+	for (it = children.begin(); it != children.end(); it++) {
+		if ((*it)->getType() == Directive)
+		{
+			DirectiveNode* directive = static_cast<DirectiveNode* >(*it);
+			if (directive->getDirectiveName() == "root")
+				locationSettings.setRoot(directive->getArguments()[0]);
+			else if (directive->getDirectiveName() == "autoindex")
+				locationSettings.setAutoIndex(directive->getArguments()[0]);
+			else if (directive->getDirectiveName() == "client_max_body_size")
+				locationSettings.setClientMaxBodySize(directive->getArguments()[0]);
+			else if (directive->getDirectiveName() == "error_page")
+				locationSettings.setErrorPages(directive->getArguments(), "server");
+			else if (directive->getDirectiveName() == "index")
+				locationSettings.setIndex(directive->getArguments());
+			else if (directive->getDirectiveName() == "return")
+				locationSettings.setReturn(directive->getArguments());
+		}
+	}
+
+	/*
+		HERE WE HANDLE LIMIT_EXCEPT WHICH IS ASSUMED TO BE A CONTEXT BUT IT IS 
+		ACTUALLY A DIRECTIVE
+	*/
+	for (it = children.begin(); it != children.end(); it++) {
+		if ((*it)->getType() == Context)
+		{
+			ContextNode* limExceptNode = static_cast<ContextNode* >(*it);
+			locationSettings.setAllowedMethods(limExceptNode->getMethods());
+		}
+	}
+	std::cout << "\n====== LOCATION CONTEXT LEVEL ======\n";
+	locationSettings.debugger();
+}
+
 /*
 	Note 1: Unlike in LoadSettings::proccessHTTPNode function, we don't 
 			have to use the DirectiveNode* vector anymore because now that 
@@ -44,6 +83,18 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 				serverSettings.setErrorPages(directive->getArguments(), "server"); // Note 1
 			else if (directive->getDirectiveName() == "index")
 				serverSettings.setIndex(directive->getArguments()); // ibid
+			else if (directive->getDirectiveName() == "listen")
+				serverSettings.setListenValues(directive->getArguments()[0]);
+			else if (directive->getDirectiveName() == "return")
+				serverSettings.setReturn(directive->getArguments());
+		}
+	}
+
+	for (it = children.begin(); it != children.end(); it++) {
+		if ((*it)->getType() == Context) {
+				ContextNode* locationNode = static_cast<ContextNode* >(*it);
+				LocationSettings locationSettings(locationNode->getPath(), serverSettings);
+				processLocationNode(locationNode, locationSettings);
 		}
 	}
 
@@ -74,7 +125,7 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 			error_page directives would OVERWRITE the previous one in this loop! That's 
 			bad. Same applies for index because it can also be duplicated.
 */
-void LoadSettings::proccessHTTPNode(ContextNode* root)
+void LoadSettings::processHTTPNode(ContextNode* root)
 {
 	std::vector<ConfigNode* >children = root->getChildren();
 	std::vector<ConfigNode* >::iterator it;
@@ -114,8 +165,18 @@ void LoadSettings::proccessHTTPNode(ContextNode* root)
 
 LoadSettings::LoadSettings(ConfigNode* root)
 {
+	this->HttpRoot = DEFAULT_HTTP_ROOT;
+	this->HttpAutoIndex = DEFAULT_HTTP_AUTOINDEX;
+
+	std::string directiveName = "index";
+	DirectiveNode indexDirective(directiveName, NULL);
+	std::string directiveArgument = DEFAULT_HTTP_INDEX;
+	indexDirective.addArgument(directiveArgument);
+	this->HttpIndexArgs.push_back(&indexDirective);
+
+	this->HttpClientMaxBodySize = DEFAULT_HTTP_CLIENT_MAX_BODY_SIZE;
 	ContextNode* rootNode= static_cast<ContextNode* >(root);
-	proccessHTTPNode(rootNode);
+	processHTTPNode(rootNode);
 }
 
 void LoadSettings::debugger() const

@@ -100,11 +100,11 @@ void SyntaxAuditor::checkRequiredContexts(std::vector<std::string>& tokens)
 			int		check = 0;
 			int		j = static_cast<int>(i);
 
-			if (i - 1 >= 0 && tokens[i - 1] != "http")
+			if (i >= 1 && tokens[i - 1] != "http")
 				check++;
-			if (i - 1 >= 0 && tokens[i - 1] != "server")
+			if (i >= 1 && tokens[i - 1] != "server")
 				check++;
-			if (i - 2 >=0 && tokens[i - 2] != "location")
+			if (i >= 2 && tokens[i - 2] != "location")
 				check++;
 			while (j > 0 && tokens[j] != "limit_except" && tokens[j] != "}")
 				j--;
@@ -112,8 +112,6 @@ void SyntaxAuditor::checkRequiredContexts(std::vector<std::string>& tokens)
 				check++;
 			if (check == 4)
 				throw (SyntaxError(UNKNOWN_CONTEXT));
-			if (tokens[i - 1] == "berver")
-				std::cout << "check is " << check << std::endl;
 		}
 	}
 }

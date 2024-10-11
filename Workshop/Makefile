@@ -1,5 +1,5 @@
 CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98
+CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 SRC_DIRS := Parser Config
 SRCS := $(wildcard main.cpp $(foreach dir, $(SRC_DIRS), $(dir)/*.cpp))
 OBJS := $(patsubst %.cpp, objects/%.o, $(SRCS))
