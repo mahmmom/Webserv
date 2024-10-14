@@ -8,12 +8,12 @@
 #include <map>
 #include <utility>
 
-enum DirectiveDependency{
+enum DirectiveDependency {
 	Independent,
 	ParentRequired
 };
 
-enum ArgsRequired{
+enum ArgsRequired {
 	OneArg,
 	OneOrTwo,
 	OneOrMore,
