@@ -11,9 +11,7 @@ class KqueueManager : public EventManager
 {
 	private:
 		int kq;
-		std::vector<struct kevent> changelist;
 	    std::vector<struct kevent> eventlist;
-        std::vector<struct kevent> templist;;
 	public:
 		KqueueManager();
 		int			eventListener();
