@@ -91,7 +91,6 @@ void	BaseSettings::setClientMaxBodySize(const std::string& clientMaxBodySize)
 
 	size_t	lastCharPos = clientMaxBodySize.find_first_not_of("0123456789");
 	int 	factor = 1;
-	std::cout << "fgkjdshkjfhdsfhdskjkfhdsfhdsijfoidsjfoidshfdsohfds\n";
 	if (lastCharPos != std::string::npos && lastCharPos != clientMaxBodySize.size() - 1) 
 	{
 		if (lastCharPos != clientMaxBodySize.size() - 1)

@@ -34,6 +34,10 @@ void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettin
 		{
 			ContextNode* limExceptNode = static_cast<ContextNode* >(*it);
 			locationSettings.setAllowedMethods(limExceptNode->getMethods());
+			std::vector<ConfigNode* > limDirectives = limExceptNode->getChildren();
+			DirectiveNode* denyDirective = static_cast<DirectiveNode* >(limDirectives[0]);
+			if (denyDirective->getArguments()[0] != "all")
+				throw (std::runtime_error("server only supports \"deny=all\""));
 		}
 	}
 	std::cout << "\n====== LOCATION CONTEXT LEVEL ======\n";
