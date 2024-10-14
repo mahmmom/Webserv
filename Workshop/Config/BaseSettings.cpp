@@ -91,15 +91,16 @@ void	BaseSettings::setClientMaxBodySize(const std::string& clientMaxBodySize)
 
 	size_t	lastCharPos = clientMaxBodySize.find_first_not_of("0123456789");
 	int 	factor = 1;
+	std::cout << "fgkjdshkjfhdsfhdskjkfhdsfhdsijfoidsjfoidshfdsohfds\n";
 	if (lastCharPos != std::string::npos && lastCharPos != clientMaxBodySize.size() - 1) 
 	{
 		if (lastCharPos != clientMaxBodySize.size() - 1)
 			throw (std::runtime_error("\"client_max_body_size\" directive invalid value")); // Note 1
 
-		char	lastChar = std::tolower(clientMaxBodySize[lastCharPos]);
-		if (lastChar != 'm' && lastChar != 'k' && lastChar != 'g')
-			throw (std::runtime_error("\"client_max_body_size\" directive invalid value")); // Note 2
 	}
+	char	lastChar = std::tolower(clientMaxBodySize[lastCharPos]);
+	if (lastChar != 'm' && lastChar != 'k' && lastChar != 'g')
+		throw (std::runtime_error("\"client_max_body_size\" directive invalid value")); // Note 2
 
 	std::string	numericStr;
 	if (lastCharPos != std::string::npos) {
