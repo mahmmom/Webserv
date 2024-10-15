@@ -104,6 +104,16 @@ void	ServerSettings::setListenValues(const std::string &listenValue)
 	setIP(IPv4, listenValue);
 }
 
+int&	ServerSettings::getPort()
+{
+	return (port);
+}
+
+std::string&	ServerSettings::getIP()
+{
+	return (ip);
+}
+
 void ServerSettings::debugger() const 
 {
 	// Call debugger for BaseSettings members

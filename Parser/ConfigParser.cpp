@@ -8,18 +8,11 @@ ConfigNode* ConfigParser::getConfigTreeRoot()
 	return (_configTreeRoot);
 }
 
-void	ConfigParser::go()
+void	ConfigParser::parse()
 {
 	_tokens = ConfigTokenizer::tokenize(_configFileName);
-
-	// std::cout << "==========================" << std::endl;
-	// for (size_t i = 0; i < _tokens.size(); i++) {
-	// 	std::cout << _tokens[i] << std::endl;
-	// }
 	SyntaxAuditor::checkConfigSyntax(_tokens);
-
 	_configTreeRoot = TreeGenerator::generateTree(_tokens);
-
 	TreeAuditor	treeAudit;
 	treeAudit.checkTreeLogic(_configTreeRoot);
 }

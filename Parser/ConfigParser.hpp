@@ -18,7 +18,7 @@ class ConfigParser {
 		ConfigNode*					_configTreeRoot;
 	public:
 		ConfigParser(const std::string& _configFileName);
-		void		go();
+		void		parse();
 		ConfigNode*	getConfigTreeRoot();
 };
 

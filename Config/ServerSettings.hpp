@@ -25,8 +25,10 @@ class ServerSettings : public BaseSettings
 			std::vector<DirectiveNode* >& HttpErrorArgs, 
 			std::vector<DirectiveNode* >& HttpIndexArgs);
 
-		void	setListenValues(const std::string &listenValue);
-		void 	setDefaultValues();
+		void			setListenValues(const std::string &listenValue);
+		void	 		setDefaultValues();
+		int&			getPort();
+		std::string&	getIP();
 
 		void debugger() const;
 };

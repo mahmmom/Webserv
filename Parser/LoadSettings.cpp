@@ -1,6 +1,22 @@
 
 #include "LoadSettings.hpp"
 
+LoadSettings::LoadSettings(ConfigNode* root)
+{
+	this->HttpRoot = DEFAULT_HTTP_ROOT;
+	this->HttpAutoIndex = DEFAULT_HTTP_AUTOINDEX;
+
+	std::string directiveName = "index";
+	DirectiveNode *indexDirective = new DirectiveNode(directiveName, root);
+	std::string directiveArgument = DEFAULT_HTTP_INDEX;
+	indexDirective->addArgument(directiveArgument);
+	this->HttpIndexArgs.push_back(indexDirective);
+
+	this->HttpClientMaxBodySize = DEFAULT_HTTP_CLIENT_MAX_BODY_SIZE;
+	
+	this->rootNode = root;
+}
+
 void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettings& locationSettings)
 {
 	std::vector<ConfigNode* >children = locationNode->getChildren();
@@ -129,7 +145,7 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 			error_page directives would OVERWRITE the previous one in this loop! That's 
 			bad. Same applies for index because it can also be duplicated.
 */
-void LoadSettings::processHTTPNode(ContextNode* root)
+void LoadSettings::processHTTPNode(ContextNode* root, std::vector<ServerSettings>& serverSettingsVector)
 {
 	std::vector<ConfigNode* >children = root->getChildren();
 	std::vector<ConfigNode* >::iterator it;
@@ -159,6 +175,7 @@ void LoadSettings::processHTTPNode(ContextNode* root)
 			ServerSettings serverSettings(this->HttpRoot, this->HttpAutoIndex, 
 				this->HttpClientMaxBodySize, contextLevel, this->HttpErrorArgs,
 				this->HttpIndexArgs);
+			serverSettingsVector.push_back(serverSettings);
 			processServerNode(serverNode, serverSettings);
 		}
 	}
@@ -167,20 +184,10 @@ void LoadSettings::processHTTPNode(ContextNode* root)
 	this->debugger();
 }
 
-LoadSettings::LoadSettings(ConfigNode* root)
+void	LoadSettings::loadServers(std::vector<ServerSettings>& serverSettingsVector)
 {
-	this->HttpRoot = DEFAULT_HTTP_ROOT;
-	this->HttpAutoIndex = DEFAULT_HTTP_AUTOINDEX;
-
-	std::string directiveName = "index";
-	DirectiveNode indexDirective(directiveName, NULL);
-	std::string directiveArgument = DEFAULT_HTTP_INDEX;
-	indexDirective.addArgument(directiveArgument);
-	this->HttpIndexArgs.push_back(&indexDirective);
-
-	this->HttpClientMaxBodySize = DEFAULT_HTTP_CLIENT_MAX_BODY_SIZE;
-	ContextNode* rootNode= static_cast<ContextNode* >(root);
-	processHTTPNode(rootNode);
+	ContextNode* rootNode = static_cast<ContextNode* >(this->rootNode);
+	processHTTPNode(rootNode, serverSettingsVector);
 }
 
 void LoadSettings::debugger() const

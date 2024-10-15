@@ -18,6 +18,7 @@
 class LoadSettings
 {
 	private:
+		ConfigNode* rootNode;
 		std::string HttpRoot;
 		std::string HttpAutoIndex;
 		std::string HttpClientMaxBodySize;
@@ -26,9 +27,10 @@ class LoadSettings
 
 		void processLocationNode(ContextNode* locationNode, LocationSettings& locationSettings);
 		void processServerNode(ContextNode* serverNode, ServerSettings& serverSettings);
-		void processHTTPNode(ContextNode* root);
+		void processHTTPNode(ContextNode* root, std::vector<ServerSettings>& serverSettingsVector);
 	public:
 		LoadSettings(ConfigNode* root);
+		void	loadServers(std::vector<ServerSettings>& serverSettingsVector);
 		void	debugger() const;
 };
 
