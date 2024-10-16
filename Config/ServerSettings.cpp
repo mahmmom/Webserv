@@ -42,7 +42,7 @@ void ServerSettings::setIP(const std::string& IPv4, const std::string& listenVal
 	if (IPv4 == "localhost")
 		return ;
 
-	int			octetCount = 00;
+	int			octetCount = 0;
 	std::string octet;
 	std::stringstream ss(IPv4);
 	while (ss.good() && octetCount < 4)
@@ -57,7 +57,7 @@ void ServerSettings::setIP(const std::string& IPv4, const std::string& listenVal
 			throw (std::runtime_error("no host found in '\"" + listenValue + "\" of the \"listen\" directive"));
 		octetCount++;
 	}
-	if (ss.good())
+	if (ss.good() || (octetCount != 4))
 		throw (std::runtime_error("no host found in '\"" + listenValue + "\" of the \"listen\" directive"));
 	this->ip = IPv4;
 }
@@ -77,15 +77,19 @@ void	ServerSettings::setListenValues(const std::string &listenValue)
 {
 	size_t	i = listenValue.find("localhost");
 
-	if (i == std::string::npos)
+	if (i == std::string::npos) {
 		i = 0;
-
-	// Note 1
-	if (listenValue.substr(0, i).find_first_not_of(".:0123456789") != std::string::npos) // search before the localhost entry
-		throw (std::runtime_error("host not found in \"" + listenValue + "\" of the \"listen\" directive"));
-	if (listenValue.substr(i + std::string("localhost").size()).find_first_not_of(".:0123456789") != std::string::npos) // search after the localhost entry
-		throw (std::runtime_error("host not found in \"" + listenValue + "\" of the \"listen\" directive"));
-
+		if (listenValue.find_first_not_of(".:0123456789") != std::string::npos)
+			throw (std::runtime_error("host not found in \"" + listenValue + "\" of the \"listen\" directive"));
+	}
+	else
+	{
+		// Note 1
+		if (listenValue.substr(0, i).find_first_not_of(".:0123456789") != std::string::npos) // search before the localhost entry
+			throw (std::runtime_error("host not found in \"" + listenValue + "\" of the \"listen\" directive"));
+		if (listenValue.substr(i + std::string("localhost").size()).find_first_not_of(".:0123456789") != std::string::npos) // search after the localhost entry
+			throw (std::runtime_error("host not found in \"" + listenValue + "\" of the \"listen\" directive"));
+	}
 
 	std::string IPv4;
 	std::string	portStr;
@@ -101,7 +105,8 @@ void	ServerSettings::setListenValues(const std::string &listenValue)
 		portStr = listenValue;
 
 	setPort(portStr, listenValue);
-	setIP(IPv4, listenValue);
+	if (pos != std::string::npos)
+		setIP(IPv4, listenValue);
 }
 
 int&	ServerSettings::getPort()

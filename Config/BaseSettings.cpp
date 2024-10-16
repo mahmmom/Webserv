@@ -198,7 +198,6 @@ void	BaseSettings::setErrorPages(const std::vector<std::string>& errorArgs, cons
 */
 void	BaseSettings::setIndex(const std::vector<std::string>& indexArgs)
 {
-	std::cout << "this fucker-> " << indexArgs[0];
 	for (size_t i = 0; i < indexArgs.size() - 1; i++) {
 		if (indexArgs[i][0] == '/')
 			throw (std::runtime_error("only the last index in \"index\" directive should be absolute"));

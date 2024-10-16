@@ -175,8 +175,8 @@ void LoadSettings::processHTTPNode(ContextNode* root, std::vector<ServerSettings
 			ServerSettings serverSettings(this->HttpRoot, this->HttpAutoIndex, 
 				this->HttpClientMaxBodySize, contextLevel, this->HttpErrorArgs,
 				this->HttpIndexArgs);
-			serverSettingsVector.push_back(serverSettings);
 			processServerNode(serverNode, serverSettings);
+			serverSettingsVector.push_back(serverSettings);
 		}
 	}
 

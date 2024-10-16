@@ -6,7 +6,7 @@ Server::Server(ServerSettings& serverSettings, EventManager* eventManager) :
 {
 	memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_addr.s_addr = INADDR_ANY; // Binds to all interfaces (0.0.0.0) meaniing the socket will listen on all network interfaces of the machine.
     serverAddr.sin_port = htons(serverSettings.getPort());
 }
 
