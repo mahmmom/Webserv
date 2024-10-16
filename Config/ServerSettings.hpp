@@ -32,10 +32,11 @@
 			Well yes and no. The thing is, including the header would allow you to access the member functions 
 			of that class, like [LocationSettings locationSettings.getPath()] BUT, that doesn't change the fact 
 			that it is still a forwardly declared class. That means that the compiler still doesn't really know 
-			what it is yet, 
-			The reason behind that 
-			is that the compiler still doesn't need to know the full internal details of LocationConfig. So instead, 
-			only a pointer can be used. 
+			what it is yet, it's just saying it knows what it is (kinda like a mere "lip service"). So because 
+			of that, you cant create a vector of LocationSettings. std::vector needs to know the size of the 
+			type it contains to manage memory correctly. When you forward-declare a class, the compiler only 
+			knows that the class exists but doesn't know its size or layout. So instead, only a pointer can be used. 
+			A pointer is always 8 bytes and so, its size is known.
 			
 			An alternative would be to use a map of key-value pairs std::string path and
 			LocationConfig locationConfig. No pointer is needed in this case. Checkout Nginx 2.0 but that's because 
