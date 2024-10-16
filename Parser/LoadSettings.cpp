@@ -115,6 +115,7 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 				ContextNode* locationNode = static_cast<ContextNode* >(*it);
 				LocationSettings locationSettings(locationNode->getPath(), serverSettings);
 				processLocationNode(locationNode, locationSettings);
+				serverSettings.addLocation(locationSettings);
 		}
 	}
 

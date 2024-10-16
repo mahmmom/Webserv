@@ -10,11 +10,11 @@
 #include <fcntl.h>
 #include <sstream>
 
-#define PORT 9000
+#define PORT 8378
 
 int main(int argc, char *argv[])
 {
-	if (argc < 2)
+	if (argc != 2)
 	{
 		std::cerr << "Usage: programe_name host_ip" << std::endl;
 		exit (1);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 		<< "Accept-Encoding: gzip, deflate, br\r\n"
 		<< "Connection: keep-alive\r\n"
 		<< "Content-length: -821787\r\n"
-		<< "Transfer-encoding: chunked\r\n"
+		// << "Transfer-encoding: chunked\r\n"
 		<< "\r\n";
 
 	std::string str = ss.str();

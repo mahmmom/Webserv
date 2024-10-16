@@ -6,8 +6,16 @@ Server::Server(ServerSettings& serverSettings, EventManager* eventManager) :
 {
 	memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY; // Binds to all interfaces (0.0.0.0) meaniing the socket will listen on all network interfaces of the machine.
+    serverAddr.sin_addr.s_addr = INADDR_ANY; // Binds to all interfaces (0.0.0.0) meaning the socket will listen on all network interfaces of the machine.
     serverAddr.sin_port = htons(serverSettings.getPort());
+
+    std::cout << "Just as a double cheek" << std::endl;
+
+    char serverStrAddress[INET_ADDRSTRLEN];
+    inet_ntop(serverAddr.sin_family, &(serverAddr.sin_addr),
+        serverStrAddress, sizeof(serverStrAddress));
+    std::cout << "Server address is " << serverStrAddress << std::endl;
+    std::cout << "Server port is listening on " << ntohs(serverAddr.sin_port) << std::endl;
 }
 
 void Server::setSocketOptions()

@@ -16,6 +16,12 @@ void LocationSettings::setAllowedMethods(const std::vector<std::string>& allowed
 {
 	this->allowedMethods = allowedMethods;
 }
+
+std::string&	LocationSettings::getPath()
+{
+	return (this->path);
+}
+
 void LocationSettings::debugger() const
 {
 	// Call debugger for BaseSettings members

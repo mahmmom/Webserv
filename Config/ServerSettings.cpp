@@ -1,5 +1,6 @@
 
 #include "ServerSettings.hpp"
+#include "LocationSettings.hpp"
 
 ServerSettings::ServerSettings(std::string& HttpRoot, 
 		std::string& HttpAutoIndex, std::string& HttpClientMaxBodySize,
@@ -8,6 +9,28 @@ ServerSettings::ServerSettings(std::string& HttpRoot,
 		: BaseSettings(HttpRoot, HttpAutoIndex, HttpClientMaxBodySize, HttpErrorPagesContext, HttpErrorArgs, HttpIndexArgs)
 {
 	setDefaultValues();
+}
+
+/*
+	NOTES:
+		The only pointers we need to delete here are the LocationSettings pointers because the class ServerSettings
+		owns this vector of pointers. As for std::vector<DirectiveNode* >& HttpErrorArgs and 
+		std::vector<DirectiveNode* >& HttpIndexArgs), we do not. The fact that the HttpErrorArgs and HttpIndexArgs 
+		are passed as REFERENCES to vectors of pointers means that ServerSettings does not own these pointers. 
+		Typically, when a class doesn’t own the memory, it should not delete or manage it to avoid double deletion 
+		or dangling pointers.
+
+		As for who owns these two aforementioned vectors of DirectiveNode pointers, that would be the tree, or the 
+		ConfigNode* root from the BaseSettings class. So the ConfigNode class destructor is where these vectors 
+		should be freed instead. Let's say ServerSettings just exploits those vectors but is not responsible for 
+		freeing them.
+*/
+ServerSettings::~ServerSettings()
+{
+    for (std::vector<LocationSettings*>::iterator it = locations.begin(); it != locations.end(); ++it) {
+        delete *it;
+    }
+    locations.clear(); // Clear the vector to remove dangling pointers.	
 }
 
 void ServerSettings::setDefaultValues()
@@ -39,8 +62,10 @@ void ServerSettings::setPort(const std::string& portStr, const std::string& list
 
 void ServerSettings::setIP(const std::string& IPv4, const std::string& listenValue)
 {
-	if (IPv4 == "localhost")
+	if (IPv4 == "localhost") {
+		this->ip = "127.0.0.1";
 		return ;
+	}
 
 	int			octetCount = 0;
 	std::string octet;
@@ -107,6 +132,24 @@ void	ServerSettings::setListenValues(const std::string &listenValue)
 	setPort(portStr, listenValue);
 	if (pos != std::string::npos)
 		setIP(IPv4, listenValue);
+}
+
+void	ServerSettings::addLocation(LocationSettings& locationSettings)
+{
+	std::vector<LocationSettings* >::iterator it;
+
+	for (it = locations.begin(); it != locations.end(); it++) {
+		if (locationSettings.getPath() == (*it)->getPath())
+			throw (std::runtime_error("duplicate location \"" + locationSettings.getPath() + "\""));
+	}
+	locations.push_back(new LocationSettings(locationSettings));
+}
+
+LocationSettings*	findLocation(const std::string& uri)
+{
+	LocationSettings* location = NULL;
+
+	return (location);
 }
 
 int&	ServerSettings::getPort()
