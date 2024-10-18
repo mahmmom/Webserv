@@ -1,6 +1,6 @@
 
-#ifndef CONFIG_TOKENIZER_HPP
-# define CONFIG_TOKENIZER_HPP
+#ifndef CONFIGTOKENIZER_HPP
+# define CONFIGTOKENIZER_HPP
 
 #include <string>
 #include <vector>
@@ -20,7 +20,7 @@ class ConfigTokenizer
 		static void splitByDelims(std::vector<std::string>& tokens, std::vector<std::string>& tempTokens);
 	public:
 		class InvalidConfigFileException;
-		static void	tokenize(std::string& configFileName);
+		static std::vector<std::string>	tokenize(std::string& configFileName);
 };
 
 class ConfigTokenizer::InvalidConfigFileException : public std::exception

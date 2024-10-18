@@ -39,8 +39,8 @@ void	HTTPRequest::debugger()
 /*
 		CONSTRUCTOR
 */
-HTTPRequest::HTTPRequest(const std::string& full_request) {
-	(void) status;
+HTTPRequest::HTTPRequest(const std::string& full_request) : status(0) {
+	// (void) status;
 	tokenizeHeaderFields(full_request);
 }
 

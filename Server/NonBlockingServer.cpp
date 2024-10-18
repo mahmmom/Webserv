@@ -1,10 +1,11 @@
+
 #include "NonBlockingServer.hpp"
 #include <iostream>
 #include <cstring>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
+#include <netinet/in.h> //
+#include <arpa/inet.h> //
+#include <fcntl.h> //
 #include <unistd.h>
 #include <errno.h>
 #include "Errors.hpp"
@@ -12,7 +13,24 @@
 
 int NonBlockingServer::count = 0;
 
-NonBlockingServer::NonBlockingServer(int port) : eventlist(10)
+/*
+    GENERAL INFO:
+        
+        Function: NonBlockingServer::handleClientWrite();
+
+            We have to deregister that EV_FILTWRITE event as soon as we send because if 
+            you read the manual, it says: "Takes a descriptor as the identifier, and 
+            returns whenever it is possible to write to the descriptor." That means that
+            the EV_FILTWRITE will constantly trigger an event even if we are not writing, 
+            the event is triggered merely by the socket being "writeable". So for most 
+            cases, that simly means that if the client socket buffer is not full, then 
+            it is deemed writable and just in that state, it will constantly trigger an 
+            detectable event. So instead, we use it as a temporary "flag", only activate 
+            it when I want to write something, if the socket is writeable then great, 
+            detect the event so I can call handleClientWrite() and then as soon as the 
+            data is sent, deunregister this event.
+*/
+NonBlockingServer::NonBlockingServer(int port)
 {
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0)
@@ -48,10 +66,9 @@ NonBlockingServer::NonBlockingServer(int port) : eventlist(10)
 		perror("Kqueue: ");
 		exit(EXIT_FAILURE);
 	}
-    struct kevent change_event;
-	EV_SET(&change_event, server_socket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-	changelist.push_back(change_event);
-	kevent(kq, changelist.data(), changelist.size(), NULL, 0, 0);
+
+    eventManager = new KqueueManager();
+    eventManager->registerEvent(server_socket, READ);
 }
 
 void NonBlockingServer::setNonBlocking(int socket)
@@ -71,6 +88,7 @@ void NonBlockingServer::acceptNewClient()
     if (client_socket == -1) {
         throw(AcceptException());
     }
+
     setNonBlocking(client_socket);
     clients.insert(std::make_pair(client_socket, Client(client_socket)));
     inet_ntop(client_addr.sin_family, &(client_addr.sin_addr),
@@ -79,10 +97,7 @@ void NonBlockingServer::acceptNewClient()
     std::cout << "New client connected from: " << client_str_address 
             << " on fd (" << client_socket << ")" << std::endl;
 
-    struct kevent change_event;
-    EV_SET(&change_event, client_socket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-    changelist.push_back(change_event);
-    kevent(kq, changelist.data(), changelist.size(), NULL, 0, 0);
+    eventManager->registerEvent(client_socket, READ);
 }
 
 void NonBlockingServer::handleClientRead(int client_socket)
@@ -116,10 +131,7 @@ void NonBlockingServer::handleClientRead(int client_socket)
 					<< std::endl << std::endl;
 
             HTTPRequest Request(buffer);
-
-            struct kevent change_event;
-            EV_SET(&change_event, client_socket, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
-            templist.push_back(change_event);
+            eventManager->registerEvent(client_socket, WRITE);
         }
     }
 }
@@ -145,9 +157,8 @@ void NonBlockingServer::handleClientWrite(int client_socket)
             std::cout << "successfuly sent" << std::endl;
             buffer.erase(0, bytes_sent);
         }
-        struct kevent change_event;
-        EV_SET(&change_event, client_socket, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-        templist.push_back(change_event);
+
+        eventManager->deregisterEvent(client_socket, WRITE);
     }
 }
 
@@ -156,6 +167,9 @@ void NonBlockingServer::removeDisconnectedClients()
     for (size_t i = 0; i < to_remove.size(); ++i)
     {
         int socket = to_remove[i];
+
+        eventManager->deregisterEvent(socket, READ);
+
         close(socket);  // manual says EV_DELETE: Removes the event from the kqueue. 
                         // Events which are attached to file descriptors are automatically 
                         // deleted on the last close of the descriptor. So we can just close
@@ -175,29 +189,22 @@ void NonBlockingServer::run()
 {
     while (true)
     {
-        // std::cout << "New horde" << std::endl;
-        int nev = kevent(kq, NULL, 0, eventlist.data(), eventlist.size(), NULL);
+        int nev = eventManager->eventListener();
         for (int i = 0; i < nev; i++) {
-            if (eventlist[i].filter == EVFILT_READ && eventlist[i].ident == (uintptr_t) server_socket) {
+
+            EventBlock eventBlock = eventManager->getEvent(i);
+            if (eventBlock.isRead && (eventBlock.fd == server_socket)) {
                 acceptNewClient();
             }
-            else if (eventlist[i].filter == EVFILT_READ && eventlist[i].ident != (uintptr_t) server_socket) {
-                handleClientRead(eventlist[i].ident);
+            else if (eventBlock.isRead && (eventBlock.fd != server_socket)) {
+                handleClientRead(eventBlock.fd);
             }
-            else if (eventlist[i].filter == EVFILT_WRITE) {
-                handleClientWrite(eventlist[i].ident);
+            else if (eventBlock.isWrite) {
+                handleClientWrite(eventBlock.fd);
             }
-        }
-        if (!templist.empty()) {
-            kevent(kq, templist.data(), templist.size(), NULL, 0, 0);
-            templist.clear();
-        }
-        if ((size_t) nev == eventlist.size()) {
-            eventlist.resize(eventlist.size() * 2);  // Double the size if full
         }
         removeDisconnectedClients();
-        // std::cout << std::endl;
-    }
+   }
 }
 
 NonBlockingServer::~NonBlockingServer()

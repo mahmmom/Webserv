@@ -15,7 +15,9 @@
 #include <unistd.h> // for close
 #include <iostream>
 #include <iterator>
-#include <sys/event.h>  // for kqueue
+
+#include "../Events/KqueueManager.hpp"
+
 #include <sys/types.h>
 #include <algorithm> // for find
 #include <fcntl.h>
@@ -31,9 +33,9 @@ class NonBlockingServer
         int server_socket;
         int opt;
         int kq; // check if it was implemented as part of the class
-        std::vector<struct kevent> changelist;
-	    std::vector<struct kevent> eventlist;
-        std::vector<struct kevent> templist;
+
+        EventManager* eventManager;
+
         std::map<int, Client> clients;
         std::vector<int> to_remove;
 
