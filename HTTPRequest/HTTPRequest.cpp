@@ -338,6 +338,11 @@ void HTTPRequest::setStatus(const int& status)
 	this->status = status;
 }
 
+const std::string& 	HTTPRequest::getURI() const
+{
+	return (uri);
+}
+
 const std::string&	HTTPRequest::getMethod() const
 {
 	return (method);

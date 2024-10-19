@@ -7,10 +7,12 @@
 #include "Server.hpp"
 
 
-
 #if defined(__APPLE__) || defined(__FreeBSD__)
     #include "../Events/KqueueManager.hpp"
     typedef KqueueManager EventHandler;
+#elif defined(__linux__)
+    #include "../Events/EpollManager.hpp"
+    typedef EpollManager EventHandler;
 #endif
 
 class ServerArena

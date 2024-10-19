@@ -1,4 +1,6 @@
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
+
 #include "KqueueManager.hpp"
 #include "EventManager.hpp"
 
@@ -84,3 +86,5 @@ EventBlock KqueueManager::getEvent(const int& index)
 
 	return (eventBlock);
 }
+
+#endif

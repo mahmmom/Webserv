@@ -118,9 +118,16 @@ void Server::handleClientRead(int clientSocketFD)
 					<< std::endl << std::endl;
 
             HTTPRequest Request(buffer);
+
+            // LocationSettings* location = serverSettings.findLocation(Request.getURI());
+            // if (!location)
+            //     std::cerr << "Sorry mate, no location was found for this uri" << std::endl;
+            // else
+            //     std::cout << "Good boy with good logic" << std::endl;
+
             eventManager->registerEvent(clientSocketFD, WRITE);
         }
-    };
+    }
 }
 
 void Server::handleClientWrite(int clientSocketFD)

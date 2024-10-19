@@ -55,6 +55,7 @@ void ServerArena::run()
                 manageReadEvent(eventBlock);
             }
             else if (eventBlock.isWrite) {
+				// std::cout << "djfksfjkldsjfkldsjfkldsjfkldsjfkds\n";
                 manageWriteEvent(eventBlock);
             }
         }

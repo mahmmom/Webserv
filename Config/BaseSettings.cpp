@@ -53,7 +53,7 @@ BaseSettings::BaseSettings(std::string serverRoot,
 */
 void	BaseSettings::setRoot(const std::string& root)
 {
-	if (root.back() == '/')
+	if (!root.empty() && root[root.size() - 1] == '/')
 		this->root = root.substr(0, root.length() - 1);
 	else
 		this->root = root;

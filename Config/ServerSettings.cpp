@@ -145,10 +145,35 @@ void	ServerSettings::addLocation(LocationSettings& locationSettings)
 	locations.push_back(new LocationSettings(locationSettings));
 }
 
-LocationSettings*	findLocation(const std::string& uri)
-{
-	LocationSettings* location = NULL;
+/*
+	GET /foo/bar
 
+	location /foo
+
+	location /foo/bar
+*/
+LocationSettings*	ServerSettings::findLocation(const std::string& uri)
+{
+	LocationSettings* 	location = NULL;
+	std::string 		longestPathMatch;
+	std::vector<LocationSettings* >::iterator it;
+	
+	for (it = locations.begin(); it != locations.end(); it++) {
+		if ((*it)->getPath()[0] == '=') {
+			std::cout << "tis it " << (*it)->getPath().substr(1) << " and uri is " << uri << std::endl;
+			if ((*it)->getPath().substr(1) == uri)
+				return (*it);
+			continue ;
+		}
+		size_t pos = uri.find("/", longestPathMatch.size() + 1);
+		std::string subPath = uri.substr(0, pos);
+		if ((*it)->getPath() == subPath) {
+			longestPathMatch = subPath;
+			location = *it;
+		}
+	}
+
+	// std::cout << "Here is the longest match" << longestPathMatch << std::endl;
 	return (location);
 }
 

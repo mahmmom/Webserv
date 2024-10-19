@@ -8,14 +8,15 @@ HTTPDIR = HTTPRequest
 HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp)
 HTTPOBJS = $(addprefix $(OBJDIR)/, $(HTTPSRCS:$(HTTPDIR)/%.cpp=%.o))
 
-SERVERSRCS1 = $(addprefix $(SERVERDIR)/, main.cpp NonBlockingServer.cpp Client.cpp Errors.cpp Server.cpp ServerArena.cpp)
+# NonBlockingServer.cpp
+SERVERSRCS1 = $(addprefix $(SERVERDIR)/, main.cpp Client.cpp Errors.cpp Server.cpp ServerArena.cpp)
 SERVEROBJS1 = $(addprefix $(OBJDIR)/, $(SERVERSRCS1:$(SERVERDIR)/%.cpp=%.o))
 
 SERVERSRCS2 = $(addprefix $(SERVERDIR)/, TestClient.cpp)
 SERVEROBJS2 = $(addprefix $(OBJDIR)/, $(SERVERSRCS2:$(SERVERDIR)/%.cpp=%.o))
 
-EVENTDIR = EVENTS
-EVENTSRCS = $(addprefix $(EVENTDIR)/, EventManager.cpp KqueueManager.cpp)
+EVENTDIR = Events
+EVENTSRCS = $(addprefix $(EVENTDIR)/, EpollManager.cpp EventManager.cpp KqueueManager.cpp)
 EVENTOBJS = $(addprefix $(OBJDIR)/, $(EVENTSRCS:$(EVENTDIR)/%.cpp=%.o))
 
 PARSERDIR = Parser
@@ -28,7 +29,7 @@ CONFIGSRCS = $(addprefix $(CONFIGDIR)/, BaseSettings.cpp LocationSettings.cpp Re
 CONFIGOBJS = $(addprefix $(OBJDIR)/, $(CONFIGSRCS:$(CONFIGDIR)/%.cpp=%.o))
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME1) $(NAME2)
 

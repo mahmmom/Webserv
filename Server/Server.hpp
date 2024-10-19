@@ -10,8 +10,11 @@
 #include "Errors.hpp"
 #include <fcntl.h>
 #include <unistd.h> // For close()
+#include <cstring>
+#include <cerrno>
+#include <cstdio>
 
-#include "../Events/KqueueManager.hpp"
+#include "../Events/EventManager.hpp"
 #include "../HTTPRequest/HTTPRequest.hpp"
 
 #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes

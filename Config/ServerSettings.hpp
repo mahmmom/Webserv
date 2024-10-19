@@ -5,6 +5,7 @@
 #include <string>
 #include "BaseSettings.hpp"
 #include <vector>
+#include <algorithm>
 
 #define DEFAULT_SERVER_ROOT "/var/www"
 #define DEFAULT_SERVER_AUTOINDEX "off"

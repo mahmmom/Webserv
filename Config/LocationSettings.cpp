@@ -17,7 +17,7 @@ void LocationSettings::setAllowedMethods(const std::vector<std::string>& allowed
 	this->allowedMethods = allowedMethods;
 }
 
-std::string&	LocationSettings::getPath()
+const std::string&	LocationSettings::getPath() const
 {
 	return (this->path);
 }

@@ -2,6 +2,8 @@
 #ifndef KQUEUEMANAGER_HPP
 # define KQUEUEMANAGER_HPP
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
+
 #include "EventManager.hpp"
 #include <sys/event.h>  // for kqueue
 #include <vector>
@@ -19,5 +21,7 @@ class KqueueManager : public EventManager
 		void 		registerEvent(int socketFD, EventType event);
 		EventBlock	getEvent(const int& index);
 };
+
+#endif
 
 #endif

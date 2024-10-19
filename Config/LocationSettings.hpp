@@ -17,7 +17,7 @@ class LocationSettings : public BaseSettings
 
 		void setAllowedMethods(const std::vector<std::string>& allowedMethods);
 
-		std::string&	getPath();
+		const std::string&	getPath() const;
 
 		void debugger() const;
 };

@@ -40,6 +40,7 @@ class HTTPRequest
 	public:
 		const std::string&	getMethod() const;
 		const int& 			getStatus() const;
+		const std::string& 	getURI() const;
 		HTTPRequest(const std::string& full_request);
 		~HTTPRequest();
 };
