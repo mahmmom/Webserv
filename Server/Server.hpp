@@ -15,7 +15,7 @@
 #include <cstdio>
 
 #include "../Events/EventManager.hpp"
-#include "../HTTPRequest/HTTPRequest.hpp"
+#include "../HTTP/HTTPRequest.hpp"
 
 #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
 

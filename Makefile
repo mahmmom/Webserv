@@ -4,7 +4,7 @@ NAME2 = testclient
 SERVERDIR = Server
 OBJDIR = obj
 
-HTTPDIR = HTTPRequest
+HTTPDIR = HTTP
 HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp)
 HTTPOBJS = $(addprefix $(OBJDIR)/, $(HTTPSRCS:$(HTTPDIR)/%.cpp=%.o))
 

@@ -6,6 +6,7 @@
 #include "ServerSettings.hpp"
 #include <string>
 #include <vector>
+#include <algorithm>
 
 class LocationSettings : public BaseSettings
 {
@@ -15,6 +16,7 @@ class LocationSettings : public BaseSettings
 	public:
 		LocationSettings(const std::string& path, const ServerSettings& serverSettings);
 
+		bool isMethodAllowed(const std::string& method);
 		void setAllowedMethods(const std::vector<std::string>& allowedMethods);
 
 		const std::string&	getPath() const;

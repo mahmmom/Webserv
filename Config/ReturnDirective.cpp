@@ -15,6 +15,11 @@ void ReturnDirective::setTextOrURL(const std::string& textOrURL)
 	this->textOrURL = textOrURL;
 }
 
+bool ReturnDirective::getEnabled() const
+{
+	return (isEnabled);
+}
+
 int	ReturnDirective::getStatusCode() const
 {
 	return (statusCode);

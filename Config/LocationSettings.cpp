@@ -12,6 +12,14 @@ LocationSettings::LocationSettings(const std::string& path, const ServerSettings
 {
 }
 
+bool LocationSettings::isMethodAllowed(const std::string& method)
+{
+	if (std::find(allowedMethods.begin(), 
+			allowedMethods.end(), method) != allowedMethods.end())
+			return (true);
+	return (false);
+}
+
 void LocationSettings::setAllowedMethods(const std::vector<std::string>& allowedMethods)
 {
 	this->allowedMethods = allowedMethods;

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "Errors.hpp"
-#include "../HTTPRequest/HTTPRequest.hpp"
+#include "../HTTP/HTTPRequest.hpp"
 
 int NonBlockingServer::count = 0;
 

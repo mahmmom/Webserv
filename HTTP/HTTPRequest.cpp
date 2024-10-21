@@ -338,6 +338,17 @@ void HTTPRequest::setStatus(const int& status)
 	this->status = status;
 }
 
+std::string	HTTPRequest::getHeader(const std::string& headerName)
+{
+	std::map<std::string, std::string>::const_iterator it;
+
+	it = headers.find(headerName);
+	if (it != headers.end())
+		return (it->second);
+	else
+		return ("");
+}
+
 const std::string& 	HTTPRequest::getURI() const
 {
 	return (uri);

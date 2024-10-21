@@ -13,6 +13,7 @@ class ReturnDirective
 		bool		isEnabled;
 	public:
 		ReturnDirective();
+		bool		getEnabled() const;
 		void 		setStatusCode(const int& statusCode);
 		void 		setTextOrURL(const std::string& textOrURL);
 		int			getStatusCode() const;

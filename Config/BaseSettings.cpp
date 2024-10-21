@@ -259,6 +259,11 @@ size_t BaseSettings::getClientMaxBodySize() const
 	return (clientMaxBodySize);
 }
 
+ReturnDirective BaseSettings::getReturnDirective() const
+{
+	return (returnDirective);
+}
+
 void BaseSettings::debugger() const
 {
 	// Print root and autoIndex

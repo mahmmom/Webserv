@@ -45,6 +45,7 @@ class BaseSettings {
 		std::map<int, std::string> getErrorPages() const;
 		std::map<int, std::string> getErrorPagesLevel() const;
 		std::vector<std::string> getIndex() const;
+		ReturnDirective getReturnDirective() const;
 
 		// Setters
 		void	setRoot(const std::string& root);

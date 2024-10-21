@@ -38,6 +38,7 @@ class HTTPRequest
 
 		void	debugger();
 	public:
+		std::string			getHeader(const std::string& headerName);
 		const std::string&	getMethod() const;
 		const int& 			getStatus() const;
 		const std::string& 	getURI() const;
