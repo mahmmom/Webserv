@@ -42,6 +42,9 @@ class HTTPRequest
 		const std::string&	getMethod() const;
 		const int& 			getStatus() const;
 		const std::string& 	getURI() const;
+
+		void 	setURI(const std::string& uri);
+
 		HTTPRequest(const std::string& full_request);
 		~HTTPRequest();
 };

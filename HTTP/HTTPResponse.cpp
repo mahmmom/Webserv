@@ -1,6 +1,23 @@
 
 #include "HTTPResponse.hpp"
 
+std::string	HTTPResponse::generateResponse()
+{
+	std::string	response;
+
+	response = version + " " + statusCode + " " + reasonPhrase + "\r\n";
+	std::map<std::string, std::string>::iterator it;
+	for (it = headers.begin(); it != headers.end(); it++) {
+		response += (it->first) + ":";
+		response += " " + (it->second) + "\r\n";
+	}
+	response += "\r\n";
+	if (!body.empty())
+		response += body;
+	
+	return (response);
+}
+
 void	HTTPResponse::setVersion(const std::string& version)
 {
 	this->version = version;
@@ -24,4 +41,9 @@ void	HTTPResponse::setHeaders(const std::string& headerName, const std::string& 
 void	HTTPResponse::setBody(const std::string& body)
 {
 	this->body = body;
+}
+
+const std::string& HTTPResponse::getReasonPhrase()
+{
+	return (reasonPhrase);
 }

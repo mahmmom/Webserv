@@ -11,6 +11,28 @@ ServerSettings::ServerSettings(std::string& HttpRoot,
 	setDefaultValues();
 }
 
+ServerSettings::ServerSettings(const ServerSettings& other) : BaseSettings(other)
+{
+	*this = other;
+}
+
+ServerSettings& ServerSettings::operator=(const ServerSettings& other)
+{
+	if (this != &other)
+	{
+		this->port = other.port;
+		this->ip = other.ip;
+
+		for (size_t i = 0; i < locations.size(); ++i)
+            delete this->locations[i];
+        this->locations.clear();
+
+		for (size_t i = 0; i < other.locations.size(); i++)
+			this->locations.push_back(new LocationSettings(*(other.locations[i])));
+	}
+	return (*this);
+}
+
 /*
 	NOTES:
 		The only pointers we need to delete here are the LocationSettings pointers because the class ServerSettings
@@ -157,7 +179,7 @@ LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 	LocationSettings* 	location = NULL;
 	std::string 		longestPathMatch;
 	std::vector<LocationSettings* >::iterator it;
-	
+
 	for (it = locations.begin(); it != locations.end(); it++) {
 		if ((*it)->getPath()[0] == '=') {
 			std::cout << "tis it " << (*it)->getPath().substr(1) << " and uri is " << uri << std::endl;
@@ -167,6 +189,9 @@ LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 		}
 		size_t pos = uri.find("/", longestPathMatch.size() + 1);
 		std::string subPath = uri.substr(0, pos);
+
+		std::cout << "subPath is " << subPath << std::endl;
+
 		if ((*it)->getPath() == subPath) {
 			longestPathMatch = subPath;
 			location = *it;

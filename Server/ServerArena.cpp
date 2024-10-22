@@ -17,7 +17,7 @@ void ServerArena::initializeServers(std::vector<ServerSettings>& serverSettings)
 	}
 }
 
-void ServerArena::manageReadEvent(const EventBlock& eventBlock)
+void ServerArena::manageReadEvent(EventBlock& eventBlock)
 {
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (eventBlock.isRead && (eventBlock.fd == servers[i]->getServerSocket())) {
@@ -31,7 +31,7 @@ void ServerArena::manageReadEvent(const EventBlock& eventBlock)
 	}
 }
 
-void ServerArena::manageWriteEvent(const EventBlock& eventBlock)
+void ServerArena::manageWriteEvent(EventBlock& eventBlock)
 {
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (eventBlock.isWrite) {

@@ -6,8 +6,11 @@
 #include "../Config/LocationSettings.hpp"
 #include "HTTPResponse.hpp"
 #include "HTTPRequest.hpp"
-#include <sys/stat.h>
 #include <sstream>
+#include <map>
+#include <fstream>
+#include <sys/stat.h>
+#include <cerrno>
 
 class ResponseGenerator
 {
@@ -16,17 +19,22 @@ class ResponseGenerator
 		bool			isDirectory(const std::string& requestURI);
 		ServerSettings 	serverSettings;
 		std::string		intToString(const int intValue);
+		std::map<int, std::string>	reasonPhraseMap;
 	public:
 		ResponseGenerator(ServerSettings serverSettings);
 
+		void 			handleSubrequest(HTTPRequest& request, std::string& path);
+
 		void			handleReturnDirective();
+
+		HTTPResponse	handleAutoIndex(HTTPRequest& request, BaseSettings* settings);
 
 		HTTPResponse	serveError(int statusCode, BaseSettings* settings);
 
 		HTTPResponse	redirector(HTTPRequest& request, const std::string& URL);
 
 		HTTPResponse 	handleDirectory(HTTPRequest& request, BaseSettings* settings);
-		HTTPResponse 	serveFile(HTTPRequest& request, std::string& path);
+		HTTPResponse 	serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path);
 		HTTPResponse	serveRequest(HTTPRequest& request, BaseSettings* settings);
 
 		HTTPResponse	handleDeleteRequest(HTTPRequest& request);

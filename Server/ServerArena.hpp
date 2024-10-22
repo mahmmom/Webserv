@@ -24,8 +24,8 @@ class ServerArena
 		ServerArena(std::vector<ServerSettings>& serverSettings, EventManager* eventManager);
 		void initializeServers(std::vector<ServerSettings>& serverSettings);
 		void run();
-		void manageReadEvent(const EventBlock& eventBlock);
-		void manageWriteEvent(const EventBlock& eventBlock);
+		void manageReadEvent(EventBlock& eventBlock);
+		void manageWriteEvent(EventBlock& eventBlock);
 };
 
 #endif

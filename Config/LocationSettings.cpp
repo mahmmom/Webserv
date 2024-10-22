@@ -12,6 +12,21 @@ LocationSettings::LocationSettings(const std::string& path, const ServerSettings
 {
 }
 
+LocationSettings::LocationSettings(const LocationSettings& other) : BaseSettings(other)
+{
+	*this = other;
+}
+
+LocationSettings& LocationSettings::operator=(const LocationSettings& other)
+{
+	if (this != &other)
+	{
+		this->path = other.path;
+		this->allowedMethods = other.allowedMethods;
+	}
+	return (*this);
+}
+
 bool LocationSettings::isMethodAllowed(const std::string& method)
 {
 	if (std::find(allowedMethods.begin(), 

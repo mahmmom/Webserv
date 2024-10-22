@@ -41,6 +41,26 @@ BaseSettings::BaseSettings(std::string serverRoot,
 {
 }
 
+BaseSettings::BaseSettings(const BaseSettings& other)
+{
+	*this = other;
+}
+
+BaseSettings& BaseSettings::operator=(const BaseSettings& other)
+{
+	if (this != &other)
+	{
+		this->root = other.root;
+		this->autoIndex = other.autoIndex;
+		this->clientMaxBodySize = other.clientMaxBodySize;
+		this->errorPages = other.errorPages;
+		this->errorPagesLevel = other.errorPagesLevel;
+		this->index = other.index;
+		this->returnDirective = other.returnDirective;
+	}
+	return (*this);
+}
+
 /*
 	Notes:
 		Note 1: The idea is that we will later append the URI from
@@ -229,37 +249,37 @@ void	BaseSettings::setReturn(const std::vector<std::string>& returnArgs)
 	}
 }
 
-std::string BaseSettings::getRoot() const
+const std::string& BaseSettings::getRoot() const
 {
 	return (root);
 }
 
-std::string BaseSettings::getAutoindex() const
+const std::string& BaseSettings::getAutoindex() const
 {
 	return (autoIndex);
 }
 
-std::map<int, std::string> BaseSettings::getErrorPages() const
+const std::map<int, std::string>& BaseSettings::getErrorPages() const
 {
 	return (errorPages);
 }
 
-std::map<int, std::string> BaseSettings::getErrorPagesLevel() const
+const std::map<int, std::string>& BaseSettings::getErrorPagesLevel() const
 {
 	return (errorPagesLevel);
 }
 
-std::vector<std::string> BaseSettings::getIndex() const
+const std::vector<std::string>& BaseSettings::getIndex() const
 {
 	return (index);
 }
 
-size_t BaseSettings::getClientMaxBodySize() const
+const size_t& BaseSettings::getClientMaxBodySize() const
 {
 	return (clientMaxBodySize);
 }
 
-ReturnDirective BaseSettings::getReturnDirective() const
+const ReturnDirective& BaseSettings::getReturnDirective() const
 {
 	return (returnDirective);
 }

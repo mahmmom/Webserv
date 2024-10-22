@@ -5,7 +5,7 @@ SERVERDIR = Server
 OBJDIR = obj
 
 HTTPDIR = HTTP
-HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp)
+HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp HTTPResponse.cpp ResponseGenerator.cpp)
 HTTPOBJS = $(addprefix $(OBJDIR)/, $(HTTPSRCS:$(HTTPDIR)/%.cpp=%.o))
 
 # NonBlockingServer.cpp
@@ -29,7 +29,7 @@ CONFIGSRCS = $(addprefix $(CONFIGDIR)/, BaseSettings.cpp LocationSettings.cpp Re
 CONFIGOBJS = $(addprefix $(OBJDIR)/, $(CONFIGSRCS:$(CONFIGDIR)/%.cpp=%.o))
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 
 all: $(NAME1) $(NAME2)
 

@@ -21,7 +21,8 @@ class BaseSettings {
 		std::map<int, std::string>	errorPagesLevel; //
 		std::vector<std::string>	index; //
 		ReturnDirective				returnDirective;
-
+		BaseSettings(const BaseSettings& other);
+		BaseSettings& operator=(const BaseSettings& other);
 	public:
 		// Constructors
 		BaseSettings(std::string& HttpRoot, 							// This constructor is used as a base class constructor 
@@ -39,13 +40,13 @@ class BaseSettings {
 						std::vector<std::string> serverIndex);			// to the first scenario, where all the data is still std::string.
 
 		// Getters
-		std::string getRoot() const;
-		std::string getAutoindex() const;
-		size_t getClientMaxBodySize() const;
-		std::map<int, std::string> getErrorPages() const;
-		std::map<int, std::string> getErrorPagesLevel() const;
-		std::vector<std::string> getIndex() const;
-		ReturnDirective getReturnDirective() const;
+		const std::string& getRoot() const;
+		const std::string& getAutoindex() const;
+		const size_t& getClientMaxBodySize() const;
+		const std::map<int, std::string>& getErrorPages() const;
+		const std::map<int, std::string>& getErrorPagesLevel() const;
+		const std::vector<std::string>& getIndex() const;
+		const ReturnDirective& getReturnDirective() const;
 
 		// Setters
 		void	setRoot(const std::string& root);

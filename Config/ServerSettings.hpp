@@ -52,18 +52,21 @@ class ServerSettings : public BaseSettings
 	private:
 		int			port;
 		std::string	ip;
+		std::vector<LocationSettings* > locations; // Note 2
+		
 		void setPort(const std::string& portStr, const std::string& listenValue);
 		void setIP(const std::string& IPv4, const std::string& listenValue);
-		std::vector<LocationSettings* > locations; // Note 2
 
 	public:
 		ServerSettings(std::string& HttpRoot, std::string& HttpAutoIndex, 
 			std::string& HttpClientMaxBodySize, std::string& HttpErrorPagesContext,
 			std::vector<DirectiveNode* >& HttpErrorArgs, 
 			std::vector<DirectiveNode* >& HttpIndexArgs);
-
+		ServerSettings(const ServerSettings& other);
+		ServerSettings& operator=(const ServerSettings& other);
 		~ServerSettings();
-		
+
+
 		void				addLocation(LocationSettings& locationSettings);
 		LocationSettings*	findLocation(const std::string& uri);
 

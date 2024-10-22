@@ -15,6 +15,8 @@ class LocationSettings : public BaseSettings
 		std::vector<std::string>	allowedMethods;
 	public:
 		LocationSettings(const std::string& path, const ServerSettings& serverSettings);
+		LocationSettings(const LocationSettings& other);
+		LocationSettings& operator=(const LocationSettings& other);
 
 		bool isMethodAllowed(const std::string& method);
 		void setAllowedMethods(const std::vector<std::string>& allowedMethods);

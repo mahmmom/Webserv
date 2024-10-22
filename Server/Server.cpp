@@ -87,7 +87,16 @@ void Server::acceptNewClient()
     eventManager->registerEvent(client_socket, READ);
 }
 
-void Server::handleClientRead(int clientSocketFD)
+void Server::handleGetRequest(int& clientSocketFD, HTTPRequest& request)
+{
+    ResponseGenerator responseGenerator(serverSettings);
+
+    HTTPResponse response = responseGenerator.handleRequest(request);
+    responses[clientSocketFD] =  response;
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+void Server::handleClientRead(int& clientSocketFD)
 {
 	char buffer[BUFFER_SIZE] = {0};
     int bytes_read = recv(clientSocketFD, buffer, sizeof(buffer), 0);
@@ -117,7 +126,7 @@ void Server::handleClientRead(int clientSocketFD)
 					<< " (bytes recieved: " << bytes_read << ")"
 					<< std::endl << std::endl;
 
-            HTTPRequest Request(buffer);
+            HTTPRequest request(buffer);
 
             // LocationSettings* location = serverSettings.findLocation(Request.getURI());
             // if (!location)
@@ -125,19 +134,43 @@ void Server::handleClientRead(int clientSocketFD)
             // else
             //     std::cout << "Good boy with good logic" << std::endl;
 
-            eventManager->registerEvent(clientSocketFD, WRITE);
+            if (request.getMethod() == "GET")
+                handleGetRequest(clientSocketFD, request);
+
+            // eventManager->registerEvent(clientSocketFD, WRITE);
         }
     }
 }
 
-void Server::handleClientWrite(int clientSocketFD)
+void Server::handleClientWrite(int& clientSocketFD)
 {
     std::map<int, Client>::iterator it = clients.find(clientSocketFD);
-    if (it != clients.end())
+    // if (it != clients.end())
+    // {
+    //     std::string buffer_head = "Relay from server: ";
+    //     std::string& buffer = it->second.getBuffer();
+    //     int bytes_sent = send(clientSocketFD, (buffer_head + buffer).c_str(), (buffer_head + buffer).length(), 0);
+    //     if (bytes_sent == -1 && errno != EWOULDBLOCK) {
+    //         perror ("Send"); // probably should remove this
+    //         std::cerr << "Will proceed to disconnect client (" 
+    //             << clientSocketFD << ")" << std::endl;
+    //         toRemove.push_back(clientSocketFD);
+    //     } 
+    //     else if ((bytes_sent == -1 && errno == EWOULDBLOCK)) {
+    //         perror("*Send");
+    //     }
+    //     else {
+    //         std::cout << "successfuly sent" << std::endl;
+    //         buffer.erase(0, bytes_sent);
+    //     }
+    //     eventManager->deregisterEvent(clientSocketFD, WRITE);
+    // }
+        if (it != clients.end())
     {
-        std::string buffer_head = "Relay from server: ";
-        std::string& buffer = it->second.getBuffer();
-        int bytes_sent = send(clientSocketFD, (buffer_head + buffer).c_str(), (buffer_head + buffer).length(), 0);
+        std::string response = responses[clientSocketFD].generateResponse();
+        std::cout << "\n===RESPONSE===\n";
+        std::cout << response << std::endl;
+        int bytes_sent = send(clientSocketFD, response.c_str(), response.length(), 0);
         if (bytes_sent == -1 && errno != EWOULDBLOCK) {
             perror ("Send"); // probably should remove this
             std::cerr << "Will proceed to disconnect client (" 
@@ -149,7 +182,7 @@ void Server::handleClientWrite(int clientSocketFD)
         }
         else {
             std::cout << "successfuly sent" << std::endl;
-            buffer.erase(0, bytes_sent);
+            responses.erase(clientSocketFD);
         }
         eventManager->deregisterEvent(clientSocketFD, WRITE);
     }

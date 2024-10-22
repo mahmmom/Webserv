@@ -364,6 +364,11 @@ const int& HTTPRequest::getStatus() const
 	return (status);
 }
 
+void HTTPRequest::setURI(const std::string& uri)
+{
+	this->uri = uri;
+}
+
 /*
 		ORTHODOX CANONICAL FORM
 */

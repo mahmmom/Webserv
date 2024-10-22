@@ -1,4 +1,6 @@
 
+#if defined(__linux__)
+
 #include "EpollManager.hpp"
 
 EpollManager::EpollManager() : events(DEFAULT_NUM_OF_EVENTS)
@@ -111,3 +113,5 @@ EventBlock EpollManager::getEvent(const int& index)
 
     return eventBlock;
 }
+
+#endif
