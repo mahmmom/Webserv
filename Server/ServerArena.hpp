@@ -5,6 +5,7 @@
 #include <vector>
 #include "../Config/ServerSettings.hpp"
 #include "Server.hpp"
+#include "../Config/MimeTypesParser.hpp"
 
 
 #if defined(__APPLE__) || defined(__FreeBSD__)
@@ -21,8 +22,8 @@ class ServerArena
 		std::vector<Server* > 		servers;
 		EventManager* 				eventManager;
 	public:
-		ServerArena(std::vector<ServerSettings>& serverSettings, EventManager* eventManager);
-		void initializeServers(std::vector<ServerSettings>& serverSettings);
+		ServerArena(std::vector<ServerSettings>& serverSettings, EventManager* eventManager, MimeTypesParser& mimeTypesParser);
+		void initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesParser& mimeTypesParser);
 		void run();
 		void manageReadEvent(EventBlock& eventBlock);
 		void manageWriteEvent(EventBlock& eventBlock);

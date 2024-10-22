@@ -32,7 +32,6 @@ class HTTPRequest
 
 		void setStatus(const int& status);
 
-		HTTPRequest();
 		HTTPRequest& operator=(const HTTPRequest& other);
 		HTTPRequest(const HTTPRequest& other);
 
@@ -45,6 +44,7 @@ class HTTPRequest
 
 		void 	setURI(const std::string& uri);
 
+		HTTPRequest();
 		HTTPRequest(const std::string& full_request);
 		~HTTPRequest();
 };

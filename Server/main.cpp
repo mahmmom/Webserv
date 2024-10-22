@@ -5,6 +5,7 @@
 #include "../Config/BaseSettings.hpp"
 #include "../Parser/LoadSettings.hpp"
 #include "ServerArena.hpp"
+#include "../Config/MimeTypesParser.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -20,13 +21,19 @@ int main(int argc, char *argv[])
         return (1);
     }
 
+    MimeTypesParser mimeTypesParser("etc/mime.types");
+
     std::vector<ServerSettings> serverSettings;
     EventManager*   eventHandler;
     try
     {
+        // Congif Parsing
         ConfigParser configParser(configFile);
         configParser.parse();
 
+        // MimeTypes Parsing
+        mimeTypesParser.parse();
+        
         LoadSettings loadSettings(configParser.getConfigTreeRoot());
         loadSettings.loadServers(serverSettings);
 
@@ -41,7 +48,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ServerArena serverArena(serverSettings, eventHandler);
+    ServerArena serverArena(serverSettings, eventHandler, mimeTypesParser);
     serverArena.run();
 
     return (0);

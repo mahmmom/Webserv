@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-Server::Server(ServerSettings& serverSettings, EventManager* eventManager) :
+Server::Server(ServerSettings& serverSettings, EventManager* eventManager, MimeTypesParser& mimeTypesParser) :
 	 serverSettings(serverSettings), eventManager(eventManager)
 {
 	memset(&serverAddr, 0, sizeof(serverAddr));

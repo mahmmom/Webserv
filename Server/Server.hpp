@@ -17,6 +17,8 @@
 #include "../Events/EventManager.hpp"
 #include "../HTTP/HTTPRequest.hpp"
 #include "../HTTP/ResponseGenerator.hpp"
+#include "../Config/MimeTypesParser.hpp"
+
 
 #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
 
@@ -31,7 +33,7 @@ class Server
 		struct sockaddr_in 			serverAddr;
 		std::map<int, HTTPResponse> responses; // change to responseState* later
 	public:
-		Server(ServerSettings& serverSettings, EventManager* eventManager);
+		Server(ServerSettings& serverSettings, EventManager* eventManager, MimeTypesParser& mimeTypesParser);
 		void setSocketOptions();
 		void setupServerSocket();
 		void bindAndListenServerSocket();

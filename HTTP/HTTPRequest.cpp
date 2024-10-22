@@ -372,7 +372,7 @@ void HTTPRequest::setURI(const std::string& uri)
 /*
 		ORTHODOX CANONICAL FORM
 */
-HTTPRequest::HTTPRequest() {}
+HTTPRequest::HTTPRequest() : status(0) {}
 
 HTTPRequest::HTTPRequest(const HTTPRequest& other) {
 	*this = other;
