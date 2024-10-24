@@ -4,12 +4,114 @@
 ResponseGenerator::ResponseGenerator(ServerSettings serverSettings) : serverSettings(serverSettings) 
 {
 	reasonPhraseMap[301] = "Moved Permanently";
+	reasonPhraseMap[302] = "Moved Temporarily";
 	reasonPhraseMap[403] = "Forbidden";
 	reasonPhraseMap[404] = "Not Found";
 	reasonPhraseMap[500] = "Internal Server Error";
 }
 
-void	ResponseGenerator::handleReturnDirective() {}
+/*
+	301, 302, 303, 307, and 308
+
+	HTTP/1.1 302 Moved Temporarily
+	Server: nginx/1.27.1
+	Date: Thu, 24 Oct 2024 01:24:57 GMT
+	Content-Type: text/html
+	Content-Length: 145
+	Connection: close
+	Location: https://google.com
+
+	<html>
+	<head><title>302 Found</title></head>
+	<body>
+	<center><h1>302 Found</h1></center>
+	<hr><center>nginx/1.27.1</center>
+	</body>
+	</html>
+*/
+HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
+{
+	HTTPResponse response;
+
+	const ReturnDirective returnDirective = settings->getReturnDirective();
+	if (returnDirective.getTextOrURL() != "empty")
+	{
+		int statusCode = request.getStatus();
+		if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 ||
+				statusCode == 308) {
+			response.setStatusCode(intToString(statusCode));
+			response.setHeaders("Content-type", "text/html"); // Should be changed to mime-type
+		}
+		else if (statusCode == -1) {
+			response.setStatusCode("302");
+			response.setReasonPhrase(reasonPhraseMap[302]);
+			response.setHeaders("Server", "Ranchero");
+			response.setHeaders("Content-Type", "text/html");
+			response.setHeaders("Location", returnDirective.getTextOrURL());
+			std::string body = 	"<html>"
+								"<head><title>302 Found</title></head>"
+								"<body>"
+								"<center><h1>302 Found</h1></center>"
+								"<hr><center>Ranchero</center>"
+								"</body>"
+								"</html>";
+			response.setBody(body);
+			response.setHeaders("Content-Length", intToString(body.length()));
+		}
+		else {
+			response.setHeaders("Content-type", "plain/text");
+		}
+		
+	}
+
+}
+
+HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, BaseSettings* settings) {
+    HTTPResponse response;
+    response.setVersion("HTTP/1.1");
+    response.setStatusCode("200");
+    response.setReasonPhrase("OK");
+    response.setHeaders("Content-Type", "text/html");
+    response.setHeaders("Server", "Ranchero");
+    response.setHeaders("Connection", "keep-alive");
+
+    std::string body;
+    body = "<html>"
+           "<head><title>Index of " + request.getURI() + "</title></head>"
+           "<body>"
+           "<h1>Index of " + request.getURI() + "</h1><hr><pre><a href=\"../\">../</a>\n";
+
+    DIR* dir = opendir((settings->getRoot() + request.getURI()).c_str());
+    if (dir == NULL) {
+        // Handle error case
+        response.setStatusCode("404");
+        response.setReasonPhrase("Not Found");
+        return response;
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        std::string name = entry->d_name;
+        if (name == "." || name == "..") 
+            continue;
+
+        std::string fullPath = settings->getRoot() + request.getURI() + name;
+        if (isFile(fullPath)) {
+            body += "<a href=\"" + name + "\">" + name + "</a>\n";
+        } else {
+            body += "<a href=\"" + name + "/\">" + name + "/</a>\n";
+        }
+    }
+
+    body += "</pre><hr></body></html>";
+    closedir(dir);
+
+    // Add Content-Length header
+    response.setHeaders("Content-Length", std::to_string(body.length()));
+    response.setBody(body);
+    
+    return response;
+}
 
 std::string ResponseGenerator::intToString(const int intValue)
 {
@@ -49,10 +151,10 @@ bool ResponseGenerator::isDirectory(const std::string& requestURI)
 			* Headers from the original request are preserved
 			* The client only receives the final response
 */
-void ResponseGenerator::handleSubrequest(HTTPRequest& request, std::string& path)
+HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path)
 {
 	request.setURI(path);
-	handleRequest(request);
+	return (handleRequest(request));
 }
 
 /*
@@ -123,11 +225,7 @@ HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettin
 	if (settings->getAutoindex() == "off")
 		return (serveError(403, settings));
 	
-	// return (serveDirectoryListing);
-	
-	(void) request;
-	HTTPResponse deleteLater;
-	return deleteLater;
+	return (serveDirectoryListing(request, settings));
 }
 
 /*
@@ -146,18 +244,9 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 	path = settings->getRoot() + request.getURI();
 	std::vector<std::string>::const_iterator it;
 	for (it = settings->getIndex().begin(); it != settings->getIndex().end(); it++) {
-		std::string indexPath;
-		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/')) {
-			indexPath = settings->getRoot() + (*it);
-			// LocationSettings* locationSettings = serverSettings.findLocation(*it); // Note 1
-	    	// if (locationSettings && !locationSettings->isMethodAllowed(request.getMethod()))
-    	    // 	return serveError(403, settings);
-		}
-		else
-			indexPath = path + (*it);
-
-		// std::cout << "jfdhjdfshkjdsfhjdfkshdfjkshdf " << indexPath << std::endl;
-
+		std::string indexPath = path + (*it);
+		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/'))
+			return (handleSubRequest(request, (*it)));
 		if (isFile(indexPath))
 			return (serveFile(request, settings, indexPath));
 		if ((indexPath[indexPath.size() - 1] == '/') || isDirectory(indexPath))
@@ -216,6 +305,7 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 {
 	if (serverSettings.getReturnDirective().getEnabled())
 		;
+		// return (handleReturnDirective(request, &serverSettings));
 
 	BaseSettings*		settings = &serverSettings;
 	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
@@ -228,11 +318,14 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 
 	if (settings->getReturnDirective().getEnabled())
 		;
+		// return (handleReturnDirective(request, settings));
 	return (serveRequest(request, settings));
 }
 
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
 {
+	std::cout << "kfjdkdsjfkldsjkfdjdfs\n";
+	std::cout << "URI is " << request.getURI() << std::endl;
 	if (request.getMethod() == "GET")
 		return (handleGetRequest(request));
 	// else if (request.getMethod() == "HEAD ")

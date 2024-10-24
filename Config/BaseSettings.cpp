@@ -242,10 +242,15 @@ void	BaseSettings::setReturn(const std::vector<std::string>& returnArgs)
 	}
 	else
 	{
-		if (ss.fail() || !ss.eof())
-			return (returnDirective.setTextOrURL(returnArgs[0]), void());
+		if (ss.fail() || !ss.eof()) {
+			if ((returnArgs[0].size() >= 7) && (returnArgs[0].substr(0, 7) == "http://" || returnArgs[0].substr(0, 8) == "https://"))
+				return (returnDirective.setTextOrURL(returnArgs[0]), void());
+			else
+				throw (std::runtime_error("invalid return code \"" + returnArgs[0] + "\""));
+		}
 		if (statusCode < 0 || statusCode > 999)
 			throw (std::runtime_error("invalid return code \"" + returnArgs[0] + "\""));
+		returnDirective.setStatusCode(statusCode);
 	}
 }
 

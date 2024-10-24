@@ -11,6 +11,8 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <cerrno>
+#include <dirent.h> // For directory operations
+#include <sys/stat.h> // For file status (to differentiate files from directories)
 
 class ResponseGenerator
 {
@@ -23,9 +25,11 @@ class ResponseGenerator
 	public:
 		ResponseGenerator(ServerSettings serverSettings);
 
-		void 			handleSubrequest(HTTPRequest& request, std::string& path);
+		HTTPResponse	handleReturnDirective(HTTPRequest& request, BaseSettings* settings);
 
-		void			handleReturnDirective();
+		HTTPResponse	serveDirectoryListing(HTTPRequest& request, BaseSettings* settings);
+
+		HTTPResponse 	handleSubRequest(HTTPRequest& request, const std::string& path);
 
 		HTTPResponse	handleAutoIndex(HTTPRequest& request, BaseSettings* settings);
 
