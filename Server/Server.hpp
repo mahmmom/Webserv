@@ -32,6 +32,8 @@ class Server
 		std::vector<int>			toRemove;
 		struct sockaddr_in 			serverAddr;
 		std::map<int, HTTPResponse> responses; // change to responseState* later
+		MimeTypesParser&			mimeTypesParser;
+
 	public:
 		Server(ServerSettings& serverSettings, EventManager* eventManager, MimeTypesParser& mimeTypesParser);
 		void setSocketOptions();

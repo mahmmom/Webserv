@@ -10,8 +10,24 @@ MimeTypesParser::~MimeTypesParser()
         _file.close();
 }
 
-MimeTypesParser::MimeTypesParser(MimeTypesParser& other) : 
-    _filePath(other._filePath), lineNumber(other.lineNumber), foundTypesBlock(other.foundTypesBlock), foundClosingBrace(other.foundClosingBrace) {}
+MimeTypesParser::MimeTypesParser() : lineNumber(0), foundTypesBlock(false), foundClosingBrace(false) {}
+
+MimeTypesParser::MimeTypesParser(MimeTypesParser& other) 
+{
+    *this = other;
+}
+
+MimeTypesParser& MimeTypesParser::operator=(MimeTypesParser& other)
+{
+    if (this != &other)
+    {
+        this->_filePath = other._filePath;
+        this->lineNumber = other.lineNumber;
+        this->foundTypesBlock = other.foundTypesBlock;
+        this->foundClosingBrace = other.foundClosingBrace;
+        this->mimeTypes_ = other.mimeTypes_;
+    }
+} 
 
 // Transform an integer to a string
 static std::string intToString(int number) {

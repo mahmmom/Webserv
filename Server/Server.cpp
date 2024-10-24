@@ -2,7 +2,7 @@
 #include "Server.hpp"
 
 Server::Server(ServerSettings& serverSettings, EventManager* eventManager, MimeTypesParser& mimeTypesParser) :
-	 serverSettings(serverSettings), eventManager(eventManager)
+	 serverSettings(serverSettings), eventManager(eventManager), mimeTypesParser(mimeTypesParser)
 {
 	memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;

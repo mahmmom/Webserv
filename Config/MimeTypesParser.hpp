@@ -13,8 +13,10 @@
 class MimeTypesParser
 {
 public:
-    MimeTypesParser(MimeTypesParser& other) // Need to fix this issue
+    MimeTypesParser(MimeTypesParser& other); // Need to fix this issue
+    MimeTypesParser& operator=(MimeTypesParser& other);
     MimeTypesParser(const std::string &filePath);
+    MimeTypesParser();
     ~MimeTypesParser();
 
     void parse();
