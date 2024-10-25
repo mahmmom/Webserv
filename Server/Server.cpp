@@ -1,8 +1,8 @@
 
 #include "Server.hpp"
 
-Server::Server(ServerSettings& serverSettings, EventManager* eventManager) :
-	 serverSettings(serverSettings), eventManager(eventManager)
+Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager) :
+	 serverSettings(serverSettings), mimeTypes(mimeTypes), eventManager(eventManager)
 {
 	memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
@@ -89,7 +89,7 @@ void Server::acceptNewClient()
 
 void Server::handleGetRequest(int& clientSocketFD, HTTPRequest& request)
 {
-    ResponseGenerator responseGenerator(serverSettings);
+    ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request);
     responses[clientSocketFD] =  response;
@@ -136,8 +136,6 @@ void Server::handleClientRead(int& clientSocketFD)
 
             if (request.getMethod() == "GET")
                 handleGetRequest(clientSocketFD, request);
-
-            // eventManager->registerEvent(clientSocketFD, WRITE);
         }
     }
 }
@@ -145,27 +143,7 @@ void Server::handleClientRead(int& clientSocketFD)
 void Server::handleClientWrite(int& clientSocketFD)
 {
     std::map<int, Client>::iterator it = clients.find(clientSocketFD);
-    // if (it != clients.end())
-    // {
-    //     std::string buffer_head = "Relay from server: ";
-    //     std::string& buffer = it->second.getBuffer();
-    //     int bytes_sent = send(clientSocketFD, (buffer_head + buffer).c_str(), (buffer_head + buffer).length(), 0);
-    //     if (bytes_sent == -1 && errno != EWOULDBLOCK) {
-    //         perror ("Send"); // probably should remove this
-    //         std::cerr << "Will proceed to disconnect client (" 
-    //             << clientSocketFD << ")" << std::endl;
-    //         toRemove.push_back(clientSocketFD);
-    //     } 
-    //     else if ((bytes_sent == -1 && errno == EWOULDBLOCK)) {
-    //         perror("*Send");
-    //     }
-    //     else {
-    //         std::cout << "successfuly sent" << std::endl;
-    //         buffer.erase(0, bytes_sent);
-    //     }
-    //     eventManager->deregisterEvent(clientSocketFD, WRITE);
-    // }
-        if (it != clients.end())
+    if (it != clients.end())
     {
         std::string response = responses[clientSocketFD].generateResponse();
         std::cout << "\n===RESPONSE===\n";

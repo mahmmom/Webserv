@@ -4,6 +4,7 @@
 
 #include "../Config/ServerSettings.hpp"
 #include "../Config/LocationSettings.hpp"
+#include "../Parser/MimeTypesSettings.hpp"
 #include "HTTPResponse.hpp"
 #include "HTTPRequest.hpp"
 #include <sstream>
@@ -17,13 +18,14 @@
 class ResponseGenerator
 {
 	private:
-		bool			isFile(const std::string& requestURI);
-		bool			isDirectory(const std::string& requestURI);
-		ServerSettings 	serverSettings;
-		std::string		intToString(const int intValue);
+		bool						isFile(const std::string& requestURI);
+		bool						isDirectory(const std::string& requestURI);
+		ServerSettings 				serverSettings;
+		MimeTypesSettings			mimeTypes;
+		std::string					intToString(const int intValue);
 		std::map<int, std::string>	reasonPhraseMap;
 	public:
-		ResponseGenerator(ServerSettings serverSettings);
+		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes);
 
 		HTTPResponse	handleReturnDirective(HTTPRequest& request, BaseSettings* settings);
 

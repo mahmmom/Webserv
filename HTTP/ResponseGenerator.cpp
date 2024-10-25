@@ -1,7 +1,8 @@
 
 #include "ResponseGenerator.hpp"
 
-ResponseGenerator::ResponseGenerator(ServerSettings serverSettings) : serverSettings(serverSettings) 
+ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes) : 
+	serverSettings(serverSettings), mimeTypes(mimeTypes)
 {
 	reasonPhraseMap[301] = "Moved Permanently";
 	reasonPhraseMap[302] = "Moved Temporarily";
@@ -29,42 +30,42 @@ ResponseGenerator::ResponseGenerator(ServerSettings serverSettings) : serverSett
 	</body>
 	</html>
 */
-HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
-{
-	HTTPResponse response;
+// HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
+// {
+// 	HTTPResponse response;
 
-	const ReturnDirective returnDirective = settings->getReturnDirective();
-	if (returnDirective.getTextOrURL() != "empty")
-	{
-		int statusCode = request.getStatus();
-		if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 ||
-				statusCode == 308) {
-			response.setStatusCode(intToString(statusCode));
-			response.setHeaders("Content-type", "text/html"); // Should be changed to mime-type
-		}
-		else if (statusCode == -1) {
-			response.setStatusCode("302");
-			response.setReasonPhrase(reasonPhraseMap[302]);
-			response.setHeaders("Server", "Ranchero");
-			response.setHeaders("Content-Type", "text/html");
-			response.setHeaders("Location", returnDirective.getTextOrURL());
-			std::string body = 	"<html>"
-								"<head><title>302 Found</title></head>"
-								"<body>"
-								"<center><h1>302 Found</h1></center>"
-								"<hr><center>Ranchero</center>"
-								"</body>"
-								"</html>";
-			response.setBody(body);
-			response.setHeaders("Content-Length", intToString(body.length()));
-		}
-		else {
-			response.setHeaders("Content-type", "plain/text");
-		}
-		
-	}
+// 	const ReturnDirective returnDirective = settings->getReturnDirective();
+// 	if (returnDirective.getTextOrURL() != "empty")
+// 	{
+// 		int statusCode = request.getStatus();
+// 		if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 ||
+// 				statusCode == 308) {
+// 			response.setStatusCode(intToString(statusCode));
+// 			response.setHeaders("Content-type", "text/html"); // Should be changed to mime-type
+// 		}
+// 		else if (statusCode == -1) {
+// 			response.setStatusCode("302");
+// 			response.setReasonPhrase(reasonPhraseMap[302]);
+// 			response.setHeaders("Server", "Ranchero");
+// 			response.setHeaders("Content-Type", "text/html");
+// 			response.setHeaders("Location", returnDirective.getTextOrURL());
+// 			std::string body = 	"<html>"
+// 								"<head><title>302 Found</title></head>"
+// 								"<body>"
+// 								"<center><h1>302 Found</h1></center>"
+// 								"<hr><center>Ranchero</center>"
+// 								"</body>"
+// 								"</html>";
+// 			response.setBody(body);
+// 			response.setHeaders("Content-Length", intToString(body.length()));
+// 		}
+// 		else {
+// 			response.setHeaders("Content-type", "plain/text");
+// 		}
+	
+// 	}
 
-}
+// }
 
 HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, BaseSettings* settings) {
     HTTPResponse response;
@@ -264,7 +265,7 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 	response.setReasonPhrase("OK");
 
 	response.setHeaders("Server", "Ranchero");
-	response.setHeaders("Content-Type", "text/html"); // MUST BE CHANGEd TO MIMETYPE! USE getMimeType
+	response.setHeaders("Content-Type", mimeTypes.getMimeType(path)); // MUST BE CHANGEd TO MIMETYPE! USE getMimeType
 	response.setHeaders("Connection", "keep-alive");
 
 	// std::cout << "within: jfdhjdfshkjdsfhjdfkshdfjkshdf " << path << std::endl;

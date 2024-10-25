@@ -21,7 +21,8 @@ EVENTOBJS = $(addprefix $(OBJDIR)/, $(EVENTSRCS:$(EVENTDIR)/%.cpp=%.o))
 
 PARSERDIR = Parser
 PARSERSRCS = $(addprefix $(PARSERDIR)/, ConfigNode.cpp ConfigParser.cpp ConfigTokenizer.cpp ContextNode.cpp \
-					DirectiveNode.cpp LoadSettings.cpp SyntaxAuditor.cpp TreeAuditor.cpp TreeGenerator.cpp)
+					DirectiveNode.cpp LoadSettings.cpp SyntaxAuditor.cpp TreeAuditor.cpp TreeGenerator.cpp \
+					MimeTypesSettings.cpp)
 PARSEROBJS = $(addprefix $(OBJDIR)/, $(PARSERSRCS:$(PARSERDIR)/%.cpp=%.o))
 
 CONFIGDIR = Config

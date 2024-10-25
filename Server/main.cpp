@@ -2,6 +2,7 @@
 #include <iostream>
 #include <exception>
 #include "../Parser/ConfigParser.hpp"
+#include "../Parser/MimeTypesSettings.hpp"
 #include "../Config/BaseSettings.hpp"
 #include "../Parser/LoadSettings.hpp"
 #include "ServerArena.hpp"
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
 
     std::vector<ServerSettings> serverSettings;
     EventManager*   eventHandler;
+    MimeTypesSettings mimeTypes("etc/mime.types");
     try
     {
         ConfigParser configParser(configFile);
@@ -30,10 +32,9 @@ int main(int argc, char *argv[])
         LoadSettings loadSettings(configParser.getConfigTreeRoot());
         loadSettings.loadServers(serverSettings);
 
+        mimeTypes.parse();
+
         eventHandler = new EventHandler();
-        // NonBlockingServer server(9000);
-        // std::cout << "Server started on port 9000" << std::endl;
-        // server.run();
     }
     catch (const std::exception& e)
     {
@@ -41,7 +42,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ServerArena serverArena(serverSettings, eventHandler);
+    ServerArena serverArena(serverSettings, mimeTypes, eventHandler);
     serverArena.run();
 
     return (0);

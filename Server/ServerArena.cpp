@@ -1,16 +1,16 @@
 
 #include "ServerArena.hpp"
 
-ServerArena::ServerArena(std::vector<ServerSettings>& serverSettings, 
+ServerArena::ServerArena(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes,
 								EventManager* eventManager) : eventManager(eventManager)
 {
-	initializeServers(serverSettings);
+	initializeServers(serverSettings, mimeTypes);
 }
 
-void ServerArena::initializeServers(std::vector<ServerSettings>& serverSettings)
+void ServerArena::initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes)
 {
 	for (size_t i = 0; i < serverSettings.size(); i++) {
-		Server *server = new Server(serverSettings[i], eventManager);
+		Server *server = new Server(serverSettings[i], mimeTypes, eventManager);
 		server->launch();
 		eventManager->registerEvent(server->getServerSocket(), READ);
 		servers.push_back(server);

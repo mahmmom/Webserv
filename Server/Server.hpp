@@ -3,6 +3,7 @@
 # define SERVER_HPP
 
 #include "../Config/ServerSettings.hpp"
+#include "../Parser/MimeTypesSettings.hpp"
 #include <map>
 #include "Client.hpp"
 #include <netinet/in.h>
@@ -25,13 +26,14 @@ class Server
 	private:
 		int							serverSocket;
 		ServerSettings				serverSettings;
+		MimeTypesSettings			mimeTypes;
 		EventManager*				eventManager;
 		std::map<int, Client>		clients;
 		std::vector<int>			toRemove;
 		struct sockaddr_in 			serverAddr;
 		std::map<int, HTTPResponse> responses; // change to responseState* later
 	public:
-		Server(ServerSettings& serverSettings, EventManager* eventManager);
+		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 		void setSocketOptions();
 		void setupServerSocket();
 		void bindAndListenServerSocket();

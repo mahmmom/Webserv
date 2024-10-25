@@ -4,6 +4,7 @@
 
 #include <vector>
 #include "../Config/ServerSettings.hpp"
+#include "../Parser/MimeTypesSettings.hpp"
 #include "Server.hpp"
 
 
@@ -21,9 +22,9 @@ class ServerArena
 		std::vector<Server* > 		servers;
 		EventManager* 				eventManager;
 	public:
-		ServerArena(std::vector<ServerSettings>& serverSettings, EventManager* eventManager);
-		void initializeServers(std::vector<ServerSettings>& serverSettings);
+		ServerArena(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 		void run();
+		void initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes);
 		void manageReadEvent(EventBlock& eventBlock);
 		void manageWriteEvent(EventBlock& eventBlock);
 };
