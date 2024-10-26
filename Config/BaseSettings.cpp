@@ -36,12 +36,14 @@ BaseSettings::BaseSettings(std::string& HttpRoot,
 BaseSettings::BaseSettings(std::string serverRoot, 
 							std::string serverAutoIndex, 
 							size_t serverClientMaxBodySize,
+							size_t serverKeepaliveTimeout,
 							std::map<int, std::string> serverErrorPages, 
 							std::map<int, std::string> serverErrorPagesLevel, 
 							std::vector<std::string> serverIndex) :
 								root(serverRoot), 
 								autoIndex(serverAutoIndex), 
 								clientMaxBodySize(serverClientMaxBodySize),
+								keepaliveTimeout(serverKeepaliveTimeout),
 								errorPages(serverErrorPages), 
 								errorPagesLevel(serverErrorPagesLevel), 
 								index(serverIndex) 
@@ -60,6 +62,7 @@ BaseSettings& BaseSettings::operator=(const BaseSettings& other)
 		this->root = other.root;
 		this->autoIndex = other.autoIndex;
 		this->clientMaxBodySize = other.clientMaxBodySize;
+		this->keepaliveTimeout = other.keepaliveTimeout;
 		this->errorPages = other.errorPages;
 		this->errorPagesLevel = other.errorPagesLevel;
 		this->index = other.index;

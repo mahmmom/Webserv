@@ -89,7 +89,7 @@ void EpollManager::deregisterEvent(int fd, EventType event)
 
 int EpollManager::eventListener()
 {
-    int nev = epoll_wait(epfd, &events[0], static_cast<int>(events.size()), -1);
+    int nev = epoll_wait(epfd, &events[0], static_cast<int>(events.size()), EPOLL_TIMEOUT_INTERVAL);
 
     if (nev < 0) {
         log("ERROR", "epoll_wait failed");

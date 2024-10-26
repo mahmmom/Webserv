@@ -5,6 +5,7 @@ LocationSettings::LocationSettings(const std::string& path, const ServerSettings
 	: BaseSettings(serverSettings.getRoot(),
 			serverSettings.getAutoindex(),
 			serverSettings.getClientMaxBodySize(),
+			serverSettings.getKeepaliveTimeout(),
 			serverSettings.getErrorPages(),
 			serverSettings.getErrorPagesLevel(),
 			serverSettings.getIndex()), 

@@ -175,8 +175,8 @@ void Server::handleClientWrite(int& clientSocketFD)
         Note 1: Iterator Invalidation: When you call clients.erase(it);, the iterator it becomes invalid. 
                 In the next iteration of the loop, you would experience a SEGFAULT because you would then 
                 try to dereference this invalid iterator with it++, which leads to undefined behavior. 
-                But to fix this issue, the erase function is designed to return the next valid iterator 
-                and that is why we manually say it = clients.erase(it). 
+                But to fix this issue, we have to assign capture to the current iterator before erasing 
+                it.
 */
 void    Server::checkTimeouts()
 {
@@ -190,13 +190,14 @@ void    Server::checkTimeouts()
 
         size_t timeoutValue = settings->getKeepaliveTimeout();
 
-        std::cout << "WTF " << settings->getRoot() << std::endl;
-
         if (it->second.isTimedout(timeoutValue)) {
             std::cout << "Client " << it->second.getSocket() << " has timed out, proceeding to disconnect" << std::endl;
             eventManager->deregisterEvent(it->second.getSocket(), READ);
             close(it->second.getSocket());
-            it = clients.erase(it); // Note 1
+            // Erase the current client and get the next iterator beforehand
+            std::map<int, Client>::iterator toErase = it; // Note 1
+            it++;
+            clients.erase(toErase);  // Erase using the saved iterator
         }
         else
             it++;

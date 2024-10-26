@@ -108,7 +108,7 @@ HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, Base
     closedir(dir);
 
     // Add Content-Length header
-    response.setHeaders("Content-Length", std::to_string(body.length()));
+    response.setHeaders("Content-Length", intToString(body.length()));
     response.setBody(body);
     
     return response;
@@ -170,8 +170,9 @@ HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std
 */
 HTTPResponse ResponseGenerator::serveError(int statusCode, BaseSettings* settings)
 {
-	if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
-		; // return serveErrorPage
+	(void) settings;
+	// if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
+	// 	; // return serveErrorPage
 
 	HTTPResponse response;
 
@@ -268,9 +269,7 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 	response.setHeaders("Content-Type", mimeTypes.getMimeType(path)); // MUST BE CHANGEd TO MIMETYPE! USE getMimeType
 	response.setHeaders("Connection", "keep-alive");
 
-	// std::cout << "within: jfdhjdfshkjdsfhjdfkshdfjkshdf " << path << std::endl;
-
-	std::ifstream file(path);
+	std::ifstream file(path.c_str());
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << request.getURI() << std::endl;
 		if (errno == EACCES)
@@ -304,8 +303,8 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 
 HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 {
-	if (serverSettings.getReturnDirective().getEnabled())
-		;
+	// if (serverSettings.getReturnDirective().getEnabled())
+	// 	;
 		// return (handleReturnDirective(request, &serverSettings));
 
 	BaseSettings*		settings = &serverSettings;
@@ -317,8 +316,8 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 			return (serveError(403, settings));
 	}
 
-	if (settings->getReturnDirective().getEnabled())
-		;
+	// if (settings->getReturnDirective().getEnabled())
+	// 	;
 		// return (handleReturnDirective(request, settings));
 	return (serveRequest(request, settings));
 }

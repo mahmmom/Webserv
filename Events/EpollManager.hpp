@@ -4,6 +4,8 @@
 
 #if defined(__linux__)
 
+#define EPOLL_TIMEOUT_INTERVAL 5000 // ms
+
 #include "EventManager.hpp"
 #include <sys/epoll.h>
 #include <vector>

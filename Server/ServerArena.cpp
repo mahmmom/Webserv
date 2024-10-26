@@ -56,6 +56,8 @@ void ServerArena::run()
     {
 		manageTimeouts();
 
+		std::cout << "Clock\n";
+
         int nev = eventManager->eventListener();
 
         for (int i = 0; i < nev; i++) {

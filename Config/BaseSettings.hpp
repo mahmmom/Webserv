@@ -20,11 +20,12 @@ class BaseSettings {
 		std::string					root; //
 		std::string					autoIndex; //
 		size_t						clientMaxBodySize; //
+		size_t						keepaliveTimeout;
 		std::map<int, std::string>	errorPages; //
 		std::map<int, std::string>	errorPagesLevel; //
 		std::vector<std::string>	index; //
 		ReturnDirective				returnDirective;
-		size_t						keepaliveTimeout;
+
 
 		BaseSettings(const BaseSettings& other);
 		BaseSettings& operator=(const BaseSettings& other);
@@ -41,6 +42,7 @@ class BaseSettings {
 		BaseSettings(std::string serverRoot, 							// This constructor is used as a base class constructor when 
 						std::string serverAutoIndex, 					// defining the LocationSettings class where it takes the  
 						size_t serverClientMaxBodySize,					// ServerSettings attributes directly. So since the ServerSettings
+						size_t HttpKeepaliveTimeout,	
 						std::map<int, std::string> serverErrorPages,	// has all its attributes properly set in the appropriate 
 						std::map<int, std::string> serverPageLevel, 	// corresponding data types, we extract them in that form as opposed
 						std::vector<std::string> serverIndex);			// to the first scenario, where all the data is still std::string.
