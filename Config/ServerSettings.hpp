@@ -13,6 +13,7 @@
 #define DEFAULT_SERVER_IP "0.0.0.0"
 #define DEFAULT_SERVER_INDEX "index.html"
 #define DEFAULT_SERVER_CLIENT_MAX_BODY_SIZE 1048576 // 1 Mebibyte
+#define DEFAULT_SERVER_KEEPALIVE_TIMEOUT 10
 
 /*
 	NOTES
@@ -59,8 +60,8 @@ class ServerSettings : public BaseSettings
 
 	public:
 		ServerSettings(std::string& HttpRoot, std::string& HttpAutoIndex, 
-			std::string& HttpClientMaxBodySize, std::string& HttpErrorPagesContext,
-			std::vector<DirectiveNode* >& HttpErrorArgs, 
+			std::string& HttpClientMaxBodySize, std::string& HttpKeepAliveTimeout, 
+			std::string& HttpErrorPagesContext, std::vector<DirectiveNode* >& HttpErrorArgs, 
 			std::vector<DirectiveNode* >& HttpIndexArgs);
 		ServerSettings(const ServerSettings& other);
 		ServerSettings& operator=(const ServerSettings& other);

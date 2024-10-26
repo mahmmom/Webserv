@@ -18,6 +18,7 @@ TreeAuditor::TreeAuditor()
 	directiveMap["index"] = std::make_pair(OneOrMore, Independent);
 	directiveMap["return"] = std::make_pair(OneOrTwo, ParentRequired);
 	directiveMap["deny"] = std::make_pair(OneArg, ParentRequired);
+	directiveMap["keepalive_timeout"] = std::make_pair(OneArg, Independent);
 }
 
 void	TreeAuditor::checkDirective(DirectiveNode* dirNode, std::pair<ArgsRequired, DirectiveDependency> pair)
@@ -32,10 +33,6 @@ void	TreeAuditor::checkDirective(DirectiveNode* dirNode, std::pair<ArgsRequired,
 		valid = false;
 	else if (pair.first == TwoOrMore && dirNode->getNumOfArguments() < 2)
 		valid = false;
-
-
-	if (dirNode->getDirectiveName() == "auto_index")
-		std::cout << "Result is -> " << valid << std::endl;
 
 	if (valid == false)
 		throw (std::runtime_error("Invalid number of arguments in \"" + dirNode->getDirectiveName() + "\" directive"));

@@ -2,6 +2,9 @@
 #ifndef BASESETTINGS_HPP
 # define BASESETTINGS_HPP
 
+#define MIN_KEEPALIVE_TIMEOUT 5
+#define MAX_KEEPALIVE_TIMEOUT 30
+
 // #include 
 #include <vector>
 #include <map>
@@ -21,6 +24,8 @@ class BaseSettings {
 		std::map<int, std::string>	errorPagesLevel; //
 		std::vector<std::string>	index; //
 		ReturnDirective				returnDirective;
+		size_t						keepaliveTimeout;
+
 		BaseSettings(const BaseSettings& other);
 		BaseSettings& operator=(const BaseSettings& other);
 	public:
@@ -28,9 +33,10 @@ class BaseSettings {
 		BaseSettings(std::string& HttpRoot, 							// This constructor is used as a base class constructor 
 						std::string& HttpAutoIndex, 					// when defining the ServerSettings class directly from 
 						std::string& HttpClientMaxBodySize,				// the tree where all the attributes are still in 
-						std::string& HttpErrorPagesContext, 			// string format. So basically when we are at the 
-						std::vector<DirectiveNode* >& HttpErrorArgs,	// http level of the LoadSettings functions and it 
-						std::vector<DirectiveNode* >& HttpIndexArgs);	// is used to create a ServerSettings class.
+						std::string& HttpKeepaliveTimeout,				// string format. So basically when we are at the 
+						std::string& HttpErrorPagesContext, 			// http level of the LoadSettings functions and it 
+						std::vector<DirectiveNode* >& HttpErrorArgs,	// is used to create a ServerSettings class.
+						std::vector<DirectiveNode* >& HttpIndexArgs);
 
 		BaseSettings(std::string serverRoot, 							// This constructor is used as a base class constructor when 
 						std::string serverAutoIndex, 					// defining the LocationSettings class where it takes the  
@@ -43,6 +49,7 @@ class BaseSettings {
 		const std::string& getRoot() const;
 		const std::string& getAutoindex() const;
 		const size_t& getClientMaxBodySize() const;
+		const size_t& getKeepaliveTimeout() const;
 		const std::map<int, std::string>& getErrorPages() const;
 		const std::map<int, std::string>& getErrorPagesLevel() const;
 		const std::vector<std::string>& getIndex() const;
@@ -52,6 +59,7 @@ class BaseSettings {
 		void	setRoot(const std::string& root);
 		void	setAutoIndex(const std::string& autoindex);
 		void	setClientMaxBodySize(const std::string& clientMaxBodySize);
+		void	setKeepAliveTimeout(const std::string& keepAliveTimeout);
 		void	setErrorPages(const std::vector<std::string>& errorArgs, const std::string& errorPagesContext);
 		void	setIndex(const std::vector<std::string>& indexArgs);
 		void	setReturn(const std::vector<std::string>& returnArgs);

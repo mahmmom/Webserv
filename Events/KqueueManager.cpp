@@ -68,7 +68,11 @@ void	KqueueManager::deregisterEvent(int socketFD, EventType event)
 
 int	KqueueManager::eventListener()
 {
-	int nev = kevent(kq, NULL, 0, eventlist.data(), eventlist.size(), NULL);
+	struct timespec timeout;
+	timeout.tv_sec = KEVENT_TIMEOUT_INTERVAL;
+	timeout.tv_nsec = 0;
+
+	int nev = kevent(kq, NULL, 0, eventlist.data(), eventlist.size(), &timeout);
 
 	if ((size_t) nev == eventlist.size())
 		eventlist.resize(eventlist.size() * 2);  // Double the size if full

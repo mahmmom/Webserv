@@ -41,11 +41,23 @@ void ServerArena::manageWriteEvent(EventBlock& eventBlock)
 	}
 }
 
+void ServerArena::manageTimeouts()
+{
+	for (size_t i = 0; i < servers.size(); i++) {
+		servers[i]->checkTimeouts();
+	}
+	lastTimeoutCheck = std::time(0);
+}
+
 void ServerArena::run()
 {
+	lastTimeoutCheck = std::time(0);
     while (true)
     {
+		manageTimeouts();
+
         int nev = eventManager->eventListener();
+
         for (int i = 0; i < nev; i++) {
             EventBlock eventBlock = eventManager->getEvent(i);
 			// THIS MIGHT HAVE TO BE SPLIT INTO TWO FOR LOOPS UPON CGI IMPLEMENTATION

@@ -1,9 +1,11 @@
 
 #include "BaseSettings.hpp"
+#include <algorithm>
 
 BaseSettings::BaseSettings(std::string& HttpRoot, 
 							std::string& HttpAutoIndex, 
 							std::string& HttpClientMaxBodySize,
+							std::string& HttpKeepaliveTimeout,
 							std::string& HttpErrorPagesContext,
 							std::vector<DirectiveNode* >& HttpErrorArgs, 
 							std::vector<DirectiveNode* >& HttpIndexArgs)
@@ -21,6 +23,11 @@ BaseSettings::BaseSettings(std::string& HttpRoot,
 
 	for (size_t i = 0; i < HttpErrorArgs.size(); i++)
 		setErrorPages(HttpErrorArgs[i]->getArguments(), HttpErrorPagesContext);
+	
+	if (!HttpKeepaliveTimeout.empty())
+		setKeepAliveTimeout(HttpKeepaliveTimeout);
+	else
+		keepaliveTimeout = std::numeric_limits<size_t>::max();
 
 	for (size_t i = 0; i < HttpIndexArgs.size(); i++)
 		setIndex(HttpIndexArgs[i]->getArguments());
@@ -144,6 +151,48 @@ void	BaseSettings::setClientMaxBodySize(const std::string& clientMaxBodySize)
 
 	size *= factor;
 	this->clientMaxBodySize = size;
+}
+
+/*
+	GENERAL:
+		Actual Nginx accepts these values as units:
+			ms (milliseconds)
+			s (seconds)
+			m (minutes)
+			h (hours)
+			d (days)
+		
+		But for our purposes, we are not going to actually be keeping connections 
+		open for days or hours. We will only implement seconds and actually specify 
+		a max and min value for that timeout.
+*/
+void	BaseSettings::setKeepAliveTimeout(const std::string& keepAliveTimeout)
+{
+	std::string keepAliveValueStr;
+	size_t pos = keepAliveTimeout.find_first_not_of("0123456789");
+
+	if (pos != std::string::npos)
+	{
+		if (keepAliveTimeout.substr(pos) != "s")
+			throw (std::runtime_error("\"keepalive_timeout\" directive invalid value"));
+		keepAliveValueStr = keepAliveTimeout.substr(0, pos);
+	}
+	else
+		keepAliveValueStr = keepAliveTimeout;
+
+	std::stringstream 	ss(keepAliveValueStr);
+	size_t				keepAliveTimeoutValue;
+
+	ss >> keepAliveTimeoutValue;
+
+	if (ss.fail() || !ss.eof())
+		throw (std::runtime_error("\"keepalive_timeout\" directive invalid value"));
+	if (keepAliveTimeoutValue < MIN_KEEPALIVE_TIMEOUT || keepAliveTimeoutValue > MAX_KEEPALIVE_TIMEOUT) {
+        std::ostringstream oss;
+        oss << MIN_KEEPALIVE_TIMEOUT << "s and " << MAX_KEEPALIVE_TIMEOUT << "s";
+		throw (std::runtime_error("\"keepalive_timeout\" value must be between " + oss.str()));
+	}
+	this->keepaliveTimeout = keepAliveTimeoutValue;
 }
 
 /*
@@ -282,6 +331,11 @@ const std::vector<std::string>& BaseSettings::getIndex() const
 const size_t& BaseSettings::getClientMaxBodySize() const
 {
 	return (clientMaxBodySize);
+}
+
+const size_t& BaseSettings::getKeepaliveTimeout() const
+{
+	return (keepaliveTimeout);
 }
 
 const ReturnDirective& BaseSettings::getReturnDirective() const

@@ -128,6 +128,9 @@ void Server::handleClientRead(int& clientSocketFD)
 
             HTTPRequest request(buffer);
 
+            (it)->second.request = request;
+            (it)->second.lastRequestTime = std::time(0);
+
             // LocationSettings* location = serverSettings.findLocation(Request.getURI());
             // if (!location)
             //     std::cerr << "Sorry mate, no location was found for this uri" << std::endl;
@@ -146,8 +149,8 @@ void Server::handleClientWrite(int& clientSocketFD)
     if (it != clients.end())
     {
         std::string response = responses[clientSocketFD].generateResponse();
-        std::cout << "\n===RESPONSE===\n";
-        std::cout << response << std::endl;
+        // std::cout << "\n===RESPONSE===\n";
+        // std::cout << response << std::endl;
         int bytes_sent = send(clientSocketFD, response.c_str(), response.length(), 0);
         if (bytes_sent == -1 && errno != EWOULDBLOCK) {
             perror ("Send"); // probably should remove this
@@ -163,6 +166,40 @@ void Server::handleClientWrite(int& clientSocketFD)
             responses.erase(clientSocketFD);
         }
         eventManager->deregisterEvent(clientSocketFD, WRITE);
+    }
+}
+
+/*
+    NOTES:
+
+        Note 1: Iterator Invalidation: When you call clients.erase(it);, the iterator it becomes invalid. 
+                In the next iteration of the loop, you would experience a SEGFAULT because you would then 
+                try to dereference this invalid iterator with it++, which leads to undefined behavior. 
+                But to fix this issue, the erase function is designed to return the next valid iterator 
+                and that is why we manually say it = clients.erase(it). 
+*/
+void    Server::checkTimeouts()
+{
+    std::map<int, Client>::iterator it = clients.begin();
+
+    while (it != clients.end()) {
+        BaseSettings*		settings = &serverSettings;
+        LocationSettings* 	locationSettings = serverSettings.findLocation((it)->second.request.getURI());
+        if (locationSettings)
+            settings = locationSettings;
+
+        size_t timeoutValue = settings->getKeepaliveTimeout();
+
+        std::cout << "WTF " << settings->getRoot() << std::endl;
+
+        if (it->second.isTimedout(timeoutValue)) {
+            std::cout << "Client " << it->second.getSocket() << " has timed out, proceeding to disconnect" << std::endl;
+            eventManager->deregisterEvent(it->second.getSocket(), READ);
+            close(it->second.getSocket());
+            it = clients.erase(it); // Note 1
+        }
+        else
+            it++;
     }
 }
 
@@ -184,7 +221,8 @@ void Server::removeDisconnectedClients()
                                 // no duplicate keys are allowed. But for a vector, we can have 
                                 // duplicate values and thus, the erase method (its version of the
                                 // override) requires an iterator.
+
         std::cout << "Client disconnected: " << socket << std::endl << std::endl;
     }
-    toRemove.clear();;
+    toRemove.clear();
 }

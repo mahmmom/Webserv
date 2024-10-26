@@ -13,7 +13,9 @@ LoadSettings::LoadSettings(ConfigNode* root)
 	this->HttpIndexArgs.push_back(indexDirective);
 
 	this->HttpClientMaxBodySize = DEFAULT_HTTP_CLIENT_MAX_BODY_SIZE;
-	
+
+	this->HttpKeepaliveTimeout = DEFAULT_HTTP_KEEPALIVE_TIMEOUT;
+
 	this->rootNode = root;
 }
 
@@ -99,6 +101,8 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 				serverSettings.setAutoIndex(directive->getArguments()[0]);
 			else if (directive->getDirectiveName() == "client_max_body_size")
 				serverSettings.setClientMaxBodySize(directive->getArguments()[0]);
+			else if (directive->getDirectiveName() == "keepalive_timeout")
+				serverSettings.setKeepAliveTimeout(directive->getArguments()[0]);
 			else if (directive->getDirectiveName() == "error_page")
 				serverSettings.setErrorPages(directive->getArguments(), "server"); // Note 1
 			else if (directive->getDirectiveName() == "index")
@@ -161,6 +165,8 @@ void LoadSettings::processHTTPNode(ContextNode* root, std::vector<ServerSettings
 				this->HttpAutoIndex = directive->getArguments()[0];
 			else if (directive->getDirectiveName() == "client_max_body_size")
 				this->HttpClientMaxBodySize = directive->getArguments()[0];
+			else if (directive->getDirectiveName() == "keepalive_timeout")
+				this->HttpKeepaliveTimeout = directive->getArguments()[0];
 			else if (directive->getDirectiveName() == "error_page")
 				this->HttpErrorArgs.push_back(directive); // Note 1
 			else if (directive->getDirectiveName() == "index")
@@ -171,10 +177,10 @@ void LoadSettings::processHTTPNode(ContextNode* root, std::vector<ServerSettings
 	for (it = children.begin(); it != children.end(); it++) {
 		if ((*it)->getType() == Context)
 		{
-			std::string contextLevel = "http"; 
+			std::string contextLevel = "http";
 			ContextNode* serverNode = static_cast<ContextNode* >(*it);
 			ServerSettings serverSettings(this->HttpRoot, this->HttpAutoIndex, 
-				this->HttpClientMaxBodySize, contextLevel, this->HttpErrorArgs,
+				this->HttpClientMaxBodySize, this->HttpKeepaliveTimeout, contextLevel, this->HttpErrorArgs,
 				this->HttpIndexArgs);
 			processServerNode(serverNode, serverSettings);
 			serverSettingsVector.push_back(serverSettings);
@@ -197,6 +203,7 @@ void LoadSettings::debugger() const
 	std::cout << "HttpRoot: " << HttpRoot << std::endl;
 	std::cout << "HttpAutoIndex: " << HttpAutoIndex << std::endl;
 	std::cout << "HttpClientMaxBodySize: " << HttpClientMaxBodySize << std::endl;
+	std::cout << "HttpKeepaliveTimeout " << HttpKeepaliveTimeout << std::endl;
 
 	// Print HttpErrorArgs
 	std::cout << "HttpErrorArgs:" << std::endl;

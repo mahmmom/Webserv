@@ -1,7 +1,10 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#include <iostream>
 #include <string>
+#include <ctime>
+#include "../HTTP/HTTPRequest.hpp"
 
 class Client
 {
@@ -10,7 +13,13 @@ class Client
         std::string buffer;
     public:
         Client(int sock);
-        int getSocket() const;
+
+        HTTPRequest request;
+
+        std::time_t lastRequestTime;
+        bool         isTimedout(size_t& keepaliveTimeout);
+
+        int          getSocket() const;
         std::string& getBuffer();
 };
 

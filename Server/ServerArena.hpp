@@ -6,7 +6,7 @@
 #include "../Config/ServerSettings.hpp"
 #include "../Parser/MimeTypesSettings.hpp"
 #include "Server.hpp"
-
+#include <ctime>
 
 #if defined(__APPLE__) || defined(__FreeBSD__)
     #include "../Events/KqueueManager.hpp"
@@ -21,8 +21,10 @@ class ServerArena
 	private:
 		std::vector<Server* > 		servers;
 		EventManager* 				eventManager;
+		std::time_t					lastTimeoutCheck;
 	public:
 		ServerArena(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
+		void manageTimeouts();
 		void run();
 		void initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes);
 		void manageReadEvent(EventBlock& eventBlock);

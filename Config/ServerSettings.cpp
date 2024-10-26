@@ -4,9 +4,11 @@
 
 ServerSettings::ServerSettings(std::string& HttpRoot, 
 		std::string& HttpAutoIndex, std::string& HttpClientMaxBodySize,
+		std::string& HttpKeepaliveTimeout,
 		std::string& HttpErrorPagesContext, std::vector<DirectiveNode* >& HttpErrorArgs, 
 		std::vector<DirectiveNode* >& HttpIndexArgs)
-		: BaseSettings(HttpRoot, HttpAutoIndex, HttpClientMaxBodySize, HttpErrorPagesContext, HttpErrorArgs, HttpIndexArgs)
+		: BaseSettings(HttpRoot, HttpAutoIndex, HttpClientMaxBodySize, HttpKeepaliveTimeout,
+			 			HttpErrorPagesContext, HttpErrorArgs, HttpIndexArgs)
 {
 	setDefaultValues();
 }
@@ -65,6 +67,8 @@ void ServerSettings::setDefaultValues()
 		this->autoIndex = DEFAULT_SERVER_AUTOINDEX;
 	if (this->clientMaxBodySize == std::numeric_limits<size_t>::max())
 		this->clientMaxBodySize = DEFAULT_SERVER_CLIENT_MAX_BODY_SIZE;
+	if (this->keepaliveTimeout == std::numeric_limits<size_t>::max())
+		this->keepaliveTimeout = DEFAULT_SERVER_KEEPALIVE_TIMEOUT;
 	if (this->index.empty())
 		this->index.push_back(DEFAULT_SERVER_INDEX);
 }
@@ -218,6 +222,7 @@ void ServerSettings::debugger() const
 	std::cout << "root: " << root << std::endl;
 	std::cout << "autoIndex: " << autoIndex << std::endl;
 	std::cout << "clientMaxBodySize: " << clientMaxBodySize << std::endl;
+	std::cout << "keepaliveTimeout: " << keepaliveTimeout << std::endl;
 
 	// Print errorPages
 	std::cout << "errorPages:" << std::endl;

@@ -41,6 +41,8 @@ class Server
 
 		void launch();
 
+		void checkTimeouts();
+
 		int& getServerSocket();
 
 		void handleGetRequest(int& clientSocketFD, HTTPRequest& request);

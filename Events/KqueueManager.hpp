@@ -4,6 +4,8 @@
 
 #if defined(__APPLE__) || defined(__FreeBSD__)
 
+#define KEVENT_TIMEOUT_INTERVAL 5
+
 #include "EventManager.hpp"
 #include <sys/event.h>  // for kqueue
 #include <vector>

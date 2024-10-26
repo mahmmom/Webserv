@@ -87,7 +87,7 @@ void HTTPRequest::tokenizeHeaderFields(const std::string& fullRequest) {
 	processRequestLine(headerFields[0]);
 	buildHeaderMap(headerFields);
 
-	debugger();
+	// debugger();
 }
 
 /*
@@ -373,14 +373,5 @@ void HTTPRequest::setURI(const std::string& uri)
 		ORTHODOX CANONICAL FORM
 */
 HTTPRequest::HTTPRequest() {}
-
-HTTPRequest::HTTPRequest(const HTTPRequest& other) {
-	*this = other;
-}
-
-HTTPRequest& HTTPRequest::operator=(const HTTPRequest& other) {
-	(void) other;
-	return (*this);
-}
 
 HTTPRequest::~HTTPRequest() {}

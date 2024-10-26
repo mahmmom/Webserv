@@ -31,7 +31,7 @@ bool LocationSettings::isMethodAllowed(const std::string& method)
 {
 	if (std::find(allowedMethods.begin(), 
 			allowedMethods.end(), method) != allowedMethods.end())
-			return (true);
+		return (true);
 	return (false);
 }
 

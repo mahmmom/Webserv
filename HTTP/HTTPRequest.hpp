@@ -32,12 +32,12 @@ class HTTPRequest
 
 		void setStatus(const int& status);
 
-		HTTPRequest();
-		HTTPRequest& operator=(const HTTPRequest& other);
-		HTTPRequest(const HTTPRequest& other);
-
 		void	debugger();
+
 	public:
+
+		HTTPRequest();
+
 		std::string			getHeader(const std::string& headerName);
 		const std::string&	getMethod() const;
 		const int& 			getStatus() const;

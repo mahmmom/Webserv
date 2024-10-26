@@ -204,12 +204,8 @@ void SyntaxAuditor::checkDirectives(std::vector<std::string>& tokens)
 
 void SyntaxAuditor::checkConfigSyntax(std::vector<std::string>& tokens)
 {
-	std::cout << "check 1\n";
 	checkBraces(tokens);
-	std::cout << "check 2\n";
 	checkRequiredContexts(tokens);
-	std::cout << "check 3\n";
 	checkContextsHierarchy(tokens);
-	std::cout << "check 4\n";
 	checkDirectives(tokens);
 }
