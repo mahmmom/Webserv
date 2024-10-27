@@ -3,9 +3,11 @@
 # define SERVERARENA_HPP
 
 #include <vector>
-#include "../Config/ServerSettings.hpp"
+#include <sstream>
+#include "../Settings/ServerSettings.hpp"
 #include "../Parser/MimeTypesSettings.hpp"
 #include "Server.hpp"
+#include "../Logger/Logger.hpp"
 #include <ctime>
 
 #if defined(__APPLE__) || defined(__FreeBSD__)
@@ -24,6 +26,7 @@ class ServerArena
 		std::time_t					lastTimeoutCheck;
 	public:
 		ServerArena(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
+		void displayServersRegistry();
 		void manageTimeouts();
 		void run();
 		void initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes);

@@ -3,9 +3,10 @@
 #include <exception>
 #include "../Parser/ConfigParser.hpp"
 #include "../Parser/MimeTypesSettings.hpp"
-#include "../Config/BaseSettings.hpp"
+#include "../Settings/BaseSettings.hpp"
 #include "../Parser/LoadSettings.hpp"
 #include "ServerArena.hpp"
+#include "../Logger/Logger.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -42,8 +43,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+	Logger::init(Logger::DEBUG, "Logs/webserve.log");
     ServerArena serverArena(serverSettings, mimeTypes, eventHandler);
+    Logger::log(Logger::DEBUG, "🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️", "main");
     serverArena.run();
+
+	Logger::cleanup();
+	// delete eventHandler;
 
     return (0);
 }

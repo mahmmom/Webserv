@@ -2,6 +2,7 @@
 #ifndef EVENTMANAGER_HPP
 # define EVENTMANAGER_HPP
 
+# include "../Logger/Logger.hpp"
 # define DEFAULT_NUM_OF_EVENTS 200
 
 enum EventType {

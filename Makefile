@@ -25,17 +25,21 @@ PARSERSRCS = $(addprefix $(PARSERDIR)/, ConfigNode.cpp ConfigParser.cpp ConfigTo
 					MimeTypesSettings.cpp)
 PARSEROBJS = $(addprefix $(OBJDIR)/, $(PARSERSRCS:$(PARSERDIR)/%.cpp=%.o))
 
-CONFIGDIR = Config
+CONFIGDIR = Settings
 CONFIGSRCS = $(addprefix $(CONFIGDIR)/, BaseSettings.cpp LocationSettings.cpp ReturnDirective.cpp ServerSettings.cpp)
 CONFIGOBJS = $(addprefix $(OBJDIR)/, $(CONFIGSRCS:$(CONFIGDIR)/%.cpp=%.o))
+
+LOGGERDIR = Logger
+LOGGERSRCS = $(addprefix $(LOGGERDIR)/,Logger.cpp)
+LOGGEROBJS = $(addprefix $(OBJDIR)/, $(LOGGERSRCS:$(LOGGERDIR)/%.cpp=%.o))
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 
 all: $(NAME1) $(NAME2)
 
-$(NAME1): $(SERVEROBJS1) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS)
-	$(CXX) $(CXXFLAGS) -o $(NAME1) $(SERVEROBJS1) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS)
+$(NAME1): $(SERVEROBJS1) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS) $(LOGGEROBJS)
+	$(CXX) $(CXXFLAGS) -o $(NAME1) $(SERVEROBJS1) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS) $(LOGGEROBJS)
 
 $(NAME2): $(SERVEROBJS2)
 	$(CXX) $(CXXFLAGS) -o $(NAME2) $(SERVEROBJS2)
@@ -55,12 +59,14 @@ $(OBJDIR)/%.o: $(PARSERDIR)/%.cpp | $(OBJDIR)
 $(OBJDIR)/%.o: $(CONFIGDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(OBJDIR)/%.o: $(LOGGERDIR)/%.cpp | $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f $(SERVEROBJS1) $(SERVEROBJS2) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS)
+	rm -f $(SERVEROBJS1) $(SERVEROBJS2) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS) $(LOGGEROBJS)
 
 fclean: clean
 	rm -f $(NAME1) $(NAME2)

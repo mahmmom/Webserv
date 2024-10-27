@@ -4,8 +4,12 @@
 ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes) : 
 	serverSettings(serverSettings), mimeTypes(mimeTypes)
 {
+	reasonPhraseMap[200] = "OK";
 	reasonPhraseMap[301] = "Moved Permanently";
 	reasonPhraseMap[302] = "Moved Temporarily";
+	reasonPhraseMap[303] = "See Other";
+	reasonPhraseMap[307] = "Temporary Redirect";
+	reasonPhraseMap[308] = "Permanent Redirect";
 	reasonPhraseMap[403] = "Forbidden";
 	reasonPhraseMap[404] = "Not Found";
 	reasonPhraseMap[500] = "Internal Server Error";
@@ -30,42 +34,50 @@ ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSe
 	</body>
 	</html>
 */
-// HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
-// {
-// 	HTTPResponse response;
+HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
+{
+	(void) request;
+	HTTPResponse response;
 
-// 	const ReturnDirective returnDirective = settings->getReturnDirective();
-// 	if (returnDirective.getTextOrURL() != "empty")
-// 	{
-// 		int statusCode = request.getStatus();
-// 		if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 ||
-// 				statusCode == 308) {
-// 			response.setStatusCode(intToString(statusCode));
-// 			response.setHeaders("Content-type", "text/html"); // Should be changed to mime-type
-// 		}
-// 		else if (statusCode == -1) {
-// 			response.setStatusCode("302");
-// 			response.setReasonPhrase(reasonPhraseMap[302]);
-// 			response.setHeaders("Server", "Ranchero");
-// 			response.setHeaders("Content-Type", "text/html");
-// 			response.setHeaders("Location", returnDirective.getTextOrURL());
-// 			std::string body = 	"<html>"
-// 								"<head><title>302 Found</title></head>"
-// 								"<body>"
-// 								"<center><h1>302 Found</h1></center>"
-// 								"<hr><center>Ranchero</center>"
-// 								"</body>"
-// 								"</html>";
-// 			response.setBody(body);
-// 			response.setHeaders("Content-Length", intToString(body.length()));
-// 		}
-// 		else {
-// 			response.setHeaders("Content-type", "plain/text");
-// 		}
-	
-// 	}
+	const ReturnDirective returnDirective = settings->getReturnDirective();
+	if (returnDirective.getTextOrURL() != "empty")
+	{
+		int statusCode = returnDirective.getStatusCode();
+		std::cout << "This is the statusCode " << statusCode << std::endl;
 
-// }
+		response.setVersion("HTTP/1.1");
+		response.setHeaders("Server", "Ranchero");
+		response.setHeaders("Connection", "keep-alive");
+		if (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 ||
+				statusCode == 308 || statusCode == -1)
+		{
+			if (statusCode == -1)
+				statusCode = 302;
+			response.setStatusCode(intToString(statusCode));
+			response.setReasonPhrase(reasonPhraseMap[statusCode]);
+			response.setHeaders("Location", returnDirective.getTextOrURL());
+			response.setHeaders("Content-type", "text/html"); // Should be changed to mime-type (OR NOT)
+			std::string body = 	"<html>"
+								"<head><title>" + intToString(statusCode) + " " + reasonPhraseMap[statusCode] + "</title></head>"
+								"<body>"
+								"<center><h1>" + intToString(statusCode) + " " + reasonPhraseMap[statusCode] + "</h1></center>"
+								"<hr><center>Ranchero</center>"
+								"</body>"
+								"</html>";
+			response.setBody(body);
+			response.setHeaders("Content-Length", intToString(body.length()));
+		}
+		else {
+			response.setStatusCode(intToString(statusCode));
+			response.setReasonPhrase(reasonPhraseMap[statusCode]);
+			response.setHeaders("Content-type", "text/plain");
+			std::string body = returnDirective.getTextOrURL();
+			response.setBody(body);
+			response.setHeaders("Content-Length", intToString(body.length()));
+		}
+	}
+	return response;
+}
 
 HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, BaseSettings* settings) {
     HTTPResponse response;
@@ -151,6 +163,20 @@ bool ResponseGenerator::isDirectory(const std::string& requestURI)
 			* No new network connection is created
 			* Headers from the original request are preserved
 			* The client only receives the final response
+		
+		As for the too many redirects scenario (for example if in the return 
+		directive you return a page to the same location block like this: 
+			location /index {
+				limit_except GET;
+				return 302 /index/index.html;
+			}
+		), you don't have to handle that, the browser does so automatically. So 
+		the server must actually server all the requests being made. What happens 
+		instead is that browsers have a built-in limit for how many times they 
+		will follow redirects. This limit is generally around 20 to 50 redirects. 
+		If this limit is exceeded, the itself browser will stop making requests 
+		and display the error message which says: "This page isn’t working 
+		localhost redirected you too many times."
 */
 HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path)
 {
@@ -171,8 +197,8 @@ HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std
 HTTPResponse ResponseGenerator::serveError(int statusCode, BaseSettings* settings)
 {
 	(void) settings;
-	// if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
-	// 	; // return serveErrorPage
+	if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
+		; // return serveErrorPage
 
 	HTTPResponse response;
 
@@ -303,9 +329,8 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 
 HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 {
-	// if (serverSettings.getReturnDirective().getEnabled())
-	// 	;
-		// return (handleReturnDirective(request, &serverSettings));
+	if (serverSettings.getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, &serverSettings));
 
 	BaseSettings*		settings = &serverSettings;
 	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
@@ -316,15 +341,13 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 			return (serveError(403, settings));
 	}
 
-	// if (settings->getReturnDirective().getEnabled())
-	// 	;
-		// return (handleReturnDirective(request, settings));
+	if (settings->getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, settings));
 	return (serveRequest(request, settings));
 }
 
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
 {
-	std::cout << "kfjdkdsjfkldsjkfdjdfs\n";
 	std::cout << "URI is " << request.getURI() << std::endl;
 	if (request.getMethod() == "GET")
 		return (handleGetRequest(request));

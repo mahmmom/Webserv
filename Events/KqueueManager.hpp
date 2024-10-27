@@ -10,7 +10,6 @@
 #include <sys/event.h>  // for kqueue
 #include <vector>
 
-
 class KqueueManager : public EventManager
 {
 	private:

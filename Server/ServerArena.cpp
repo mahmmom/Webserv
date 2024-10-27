@@ -12,8 +12,30 @@ void ServerArena::initializeServers(std::vector<ServerSettings>& serverSettings,
 	for (size_t i = 0; i < serverSettings.size(); i++) {
 		Server *server = new Server(serverSettings[i], mimeTypes, eventManager);
 		server->launch();
+		if (server->getServerSocket() == -1) {
+			Logger::log(Logger::ERROR, "Failed to create server", "ServerArena::initializeServers");
+			delete server;
+			continue ;
+		}
 		eventManager->registerEvent(server->getServerSocket(), READ);
 		servers.push_back(server);
+	}
+	displayServersRegistry();
+}
+
+void ServerArena::displayServersRegistry()
+{
+	std::cout << "\n🖥 Server Registry:\n│\n";
+	for (size_t i = 0; i < servers.size(); i++)
+	{
+		std::stringstream ss;
+        ss << servers[i]->getServerPort();
+		if (i < servers.size() - 1)
+			std::cout << "├── \033[0;36m🔵 Listening on Port \033[1;33m" << ss.str() << "\033[0;36m through interface "
+					<< servers[i]->getServerInterface() << " 🗄️\033[0m\n│\n";
+		else
+			std::cout << "└── \033[0;36m🔵 Listening on Port \033[1;33m" << ss.str() << "\033[0;36m through interface "
+					<< servers[i]->getServerInterface() << " 🗄️\033[0m\n";
 	}
 }
 
@@ -55,8 +77,7 @@ void ServerArena::run()
     while (true)
     {
 		manageTimeouts();
-
-		std::cout << "Clock\n";
+		Logger::log(Logger::DEBUG, "⌛ Waiting for events ⌛", "ServerArena::run");
 
         int nev = eventManager->eventListener();
 

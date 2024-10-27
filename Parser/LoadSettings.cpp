@@ -40,6 +40,8 @@ void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettin
 				locationSettings.setIndex(directive->getArguments());
 			else if (directive->getDirectiveName() == "return")
 				locationSettings.setReturn(directive->getArguments());
+			else if (directive->getDirectiveName() == "keepalive_timeout")
+				locationSettings.setKeepAliveTimeout(directive->getArguments()[0]);
 		}
 	}
 
@@ -58,6 +60,16 @@ void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettin
 				throw (std::runtime_error("server only supports \"deny=all\""));
 		}
 	}
+
+	if (locationSettings.getAllowedMethods().empty()) {
+		std::vector<std::string> allowedMethods;
+		allowedMethods.push_back("GET");
+		allowedMethods.push_back("HEAD");
+		allowedMethods.push_back("POST");
+		allowedMethods.push_back("DELETE");
+		locationSettings.setAllowedMethods(allowedMethods);
+	}
+
 	std::cout << "\n====== LOCATION CONTEXT LEVEL ======\n";
 	locationSettings.debugger();
 }

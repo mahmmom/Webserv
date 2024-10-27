@@ -2,7 +2,8 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include "../Config/ServerSettings.hpp"
+#include "../Logger/Logger.hpp"
+#include "../Settings/ServerSettings.hpp"
 #include "../Parser/MimeTypesSettings.hpp"
 #include <map>
 #include "Client.hpp"
@@ -25,6 +26,8 @@ class Server
 {
 	private:
 		int							serverSocket;
+		int							serverPort;
+		std::string					serverInterface;
 		ServerSettings				serverSettings;
 		MimeTypesSettings			mimeTypes;
 		EventManager*				eventManager;
@@ -34,6 +37,7 @@ class Server
 		std::map<int, HTTPResponse> responses; // change to responseState* later
 	public:
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
+
 		void setSocketOptions();
 		void setupServerSocket();
 		void bindAndListenServerSocket();
@@ -44,6 +48,8 @@ class Server
 		void checkTimeouts();
 
 		int& getServerSocket();
+		int& getServerPort();
+		std::string& getServerInterface();
 
 		void handleGetRequest(int& clientSocketFD, HTTPRequest& request);
 

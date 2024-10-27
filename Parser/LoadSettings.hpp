@@ -13,8 +13,8 @@
 #include "ConfigNode.hpp"
 #include "DirectiveNode.hpp"
 #include "ContextNode.hpp"
-#include "../Config/ServerSettings.hpp"
-#include "../Config/LocationSettings.hpp"
+#include "../Settings/ServerSettings.hpp"
+#include "../Settings/LocationSettings.hpp"
 
 class LoadSettings
 {

@@ -41,29 +41,48 @@ KqueueManager::KqueueManager() : eventlist(DEFAULT_NUM_OF_EVENTS)
 
 void	KqueueManager::registerEvent(int socketFD, EventType event)
 {
-	struct kevent change_event;
+	struct kevent 	change_event;
+	std::string		eventStr;
 
-	if (event == READ)
+	if (event == READ) {
 		EV_SET(&change_event, socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-	if (event == WRITE)
-		EV_SET(&change_event, socketFD, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
-	if (kevent(kq, &change_event, 1, NULL, 0, 0) == -1) {
-        std::cerr << "Failed to register event for fd " << socketFD 
-                  << ": " << strerror(errno) << std::endl;
+		eventStr = "READ";
 	}
-	else
-		std::cout << "Success" << std::endl;
+	if (event == WRITE) {
+		EV_SET(&change_event, socketFD, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
+		eventStr = "WRITE";
+	}
+	if (kevent(kq, &change_event, 1, NULL, 0, 0) == -1) {
+		Logger::log(Logger::ERROR, "Failed to register " + eventStr + " event for fd " + 
+			Logger::intToString(socketFD) + ": " + strerror(errno), "KqueueManager::registerEvent");
+	}
+	else {
+		Logger::log(Logger::DEBUG, "Registered new " + eventStr + " event for fd " + 
+			Logger::intToString(socketFD), "KqueueManager::registerEvent");
+	}
 }
 
 void	KqueueManager::deregisterEvent(int socketFD, EventType event)
 {
-	struct kevent change_event;
+	struct kevent 	change_event;
+	std::string		eventStr;
 
-	if (event == READ)
+	if (event == READ) {
 		EV_SET(&change_event, socketFD, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-	if (event == WRITE)
+		eventStr = "READ";
+	}
+	if (event == WRITE) {
 		EV_SET(&change_event, socketFD, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-	kevent(kq, &change_event, 1, NULL, 0, 0);
+		eventStr = "WRITE";
+	}
+	if (kevent(kq, &change_event, 1, NULL, 0, 0) == -1) {
+		Logger::log(Logger::ERROR, "Failed to deregister " + eventStr + " event for fd " + 
+			Logger::intToString(socketFD) + ": " + strerror(errno), "KqueueManager::registerEvent");
+	}
+	else {
+		Logger::log(Logger::DEBUG, "Deregistered " + eventStr + " event for fd " + 
+			Logger::intToString(socketFD), "KqueueManager::registerEvent");
+	}
 }
 
 int	KqueueManager::eventListener()

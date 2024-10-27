@@ -6,49 +6,74 @@ Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, Eve
 {
 	memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY; // Binds to all interfaces (0.0.0.0) meaning the socket will listen on all network interfaces of the machine.
+
+    std::string ipAddress = serverSettings.getIP();
+    inet_pton(AF_INET, ipAddress.c_str(), &(serverAddr.sin_addr));
+    // serverAddr.sin_addr.s_addr = INADDR_ANY; // Binds to all interfaces (0.0.0.0) meaning the socket will listen on all network interfaces of the machine.
     serverAddr.sin_port = htons(serverSettings.getPort());
-
-    std::cout << "Just as a double cheek" << std::endl;
-
+    serverPort = serverSettings.getPort();
     char serverStrAddress[INET_ADDRSTRLEN];
     inet_ntop(serverAddr.sin_family, &(serverAddr.sin_addr),
         serverStrAddress, sizeof(serverStrAddress));
-    std::cout << "Server address is " << serverStrAddress << std::endl;
-    std::cout << "Server port is listening on " << ntohs(serverAddr.sin_port) << std::endl;
+    serverInterface = std::string(serverStrAddress);
 }
 
 void Server::setSocketOptions()
 {
-	int opt = 1;
+    if (serverSocket == -1)
+        return ;
 
+	int opt = 1;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
     {
-        throw SetsockoptException();
+        Logger::log(Logger::ERROR, "Failed to set socket options: " + std::string(strerror(errno)), "Server::setSocketOptions");
+        serverSocket = -1;
     }
 }
 
 void Server::setupServerSocket()
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSocket < 0) {
+        Logger::log(Logger::ERROR, "Failed to create server socket: " + std::string(strerror(errno)), "Server::setupServerSocket");
+        serverSocket = -1;
+    }
+    else {
+        std::stringstream ss;
+        ss << serverSocket;
+        Logger::log(Logger::INFO, "Server socket with fd " + ss.str() + " created succesfuly", "Server::setupServerSocket");
+    }
 }
 
 void Server::bindAndListenServerSocket()
 {
-	if(bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
-    {
-        throw BindException();
+    if (serverSocket == -1)
+        return ;
+
+	if(bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        Logger::log(Logger::ERROR, "Failed to bind server socket: " + std::string(strerror(errno)), "Server::bindAndListenServerSocket");
+        serverSocket = -1;
+        return ;
     }
-	if (listen(serverSocket, 5) < 0)
-    {
-        throw ListenException();
+	if (listen(serverSocket, 5) < 0) {
+        Logger::log(Logger::ERROR, "Failed to listen on socket: " + std::string(strerror(errno)), "Server::bindAndListenServerSocket");
+        serverSocket = -1;
     }
 }
 
 void Server::setNonBlocking(int& sockFD)
 {
+    if (serverSocket == -1)
+        return ;
 	int flags = fcntl(sockFD, F_GETFL, 0);
-    fcntl(sockFD, F_SETFL, flags | O_NONBLOCK);
+    if (flags < 0) {
+        Logger::log(Logger::ERROR, "Failed to set socket to nonblocking: " + std::string(strerror(errno)), "Server::setNonBlocking");
+        serverSocket = -1;
+    }
+    if (fcntl(sockFD, F_SETFL, flags | O_NONBLOCK) < 0) {
+        Logger::log(Logger::ERROR, "Failed to set socket to nonblocking:  " + std::string(strerror(errno)), "Server::setNonBlocking");
+        serverSocket = -1;
+    }
 }
 
 void Server::launch()
@@ -64,6 +89,17 @@ int& Server::getServerSocket()
 	return (serverSocket);
 }
 
+int& Server::getServerPort()
+{
+    return (serverPort);
+}
+
+std::string& Server::getServerInterface()
+{
+    return (serverInterface);
+}
+
+
 void Server::acceptNewClient()
 {
     struct sockaddr_in  clientAddr;
@@ -71,20 +107,28 @@ void Server::acceptNewClient()
     char				clientStrAddress[INET_ADDRSTRLEN]; // consider adding to client class
 
     memset(&clientAddr, 0, sizeof(clientAddr));
-    int client_socket = accept(serverSocket, (struct sockaddr*)&clientAddr, &clientLen);
-    if (client_socket == -1) {
-        throw(AcceptException());
+    int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddr, &clientLen);
+    if (clientSocket == -1) {
+        Logger::log(Logger::ERROR, "Could not accept new connection: " + std::string(strerror(errno)), "Server::acceptNewClient");
+        return ;
     }
-
-    setNonBlocking(client_socket);
-    clients.insert(std::make_pair(client_socket, Client(client_socket)));
+    Logger::log(Logger::INFO, "Accepted new connection on socket fd: " + Logger::intToString(clientSocket), "Server::acceptNewConnection");
+	int flags = fcntl(clientSocket, F_GETFL, 0);
+    if (flags < 0) {
+        Logger::log(Logger::ERROR, "Failed to set socket to nonblocking: " + std::string(strerror(errno)), "Server::acceptNewConnection");
+        close(clientSocket);
+        return ;
+    }
+    if (fcntl(clientSocket, F_SETFL, flags | O_NONBLOCK) < 0) {
+        Logger::log(Logger::ERROR, "Failed to set socket to nonblocking:  " + std::string(strerror(errno)), "Server::acceptNewConnection");
+        close(clientSocket);
+        return ;
+    }
+    clients.insert(std::make_pair(clientSocket, Client(clientSocket)));
     inet_ntop(clientAddr.sin_family, &(clientAddr.sin_addr),
         clientStrAddress, sizeof(clientStrAddress));
 
-    std::cout << "New client connected from: " << clientStrAddress
-            << " on fd (" << client_socket << ")" << std::endl;
-
-    eventManager->registerEvent(client_socket, READ);
+    eventManager->registerEvent(clientSocket, READ);
 }
 
 void Server::handleGetRequest(int& clientSocketFD, HTTPRequest& request)
@@ -131,12 +175,6 @@ void Server::handleClientRead(int& clientSocketFD)
             (it)->second.request = request;
             (it)->second.lastRequestTime = std::time(0);
 
-            // LocationSettings* location = serverSettings.findLocation(Request.getURI());
-            // if (!location)
-            //     std::cerr << "Sorry mate, no location was found for this uri" << std::endl;
-            // else
-            //     std::cout << "Good boy with good logic" << std::endl;
-
             if (request.getMethod() == "GET")
                 handleGetRequest(clientSocketFD, request);
         }
@@ -174,9 +212,10 @@ void Server::handleClientWrite(int& clientSocketFD)
 
         Note 1: Iterator Invalidation: When you call clients.erase(it);, the iterator it becomes invalid. 
                 In the next iteration of the loop, you would experience a SEGFAULT because you would then 
-                try to dereference this invalid iterator with it++, which leads to undefined behavior. 
-                But to fix this issue, we have to assign capture to the current iterator before erasing 
-                it.
+                try to dereference this invalid iterator in while (it != clients.end()), which leads to 
+                undefined behavior. But to fix this issue, we have to capture the next iterator through 
+                the current iterator before erasing it. After the iterator has been shifted, we can now 
+                safely erase the current iterator.
 */
 void    Server::checkTimeouts()
 {
@@ -185,16 +224,17 @@ void    Server::checkTimeouts()
     while (it != clients.end()) {
         BaseSettings*		settings = &serverSettings;
         LocationSettings* 	locationSettings = serverSettings.findLocation((it)->second.request.getURI());
+
         if (locationSettings)
             settings = locationSettings;
 
         size_t timeoutValue = settings->getKeepaliveTimeout();
 
         if (it->second.isTimedout(timeoutValue)) {
-            std::cout << "Client " << it->second.getSocket() << " has timed out, proceeding to disconnect" << std::endl;
+            Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(it->second.getSocket()) + 
+                " has timed out, proceeding to disconnect", "Server::checkTimeouts");
             eventManager->deregisterEvent(it->second.getSocket(), READ);
             close(it->second.getSocket());
-            // Erase the current client and get the next iterator beforehand
             std::map<int, Client>::iterator toErase = it; // Note 1
             it++;
             clients.erase(toErase);  // Erase using the saved iterator
@@ -223,7 +263,8 @@ void Server::removeDisconnectedClients()
                                 // duplicate values and thus, the erase method (its version of the
                                 // override) requires an iterator.
 
-        std::cout << "Client disconnected: " << socket << std::endl << std::endl;
+        Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(socket) + 
+                " has disconnected", "Server::removeDisconnectedClients");
     }
     toRemove.clear();
 }

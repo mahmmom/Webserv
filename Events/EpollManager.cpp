@@ -114,4 +114,16 @@ EventBlock EpollManager::getEvent(const int& index)
     return eventBlock;
 }
 
+void EpollManager::log(const std::string& level, const std::string& message) const
+{
+    std::cout << "[" << level << "] EpollManager: " << message << std::endl;
+}
+
+std::string EpollManager::intToString(int number) const
+{
+    std::ostringstream oss;
+    oss << number;
+    return oss.str();
+}
+
 #endif

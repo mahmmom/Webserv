@@ -2,8 +2,8 @@
 #ifndef RESPONSEGENERATOR_HPP
 # define RESPONSEGENERATOR_HPP
 
-#include "../Config/ServerSettings.hpp"
-#include "../Config/LocationSettings.hpp"
+#include "../Settings/ServerSettings.hpp"
+#include "../Settings/LocationSettings.hpp"
 #include "../Parser/MimeTypesSettings.hpp"
 #include "HTTPResponse.hpp"
 #include "HTTPRequest.hpp"

@@ -24,15 +24,9 @@ class EpollManager : public EventManager {
         std::vector<struct epoll_event> events;
         std::map<int, int> registeredEvents; // fd -> event types (bit flags)
 
-        void log(const std::string& level, const std::string& message) const {
-            std::cout << "[" << level << "] EpollManager: " << message << std::endl;
-        }
+        void log(const std::string& level, const std::string& message) const;
 
-        std::string intToString(int number) const {
-            std::ostringstream oss;
-            oss << number;
-            return oss.str();
-        }
+        std::string intToString(int number) const;
     public:
         EpollManager();
         ~EpollManager();
