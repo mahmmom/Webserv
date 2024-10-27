@@ -145,17 +145,12 @@ void Server::handleClientRead(int& clientSocketFD)
 	char buffer[BUFFER_SIZE] = {0};
     int bytes_read = recv(clientSocketFD, buffer, sizeof(buffer), 0);
 
-    if (bytes_read < 0 && errno != EWOULDBLOCK) {
-        perror ("Recv"); // probably should remove this
-        std::cerr << "Will proceed to disconnect client (" 
-            << clientSocketFD << ")" << std::endl;
-        toRemove.push_back(clientSocketFD);
-    }
-    else if (bytes_read < 0 && errno == EWOULDBLOCK) {
-        perror("*Recv");
+    if (bytes_read < 0) {
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
     }
     else if (bytes_read == 0) {
-        toRemove.push_back(clientSocketFD);
+        removeDisconnectedClients(clientSocketFD);
     }
     else
     {
@@ -244,27 +239,35 @@ void    Server::checkTimeouts()
     }
 }
 
-void Server::removeDisconnectedClients()
+void Server::removeBadClients(int& clientSocketFD)
 {
-	for (size_t i = 0; i < toRemove.size(); ++i)
-    {
-        int socket = toRemove[i];
+    eventManager->deregisterEvent(clientSocketFD, READ);
+    
+    clients.erase(clientSocketFD);  // erase doesn't need an iterator here because we are working with
+                            // maps; for std::maps, we can erase an element by its key because 
+                            // no duplicate keys are allowed. But for a vector, we can have 
+                            // duplicate values and thus, the erase method (its version of the
+                            // override) requires an iterator.
 
-        eventManager->deregisterEvent(socket, READ);
+    Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
+            " has exhibited abnormal activity and has been removed", "Server::removeBadClients");
+}
 
-        close(socket);  // manual says EV_DELETE: Removes the event from the kqueue. 
-                        // Events which are attached to file descriptors are automatically 
-                        // deleted on the last close of the descriptor. So we can just close
-                        // and any events attached to that the socket are automatically dequeued.
-        
-        clients.erase(socket);  // erase doesn't need an iterator here because we are working with
-                                // maps; for std::maps, we can erase an element by its key because 
-                                // no duplicate keys are allowed. But for a vector, we can have 
-                                // duplicate values and thus, the erase method (its version of the
-                                // override) requires an iterator.
+void Server::removeDisconnectedClients(int& clientSocketFD)
+{
+    eventManager->deregisterEvent(clientSocketFD, READ);
 
-        Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(socket) + 
-                " has disconnected", "Server::removeDisconnectedClients");
-    }
-    toRemove.clear();
+    close(clientSocketFD);  // manual says EV_DELETE: Removes the event from the kqueue. 
+                    // Events which are attached to file descriptors are automatically 
+                    // deleted on the last close of the descriptor. So we can just close
+                    // and any events attached to that the socket are automatically dequeued.
+    
+    clients.erase(clientSocketFD);  // erase doesn't need an iterator here because we are working with
+                            // maps; for std::maps, we can erase an element by its key because 
+                            // no duplicate keys are allowed. But for a vector, we can have 
+                            // duplicate values and thus, the erase method (its version of the
+                            // override) requires an iterator.
+
+    Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
+            " has disconnected", "Server::removeDisconnectedClients");
 }

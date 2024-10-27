@@ -56,7 +56,8 @@ class Server
 		void acceptNewClient();
 		void handleClientRead(int& clientSocketFD);
 		void handleClientWrite(int& clientSocketFD);
-		void removeDisconnectedClients();
+		void removeBadClients(int& clientSocketFD);
+		void removeDisconnectedClients(int& clientSocketFD);
 };
 
 #endif
