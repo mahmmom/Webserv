@@ -5,7 +5,7 @@ SERVERDIR = Server
 OBJDIR = obj
 
 HTTPDIR = HTTP
-HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp HTTPResponse.cpp ResponseGenerator.cpp)
+HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp HTTPResponse.cpp ResponseGenerator.cpp ResponseManager.cpp)
 HTTPOBJS = $(addprefix $(OBJDIR)/, $(HTTPSRCS:$(HTTPDIR)/%.cpp=%.o))
 
 # NonBlockingServer.cpp

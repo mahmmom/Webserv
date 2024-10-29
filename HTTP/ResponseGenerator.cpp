@@ -152,6 +152,16 @@ bool ResponseGenerator::isDirectory(const std::string& requestURI)
 	return (S_ISDIR(pathStat.st_mode));
 }
 
+long long ResponseGenerator::getFileSize(std::string& filePath) 
+{
+    struct stat pathStat;
+    if (stat(filePath.c_str(), &pathStat) != 0) {
+        std::cerr << "Failed to get file information.\n";
+        return -1;
+    }
+    return pathStat.st_size;  // File size in bytes
+}
+
 /*
 	GENERAL
 		This function is responsible for handling internal redirects from 
@@ -252,7 +262,7 @@ HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettin
 {
 	if (settings->getAutoindex() == "off")
 		return (serveError(403, settings));
-	
+
 	return (serveDirectoryListing(request, settings));
 }
 
@@ -283,7 +293,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 	return (handleAutoIndex(request, settings));
 }
 
-HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path)
+HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSettings* settings, std::string& path)
 {
 	HTTPResponse response;
 
@@ -292,12 +302,12 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 	response.setReasonPhrase("OK");
 
 	response.setHeaders("Server", "Ranchero");
-	response.setHeaders("Content-Type", mimeTypes.getMimeType(path)); // MUST BE CHANGEd TO MIMETYPE! USE getMimeType
+	response.setHeaders("Content-Type", mimeTypes.getMimeType(path));
 	response.setHeaders("Connection", "keep-alive");
 
 	std::ifstream file(path.c_str());
 	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << request.getURI() << std::endl;
+		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
 		if (errno == EACCES)
 			return (serveError(403, settings));
 		return (serveError(500, settings));
@@ -312,6 +322,52 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 	file.close();
 
 	return (response);
+}
+
+HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseSettings* settings, std::string& filePath, long long& fileSize)
+{
+	HTTPResponse response;
+
+	response.setFilePath(filePath);
+	response.setFileSize(fileSize);
+	response.setType(ChunkedResponse);
+	response.setVersion("HTTP/1.1");
+	response.setStatusCode("200");
+	response.setReasonPhrase("OK");
+
+	response.setHeaders("Server", "Ranchero");
+	response.setHeaders("Content-Type", mimeTypes.getMimeType(filePath));
+	response.setHeaders("Connection", "keep-alive");
+
+	std::ifstream file(filePath.c_str());
+	if (!file.is_open()) {
+		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
+		if (errno == EACCES)
+			return (serveError(403, settings));
+		return (serveError(500, settings));
+	}
+
+	response.setHeaders("Transfer-Encoding", "chunked");
+	return (response);
+}
+
+HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path)
+{
+	long long fileSize;
+
+	fileSize = getFileSize(path);
+
+	if (fileSize == -1) {
+		Logger::log(Logger::ERROR, "Failed to determine file size", "ResponseGenerator::serveFile");
+		return (serveError(500, settings));
+	}
+	else if (fileSize <= COMPACT_RESPONSE_LIMIT)
+		return (serveSmallFile(request, settings, path));
+	else
+		return (serveChunkedResponse(request, settings, path, fileSize));
+	
+	HTTPResponse deleteLater;
+	return (deleteLater);
 }
 
 HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings* settings)

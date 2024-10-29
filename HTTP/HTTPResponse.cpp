@@ -1,21 +1,36 @@
 
 #include "HTTPResponse.hpp"
 
-std::string	HTTPResponse::generateResponse()
-{
-	std::string	response;
+HTTPResponse::HTTPResponse() : type(CompactResponse) {}
 
-	response = version + " " + statusCode + " " + reasonPhrase + "\r\n";
+std::string&	HTTPResponse::generateResponse()
+{
+	fullResponse = version + " " + statusCode + " " + reasonPhrase + "\r\n";
 	std::map<std::string, std::string>::iterator it;
 	for (it = headers.begin(); it != headers.end(); it++) {
-		response += (it->first) + ":";
-		response += " " + (it->second) + "\r\n";
+		fullResponse += (it->first) + ":";
+		fullResponse += " " + (it->second) + "\r\n";
 	}
-	response += "\r\n";
+	fullResponse += "\r\n";
 	if (!body.empty())
-		response += body;
+		fullResponse += body;
 	
-	return (response);
+	return (fullResponse);
+}
+
+void HTTPResponse::setFilePath(const std::string& filePath)
+{
+	this->filePath = filePath;
+}
+
+void HTTPResponse::setFileSize(const long long& fileSize)
+{
+	this->fileSize = fileSize;
+}
+
+void	HTTPResponse::setType(const ResponseType type)
+{
+	this->type = type;
 }
 
 void	HTTPResponse::setVersion(const std::string& version)
@@ -41,6 +56,21 @@ void	HTTPResponse::setHeaders(const std::string& headerName, const std::string& 
 void	HTTPResponse::setBody(const std::string& body)
 {
 	this->body = body;
+}
+
+const std::string& HTTPResponse::getFilePath()
+{
+	return (filePath);
+}
+
+const long long& HTTPResponse::getFileSize()
+{
+	return (fileSize);
+}
+
+const ResponseType& HTTPResponse::getType()
+{
+	return (type);
 }
 
 const std::string& HTTPResponse::getReasonPhrase()

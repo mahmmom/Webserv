@@ -27,10 +27,10 @@ class Logger
 		static std::string intToString(int number);
 
 		static void	setLevel(Level level);
-		static void	setOutput(std::ostream &outputStream);
-		static void	setFormat(const std::string &formatString);
+		static void	setOutput(std::ostream& outputStream);
+		static void	setFormat(const std::string& formatString);
 
-		static void	init(Logger::Level logLevel, const std::string &logFilePath = "");
+		static void	init(Logger::Level logLevel, const std::string& logFilePath = "");
 		static void cleanup();
 
 		static void log(Level level, const std::string& message, const std::string& source);

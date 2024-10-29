@@ -1,6 +1,33 @@
 
 #include "Server.hpp"
 
+size_t simulatedSend(int socket, const void* buffer, size_t length, int flags)
+{
+
+    size_t bytesToSend;
+    // Simulate sending only a portion of the data
+    if (length == 1)
+        bytesToSend = length;
+    else    
+        bytesToSend = length / 2; // Simulate sending half of the requested data
+    
+    // Ensure we do not send more than available
+    if (bytesToSend > length) {
+        bytesToSend = length;
+    }
+
+    // Actually send the data over the socket
+    ssize_t result = send(socket, buffer, bytesToSend, flags);
+
+    if (result < 0) {
+        std::cerr << "Error sending data: " << strerror(errno) << std::endl;
+        return -1; // Return -1 on send error
+    }
+
+    std::cout << "Sent " << result << " bytes."; // Log how many bytes were sent
+    return result; // Return the actual number of bytes sent
+}
+
 Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager) :
 	 serverSettings(serverSettings), mimeTypes(mimeTypes), eventManager(eventManager)
 {
@@ -136,7 +163,14 @@ void Server::handleGetRequest(int& clientSocketFD, HTTPRequest& request)
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request);
-    responses[clientSocketFD] =  response;
+    
+    ResponseManager* responseManager = NULL;
+    if (response.getType() == CompactResponse)
+        responseManager = new ResponseManager(response.generateResponse(), false);
+    else
+        responseManager = new ResponseManager(response.generateResponse(), response.getFilePath(), response.getFileSize());
+    responses[clientSocketFD] =  responseManager;
+
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
@@ -152,8 +186,7 @@ void Server::handleClientRead(int& clientSocketFD)
     else if (bytes_read == 0) {
         removeDisconnectedClients(clientSocketFD);
     }
-    else
-    {
+    else {
         std::map<int, Client>::iterator it = clients.find(clientSocketFD);
         if (it != clients.end())
         {
@@ -176,30 +209,146 @@ void Server::handleClientRead(int& clientSocketFD)
     }
 }
 
+
 void Server::handleClientWrite(int& clientSocketFD)
 {
     std::map<int, Client>::iterator it = clients.find(clientSocketFD);
     if (it != clients.end())
     {
-        std::string response = responses[clientSocketFD].generateResponse();
-        // std::cout << "\n===RESPONSE===\n";
-        // std::cout << response << std::endl;
-        int bytes_sent = send(clientSocketFD, response.c_str(), response.length(), 0);
-        if (bytes_sent == -1 && errno != EWOULDBLOCK) {
-            perror ("Send"); // probably should remove this
-            std::cerr << "Will proceed to disconnect client (" 
-                << clientSocketFD << ")" << std::endl;
-            toRemove.push_back(clientSocketFD);
-        } 
-        else if ((bytes_sent == -1 && errno == EWOULDBLOCK)) {
-            perror("*Send");
-        }
-        else {
-            std::cout << "successfuly sent" << std::endl;
-            responses.erase(clientSocketFD);
-        }
-        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        ResponseManager* responseManager = responses[clientSocketFD];
+        if (responseManager->getType() == CompactResponse)
+            sendCompactFile(clientSocketFD, responseManager);
+        else
+            sendChunkedResponse(clientSocketFD, responseManager);
     }
+}
+
+void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseManager)
+{
+    std::string headers = responseManager->getHeaders();
+    const char* response = headers.c_str() + responseManager->getBytesSent();
+    size_t      len = headers.length() - responseManager->getBytesSent();
+    size_t      bytesSent = send(clientSocketFD, response, len, 0);
+
+    if (bytesSent < 0)
+    {
+        Logger::log(Logger::DEBUG, "Failed to send headers for a chunked response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        return ;
+    }
+
+    responseManager->updateBytesSent(bytesSent);
+    if (responseManager->getBytesSent() >= responseManager->getHeaders().size())
+    {
+        responseManager->resetBytesSent();
+        responseManager->setHeadersFullySent();
+        Logger::log(Logger::DEBUG, "Headers for a chunked response have been fully sent to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+    }
+    else
+        Logger::log(Logger::DEBUG, "Headers for a chunked response have been partially sent to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+}
+
+void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManager)
+{
+    std::string chunk = responseManager->obtainChunk();
+
+    const char* response = chunk.c_str() + responseManager->getBytesSent();
+    size_t      len = chunk.length() - responseManager->getBytesSent();
+    size_t      bytesSent = send(clientSocketFD, response, len, 0);
+
+    if (bytesSent < 0)
+    {
+        Logger::log(Logger::DEBUG, "Failed to send a chunked response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        return ;
+    }
+
+    responseManager->updateBytesSent(bytesSent);
+    if (responseManager->getBytesSent() >= chunk.length())
+    {
+        responseManager->resetBytesSent();
+        Logger::log(Logger::DEBUG, "A chunked response has been fully sent to client with socket fd " + 
+            Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+    }
+    else
+        Logger::log(Logger::DEBUG, "A chunked response has been partially sent to client with socket fd " + 
+            Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+    if (responseManager->isFinished())
+    {
+        std::string closingChunk = "0\r\n\r\n";
+        size_t      bytesSent = send(clientSocketFD, closingChunk.c_str(), closingChunk.size(), 0);
+        if (bytesSent < 0)
+        {
+            Logger::log(Logger::DEBUG, "Failed to send a chunked response to client with "
+                "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+            eventManager->deregisterEvent(clientSocketFD, WRITE);
+            responses.erase(clientSocketFD);
+            delete (responseManager);
+            removeBadClients(clientSocketFD);
+            return ;
+        }
+        Logger::log(Logger::DEBUG, "All chunked responses have been fully sent to client with socket fd " + 
+            Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+    }
+}
+
+void Server::sendChunkedResponse(int& clientSocketFD, ResponseManager* responseManager)
+{
+    if (!responseManager->getHeadersFullySent())
+        sendChunkedHeaders(clientSocketFD, responseManager);
+    else
+        sendChunkedBody(clientSocketFD, responseManager);
+}
+
+void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseManager)
+{
+    std::string compactResponse = responseManager->getCompactResponse();
+    const char* response = compactResponse.c_str() + responseManager->getBytesSent();
+    size_t      len = compactResponse.length() - responseManager->getBytesSent();
+    size_t      bytesSent = send(clientSocketFD, response, len, 0);
+    // size_t      bytesSent = simulatedSend(clientSocketFD, response, len, 0);
+
+    if (bytesSent < 0)
+    {
+        Logger::log(Logger::ERROR, "Failed to send compact response to client with socket fd " + 
+            Logger::intToString(clientSocketFD), "Server::sendCompactFile");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        return ;
+    }
+
+    responseManager->updateBytesSent(bytesSent);
+    if (responseManager->isFinished())
+    {
+        Logger::log(Logger::DEBUG, "A compact response has been fully sent to client with socket fd " + 
+            Logger::intToString(clientSocketFD), "Server::sendCompactFile");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        if (responseManager->getCloseConnection()) {
+            Logger::log(Logger::INFO, "Disconnecting client with socket fd: " + Logger::intToString(clientSocketFD)
+                + " upon sending a compact response", "Server::sendCompactFile");
+            close(clientSocketFD);
+        }
+        delete (responseManager);
+    }
+    else
+        Logger::log(Logger::DEBUG, "A compact response has been sent partially to client with socket fd " + 
+            Logger::intToString(clientSocketFD), "Server::sendCompactFile");
 }
 
 /*
