@@ -10,6 +10,8 @@
 
 int main(int argc, char *argv[])
 {
+    signal(SIGPIPE, SIG_IGN);
+
     std::string configFile;
     if (argc == 1)
         configFile = "etc/nginx.conf";
