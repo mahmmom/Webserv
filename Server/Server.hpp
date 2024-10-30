@@ -32,13 +32,14 @@ class Server
 		ServerSettings						serverSettings;
 		MimeTypesSettings					mimeTypes;
 		EventManager*						eventManager;
-		std::map<int, Client>				clients;
 		std::vector<int>					toRemove;
 		struct sockaddr_in 					serverAddr;
 		std::map<int, ResponseManager* > 	responses; // change to responseState* later
+		std::map<int, Client>				clients;
 	public:
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 
+		bool checkClientErased(int& clientSocketFD);
 		void setSocketOptions();
 		void setupServerSocket();
 		void bindAndListenServerSocket();
@@ -53,7 +54,6 @@ class Server
 		std::string& getServerInterface();
 
 		void acceptNewClient();
-
 
 		void handleGetRequest(int& clientSocketFD, HTTPRequest& request);
 		void handleClientRead(int& clientSocketFD);

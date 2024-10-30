@@ -42,6 +42,7 @@ KqueueManager::KqueueManager() : eventlist(DEFAULT_NUM_OF_EVENTS)
 void	KqueueManager::registerEvent(int socketFD, EventType event)
 {
 	struct kevent 	change_event;
+	memset(&change_event, 0, sizeof(change_event));
 	std::string		eventStr;
 
 	if (event == READ) {
@@ -66,6 +67,7 @@ void	KqueueManager::deregisterEvent(int socketFD, EventType event)
 {
 	struct kevent 	change_event;
 	std::string		eventStr;
+	memset(&change_event, 0, sizeof(change_event));
 
 	if (event == READ) {
 		EV_SET(&change_event, socketFD, EVFILT_READ, EV_DELETE, 0, 0, NULL);
@@ -77,11 +79,11 @@ void	KqueueManager::deregisterEvent(int socketFD, EventType event)
 	}
 	if (kevent(kq, &change_event, 1, NULL, 0, 0) == -1) {
 		Logger::log(Logger::ERROR, "Failed to deregister " + eventStr + " event for fd " + 
-			Logger::intToString(socketFD) + ": " + strerror(errno), "KqueueManager::registerEvent");
+			Logger::intToString(socketFD) + ": " + strerror(errno), "KqueueManager::deregisterEvent");
 	}
 	else {
 		Logger::log(Logger::DEBUG, "Deregistered " + eventStr + " event for fd " + 
-			Logger::intToString(socketFD), "KqueueManager::registerEvent");
+			Logger::intToString(socketFD), "KqueueManager::deregisterEvent");
 	}
 }
 
@@ -93,18 +95,24 @@ int	KqueueManager::eventListener()
 
 	int nev = kevent(kq, NULL, 0, eventlist.data(), eventlist.size(), &timeout);
 
-	if ((size_t) nev == eventlist.size())
+	if ((size_t) nev == eventlist.size()) {
+		Logger::log(Logger::INFO, "Resizing the eventlist due to increased demand on server", "Kqueue::eventListener");
 		eventlist.resize(eventlist.size() * 2);  // Double the size if full
+	}
 	return (nev);
 }
 
+/*
+	Notes:
+		 EV_EOF is a flag that can be combined with other flags using bitwise operations!
+*/
 EventBlock KqueueManager::getEvent(const int& index)
 {
 	EventBlock eventBlock;
 
 	eventBlock.fd = eventlist[index].ident;
 	eventBlock.isRead = (eventlist[index].filter == EVFILT_READ);
-	eventBlock.isEOF = (eventlist[index].flags == EV_EOF);
+	eventBlock.isEOF = (eventlist[index].flags & EV_EOF); // Note 1
 	eventBlock.isWrite = (eventlist[index].filter == EVFILT_WRITE);
 
 	return (eventBlock);

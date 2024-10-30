@@ -336,6 +336,7 @@ HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseS
 	response.setReasonPhrase("OK");
 
 	response.setHeaders("Server", "Ranchero");
+	response.setHeaders("Transfer-Encoding", "chunked");
 	response.setHeaders("Content-Type", mimeTypes.getMimeType(filePath));
 	response.setHeaders("Connection", "keep-alive");
 
@@ -347,7 +348,6 @@ HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseS
 		return (serveError(500, settings));
 	}
 
-	response.setHeaders("Transfer-Encoding", "chunked");
 	return (response);
 }
 
@@ -404,9 +404,13 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
 {
-	std::cout << "URI is " << request.getURI() << std::endl;
-	if (request.getMethod() == "GET")
+	if (request.getMethod() == "GET") {
+		std::string message = "Recieve a GET request from "  ;
+		Logger::log(Logger::INFO, "Recieved a GET request from " 
+			+ Logger::intToString(request.clientSocketFD) + " for "
+			+ request.getURI(), "ResponseGenerator::handleRequest");
 		return (handleGetRequest(request));
+	}
 	// else if (request.getMethod() == "HEAD ")
 	// 	;
 	// else if (request.getMethod() == "POST")

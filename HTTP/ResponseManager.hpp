@@ -9,7 +9,8 @@
 #include "../Logger/Logger.hpp"
 #include <vector>
 
-#define CHUNK_SIZE 65536 //64 Kb
+#define CHUNK_SIZE 8192 // 8 Kb
+// #define CHUNK_SIZE 65536 // 64 Kb
 
 class ResponseManager
 {

@@ -35,6 +35,7 @@ class HTTPRequest
 		void	debugger();
 
 	public:
+		int 								clientSocketFD;
 
 		HTTPRequest();
 
@@ -45,7 +46,7 @@ class HTTPRequest
 
 		void 	setURI(const std::string& uri);
 
-		HTTPRequest(const std::string& full_request);
+		HTTPRequest(const std::string& full_request, int clientSocketFD);
 		~HTTPRequest();
 };
 

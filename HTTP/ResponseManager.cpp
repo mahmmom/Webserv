@@ -28,13 +28,11 @@ std::string	ResponseManager::obtainChunk()
 			fileStream.read(chunkBuffer, CHUNK_SIZE);
 			size_t chunkBytesRead = fileStream.gcount();
 			std::string chunkStr(chunkBuffer, chunkBytesRead);
-			
 			std::stringstream ss;
 			ss << std::hex << chunkBytesRead << "\r\n";
 			ss << chunkStr << "\r\n";
 			chunk.clear();
 			chunk = ss.str();
-			std::cout << chunk << std::endl;
 			return (chunk);
 		}
 		else

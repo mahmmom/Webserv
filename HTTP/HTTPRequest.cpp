@@ -39,7 +39,9 @@ void	HTTPRequest::debugger()
 /*
 		CONSTRUCTOR
 */
-HTTPRequest::HTTPRequest(const std::string& full_request) : status(0) {
+HTTPRequest::HTTPRequest(const std::string& full_request, int clientSocketFD) : 
+	status(0), clientSocketFD(clientSocketFD)
+{
 	// (void) status;
 	tokenizeHeaderFields(full_request);
 }

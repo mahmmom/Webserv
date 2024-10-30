@@ -45,6 +45,13 @@ Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, Eve
     serverInterface = std::string(serverStrAddress);
 }
 
+bool Server::checkClientErased(int& clientSocketFD)
+{
+    if (clients.count(clientSocketFD) > 0)
+        return (false);
+    return (true);
+}
+
 void Server::setSocketOptions()
 {
     if (serverSocket == -1)
@@ -180,6 +187,8 @@ void Server::handleClientRead(int& clientSocketFD)
     int bytes_read = recv(clientSocketFD, buffer, sizeof(buffer), 0);
 
     if (bytes_read < 0) {
+        Logger::log(Logger::ERROR, "Failed to recieve data from client with socket fd: "
+            + Logger::intToString(clientSocketFD), "Server::handleClientRead");
         removeBadClients(clientSocketFD);
         close(clientSocketFD);
     }
@@ -198,7 +207,7 @@ void Server::handleClientRead(int& clientSocketFD)
 					<< " (bytes recieved: " << bytes_read << ")"
 					<< std::endl << std::endl;
 
-            HTTPRequest request(buffer);
+            HTTPRequest request(buffer, it->second.getSocket());
 
             (it)->second.request = request;
             (it)->second.lastRequestTime = std::time(0);
@@ -208,7 +217,6 @@ void Server::handleClientRead(int& clientSocketFD)
         }
     }
 }
-
 
 void Server::handleClientWrite(int& clientSocketFD)
 {
@@ -389,34 +397,64 @@ void    Server::checkTimeouts()
 }
 
 void Server::removeBadClients(int& clientSocketFD)
-{
-    eventManager->deregisterEvent(clientSocketFD, READ);
-    
-    clients.erase(clientSocketFD);  // erase doesn't need an iterator here because we are working with
-                            // maps; for std::maps, we can erase an element by its key because 
-                            // no duplicate keys are allowed. But for a vector, we can have 
-                            // duplicate values and thus, the erase method (its version of the
-                            // override) requires an iterator.
-
+{  
+    clients.erase(clientSocketFD);
     Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
             " has exhibited abnormal activity and has been removed", "Server::removeBadClients");
+
+    eventManager->deregisterEvent(clientSocketFD, READ);
 }
 
+/*
+    NOTES:
+
+        Note 1:
+            This is just a remnant of the old code, but I will keep it because it's safer to do so. 
+            Nevertheless, in ServerArena::manageReadEvent, we already check if the socket has already 
+            been erased, so this if statement is likely not going to be triggered, at least I haven't 
+            seen it, and can't think of a case where it could be.
+
+        Note 2:
+            Ok so EV_DELETE used in the deregistering of an event is a bit weird because of how 
+            the manual explains it. But I guarantee you that my explanation is in fact how it behaves, 
+            I've spent hours and hours trying to experiment till I figured it out. So the manual says 
+            the following:
+
+            EV_DELETE   Removes the event from the kqueue. Events which are attached to file 
+                        descriptors are automatically deleted on the last close of the descriptor.
+
+            What this means is that EV_DELETE will remove the event from the kqueue but when it does so, 
+            that means it will no longer detect that event in the future! However, any pending events that 
+            were already there on the kqueue, will still be processed! The second part of what it is saying, 
+            is that if you simply close the file descriptor associated with a client's socket, then there is 
+            no need to actually use EV_DELETE, yes, that's what they mean by automatic! All events associated 
+            with that file descriptor are automatically deleted by just closing the file descriptor. Again 
+            though, this means future events are no longer detected but, anything that was already on the 
+            kqueue will still be processed! 
+
+            So yes, in fact, this line eventManager->deregisterEvent(clientSocketFD, READ); in the function 
+            below is useless, but I am just going to keep it there because why not, it feels safer to have it 
+            lol. Nevertheless, the deregisterEvent function itself is NOT useless, in case you assumed that. 
+            We actually need that fine-tuning because under normal circumstances, when a client simply requests 
+            a page, I actually only want the Write event to be listened for while I send the response, but when 
+            it's sent, I want to delete it off the kqeueue but I still want the Read event open! Nevertheless, when 
+            I disconnect a client, who cares, we have to close the socket's fd anyways and that automatically deletes 
+            all events.
+
+        Note 3:
+            .erase() doesn't need an iterator here because we are working with maps; for std::maps, we can erase an 
+            element by its key because no duplicate keys are allowed. But for a vector, we can have duplicate values 
+            and thus, the erase method (its version of the override) requires an iterator.
+*/
 void Server::removeDisconnectedClients(int& clientSocketFD)
 {
+    if (clients.find(clientSocketFD) == clients.end()) {
+        Logger::log(Logger::WARN, "Already handled this EOF", "Server::removeDisconnectedClients");
+        return ;  // Note 1
+    }
     eventManager->deregisterEvent(clientSocketFD, READ);
-
-    close(clientSocketFD);  // manual says EV_DELETE: Removes the event from the kqueue. 
-                    // Events which are attached to file descriptors are automatically 
-                    // deleted on the last close of the descriptor. So we can just close
-                    // and any events attached to that the socket are automatically dequeued.
-    
-    clients.erase(clientSocketFD);  // erase doesn't need an iterator here because we are working with
-                            // maps; for std::maps, we can erase an element by its key because 
-                            // no duplicate keys are allowed. But for a vector, we can have 
-                            // duplicate values and thus, the erase method (its version of the
-                            // override) requires an iterator.
-
+    close(clientSocketFD); // Note 2
+    clients.erase(clientSocketFD);  // Note 3
     Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
             " has disconnected", "Server::removeDisconnectedClients");
 }
