@@ -35,7 +35,7 @@ void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettin
 			else if (directive->getDirectiveName() == "client_max_body_size")
 				locationSettings.setClientMaxBodySize(directive->getArguments()[0]);
 			else if (directive->getDirectiveName() == "error_page")
-				locationSettings.setErrorPages(directive->getArguments(), "server");
+				locationSettings.setErrorPages(directive->getArguments(), "location");
 			else if (directive->getDirectiveName() == "index")
 				locationSettings.setIndex(directive->getArguments());
 			else if (directive->getDirectiveName() == "return")

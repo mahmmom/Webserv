@@ -16,23 +16,7 @@ ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSe
 }
 
 /*
-	301, 302, 303, 307, and 308
 
-	HTTP/1.1 302 Moved Temporarily
-	Server: nginx/1.27.1
-	Date: Thu, 24 Oct 2024 01:24:57 GMT
-	Content-Type: text/html
-	Content-Length: 145
-	Connection: close
-	Location: https://google.com
-
-	<html>
-	<head><title>302 Found</title></head>
-	<body>
-	<center><h1>302 Found</h1></center>
-	<hr><center>nginx/1.27.1</center>
-	</body>
-	</html>
 */
 HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
 {
@@ -56,7 +40,7 @@ HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, Base
 			response.setStatusCode(intToString(statusCode));
 			response.setReasonPhrase(reasonPhraseMap[statusCode]);
 			response.setHeaders("Location", returnDirective.getTextOrURL());
-			response.setHeaders("Content-type", "text/html"); // Should be changed to mime-type (OR NOT)
+			response.setHeaders("Content-type", "text/html");
 			std::string body = 	"<html>"
 								"<head><title>" + intToString(statusCode) + " " + reasonPhraseMap[statusCode] + "</title></head>"
 								"<body>"
@@ -190,8 +174,91 @@ long long ResponseGenerator::getFileSize(std::string& filePath)
 */
 HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path)
 {
+	std::cout << "Subpath is " << path << std::endl;
 	request.setURI(path);
 	return (handleRequest(request));
+}
+
+/*
+	NOTES
+	
+		Note 1:	This is the way Nginx does it, when it does a 302 redirect, it just puts 
+				the relative path, unlike a 301 where the absolute path is given with an 
+				"http://" at the beginning. With 302's and relative pahts, the browser 
+				knows how to deal with that automatically. It will append it to the last 
+				URI. So, if you have an error_page 404 404.html directive in a location 
+				called /alt, if you request localhost/alt/nonexistent, you would be 
+				redirected to localhost/alt/404.html by the browser. But if you did, 
+				localhost/alt/nonexistent1/nonexisten2, then it would trigger a too many 
+				redirections error BUT don't worry, because that's what happens with Nginx 
+				too. The reason is because the 302 would redirect to localhost/alt/nonexistent1/404.html, 
+				which also does not exist, and that would trigger a continous trail of errors 
+				from our server. So the best way to avoid this problem is for the person 
+				configuring the Nginx server to ALWAYS use absolute paths in the error_page 
+				directive to avoid this problem (even though Nginx does not explicitly 
+				mandate this requirement)
+*/
+HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings)
+{
+	HTTPResponse response;
+	std::map<int, std::string> errorPages = settings->getErrorPages();
+	std::string path = errorPages[statusCode];
+
+	std::string testPath; // Must check if the error_page listed in the error_page directive actually exists
+	if (path[0] == '/')
+		testPath = settings->getRoot() + path;
+	else {
+		if (LocationSettings* derivedPtr = dynamic_cast<LocationSettings*>(settings))
+			testPath = settings->getRoot() + derivedPtr->getPath() + "/" + path;
+		else
+			testPath = settings->getRoot() + "/" + path;
+	}
+	std::ifstream file((testPath).c_str());
+	if (!file.is_open()) { // If the error_page does not exist, return a standard 404 (or 403 in rare cases where the file does not have the right permissions)
+		int statusCode = 0;
+		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
+		if (errno == EACCES)
+			statusCode = 403;
+		else
+			statusCode = 404;
+		response.setVersion("HTTP/1.1");
+		response.setStatusCode(intToString(statusCode));
+		response.setHeaders("Server", "Ranchero");
+		response.setReasonPhrase(reasonPhraseMap[statusCode]);
+		response.setHeaders("Content-Type", "text/html");
+		std::string message = intToString(statusCode) + " " + reasonPhraseMap[statusCode];
+		std::string body = 	"<html>"
+							"<head><title>" + message +
+							"</title></head>"
+							"<body>"
+							"<center><h1>" + message + "</h1></center>"
+							"<hr><center>Ranchero</center>"
+							"</body>"
+							"</html>";
+		response.setBody(body);
+		response.setHeaders("Content-Length", intToString(body.size()));
+		response.setHeaders("Connection", "keep-alive");
+		return (response);
+	}
+
+	if (path[0] == '/')
+		return (handleSubRequest(request, path));
+	response.setVersion("HTTP/1.1");
+	response.setStatusCode(intToString(302));
+	response.setReasonPhrase(reasonPhraseMap[statusCode]);
+	response.setHeaders("Server", "Ranchero");
+	response.setHeaders("Connection", "keep-alive");
+	response.setHeaders("Location", path); // Note 1
+	std::string body = 	"<html>"
+						"<head><title>302 Found</title></head>"
+						"<body>"
+						"<center><h1>302 Found</h1></center>"
+						"<hr><center>Ranchero</center>"
+						"</body>"
+						"</html>";
+	response.setBody(body);
+	response.setHeaders("Content-Length", intToString(body.length()));
+	return (response);
 }
 
 /*
@@ -204,11 +271,12 @@ HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std
 			send an HTML file containing the status code and the reason phrase as it 
 			usually does.
 */
-HTTPResponse ResponseGenerator::serveError(int statusCode, BaseSettings* settings)
+HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode, BaseSettings* settings)
 {
 	(void) settings;
+	(void) request;
 	if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
-		; // return serveErrorPage
+		return (serveErrorPage(request, statusCode, settings));
 
 	HTTPResponse response;
 
@@ -261,7 +329,7 @@ HTTPResponse ResponseGenerator::redirector(HTTPRequest& request, const std::stri
 HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettings* settings)
 {
 	if (settings->getAutoindex() == "off")
-		return (serveError(403, settings));
+		return (serveError(request, 403, settings));
 
 	return (serveDirectoryListing(request, settings));
 }
@@ -279,16 +347,25 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		return (redirector(request, request.getURI() + "/")); // redirect to path + "/"
 
 	std::string	path;
-	path = settings->getRoot() + request.getURI();
+	if (request.getURI()[0] == '/')
+		path = settings->getRoot() + request.getURI();
+	else
+		path = settings->getRoot() + "/" + request.getURI();
+
 	std::vector<std::string>::const_iterator it;
 	for (it = settings->getIndex().begin(); it != settings->getIndex().end(); it++) {
 		std::string indexPath = path + (*it);
 		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/'))
-			return (handleSubRequest(request, (*it)));
+			return (handleSubRequest(request, (*it).substr(1)));
 		if (isFile(indexPath))
 			return (serveFile(request, settings, indexPath));
-		if ((indexPath[indexPath.size() - 1] == '/') || isDirectory(indexPath))
-			return (redirector(request, (*it) + "/")); // redirect to that path + "/"
+		if (indexPath[indexPath.size() - 1] == '/')
+		{
+			if (isDirectory(indexPath.substr(0, indexPath.size() - 1)))
+				return (handleSubRequest(request, "/" + (*it)));
+		}
+		if (isDirectory(indexPath))
+			return (redirector(request, "/" + (*it) + "/")); // redirect to that path + "/"
 	}
 	return (handleAutoIndex(request, settings));
 }
@@ -309,8 +386,8 @@ HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSetting
 	if (!file.is_open()) {
 		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
 		if (errno == EACCES)
-			return (serveError(403, settings));
-		return (serveError(500, settings));
+			return (serveError(request, 403, settings));
+		return (serveError(request, 500, settings));
 	}
 
 	std::stringstream bodyBuffer;
@@ -344,10 +421,9 @@ HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseS
 	if (!file.is_open()) {
 		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
 		if (errno == EACCES)
-			return (serveError(403, settings));
-		return (serveError(500, settings));
+			return (serveError(request, 403, settings));
+		return (serveError(request, 500, settings));
 	}
-
 	return (response);
 }
 
@@ -359,28 +435,28 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 
 	if (fileSize == -1) {
 		Logger::log(Logger::ERROR, "Failed to determine file size", "ResponseGenerator::serveFile");
-		return (serveError(500, settings));
+		return (serveError(request, 500, settings));
 	}
-	else if (fileSize <= COMPACT_RESPONSE_LIMIT)
+	if (fileSize <= COMPACT_RESPONSE_LIMIT)
 		return (serveSmallFile(request, settings, path));
-	else
-		return (serveChunkedResponse(request, settings, path, fileSize));
-	
-	HTTPResponse deleteLater;
-	return (deleteLater);
+	return (serveChunkedResponse(request, settings, path, fileSize));
 }
 
 HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings* settings)
 {
 	std::string	path;
 
-	path = settings->getRoot() + request.getURI();
+	if (request.getURI()[0] == '/')
+		path = settings->getRoot() + request.getURI();
+	else
+		path = settings->getRoot() + "/" + request.getURI();
 
+	std::cout << "Path test is " << path << std::endl;
 	if ((path[path.size() - 1] == '/') || isDirectory(path))
 		return (handleDirectory(request, settings));
 	if (isFile(path))
 		return (serveFile(request, settings, path));
-	return (serveError(404, settings));
+	return (serveError(request, 404, settings));
 }
 
 HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
@@ -394,9 +470,8 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 	if (locationSettings) {
 		settings = locationSettings;
 		if (!locationSettings->isMethodAllowed(request.getMethod()))
-			return (serveError(403, settings));
+			return (serveError(request, 403, settings));
 	}
-
 	if (settings->getReturnDirective().getEnabled())
 		return (handleReturnDirective(request, settings));
 	return (serveRequest(request, settings));

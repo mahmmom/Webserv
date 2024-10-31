@@ -41,7 +41,8 @@ class ResponseGenerator
 
 		HTTPResponse	handleAutoIndex(HTTPRequest& request, BaseSettings* settings);
 
-		HTTPResponse	serveError(int statusCode, BaseSettings* settings);
+		HTTPResponse 	serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings);
+		HTTPResponse	serveError(HTTPRequest& request, int statusCode, BaseSettings* settings);
 
 		HTTPResponse	redirector(HTTPRequest& request, const std::string& URL);
 

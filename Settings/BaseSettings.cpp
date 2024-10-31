@@ -55,6 +55,11 @@ BaseSettings::BaseSettings(const BaseSettings& other)
 	*this = other;
 }
 
+BaseSettings::~BaseSettings()
+{
+	;
+}
+
 BaseSettings& BaseSettings::operator=(const BaseSettings& other)
 {
 	if (this != &other)

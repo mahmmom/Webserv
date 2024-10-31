@@ -29,6 +29,7 @@ class BaseSettings {
 
 		BaseSettings(const BaseSettings& other);
 		BaseSettings& operator=(const BaseSettings& other);
+		virtual ~BaseSettings();
 	public:
 		// Constructors
 		BaseSettings(std::string& HttpRoot, 							// This constructor is used as a base class constructor 

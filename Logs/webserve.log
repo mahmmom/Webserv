@@ -1,4 +1,287 @@
-2024/10/31 02:25:37 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/10/31 02:25:37 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
-2024/10/31 02:25:37 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/10/31 02:25:37 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:07 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/10/31 23:37:07 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/10/31 23:37:07 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/10/31 23:37:07 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/fock
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:11 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:11 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:11 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/10/31 23:37:12 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /hock/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/error_pages/404.html
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/10/31 23:37:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/10/31 23:37:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/10/31 23:37:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
