@@ -165,7 +165,7 @@ void Server::acceptNewClient()
     eventManager->registerEvent(clientSocket, READ);
 }
 
-void Server::handleGetRequest(int& clientSocketFD, HTTPRequest& request)
+void Server::processGetRequest(int& clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
@@ -213,21 +213,26 @@ void Server::handleClientRead(int& clientSocketFD)
             (it)->second.lastRequestTime = std::time(0);
 
             if (request.getMethod() == "GET")
-                handleGetRequest(clientSocketFD, request);
+                processGetRequest(clientSocketFD, request);
         }
     }
 }
 
 void Server::handleClientWrite(int& clientSocketFD)
 {
-    std::map<int, Client>::iterator it = clients.find(clientSocketFD);
-    if (it != clients.end())
-    {
+    std::map<int, ResponseManager* >::iterator it = responses.find(clientSocketFD);
+    if (it != responses.end()) {
         ResponseManager* responseManager = responses[clientSocketFD];
         if (responseManager->getType() == CompactResponse)
             sendCompactFile(clientSocketFD, responseManager);
         else
             sendChunkedResponse(clientSocketFD, responseManager);
+    }
+    else {
+        Logger::log(Logger::WARN, "Rogue WRITE event not attributed to any response has been detected,"
+            " on client with socket FD: " + Logger::intToString(clientSocketFD) + "proceeding to"
+            " deregister it","Server::handleClientWrite");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
     }
 }
 
@@ -457,4 +462,70 @@ void Server::removeDisconnectedClients(int& clientSocketFD)
     clients.erase(clientSocketFD);  // Note 3
     Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
             " has disconnected", "Server::removeDisconnectedClients");
+}
+
+void Server::handleExcessHeaders(int& clientSocketFD)
+{
+    Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
+                    + " sent a header that exceed the permissible limit -> " 
+                    + Logger::intToString(MAX_HEADER_SIZE) + " bytes", 
+                    "Server::handleExcessHeader");
+    
+    removeBadClients(clientSocketFD);
+
+    HTTPResponse response;
+    response.buildDefaultErrorResponse("431", "Request Headers Fields Too Large");
+    ResponseManager* responseManager = new ResponseManager(response.generateResponse(), true);
+    responses[clientSocketFD] =  responseManager;
+
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+void Server::handleExcessURI(int& clientSocketFD)
+{
+    Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
+                    + " sent a URI that exceeded the permissible limit -> " 
+                    + Logger::intToString(MAX_URI_SIZE) + " bytes", 
+                    "Server::handleExcessHeader");
+    
+    removeBadClients(clientSocketFD);
+
+    HTTPResponse response;
+    response.buildDefaultErrorResponse("414", "URI Too Long");
+    ResponseManager* responseManager = new ResponseManager(response.generateResponse(), true);
+    responses[clientSocketFD] =  responseManager;
+
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+void Server::handleInvalidGetRequest(int& clientSocketFD)
+{
+    Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
+                + " made a GET request that includes a body", 
+                "Server::handleExcessHeader");
+
+    removeBadClients(clientSocketFD);
+
+    HTTPResponse response;
+    response.buildDefaultErrorResponse("400", "Bad Request");
+    ResponseManager* responseManager = new ResponseManager(response.generateResponse(), true);
+    responses[clientSocketFD] =  responseManager;
+
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+void Server::handleInvalidRequest(int& clientSocketFD, std::string statusCode, std::string reasonPhrase)
+{
+    Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
+                + " made an invalid request", 
+                "Server::handleExcessHeader");
+    
+    removeBadClients(clientSocketFD);
+
+    HTTPResponse response;
+    response.buildDefaultErrorResponse(statusCode, reasonPhrase);
+    ResponseManager* responseManager = new ResponseManager(response.generateResponse(), true);
+    responses[clientSocketFD] =  responseManager;
+
+    eventManager->registerEvent(clientSocketFD, WRITE);
 }

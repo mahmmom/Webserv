@@ -23,6 +23,9 @@
 
 #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
 
+#define MAX_HEADER_SIZE 8192 // 8 KB
+#define MAX_URI_SIZE 2048 // 2 KB
+
 class Server
 {
 	private:
@@ -55,7 +58,7 @@ class Server
 
 		void acceptNewClient();
 
-		void handleGetRequest(int& clientSocketFD, HTTPRequest& request);
+		void processGetRequest(int& clientSocketFD, HTTPRequest& request);
 		void handleClientRead(int& clientSocketFD);
 
 		void sendChunkedBody(int& clientSocketFD, ResponseManager* responseManager);
@@ -63,6 +66,11 @@ class Server
 		void sendChunkedResponse(int& clientSocketFD, ResponseManager* responseManager);
 		void sendCompactFile(int& clientSocketFD, ResponseManager* responseManager);
 		void handleClientWrite(int& clientSocketFD);
+
+		void handleExcessHeaders(int& clientSocketFD);
+		void handleExcessURI(int& clientSocketFD);
+		void handleInvalidRequest(int& clientSocketFD, std::string statusCode, std::string reasonPhrase);
+		void handleInvalidGetRequest(int& clientSocketFD);
 
 		void removeBadClients(int& clientSocketFD);
 		void removeDisconnectedClients(int& clientSocketFD);

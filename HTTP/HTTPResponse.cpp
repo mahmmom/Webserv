@@ -3,7 +3,7 @@
 
 HTTPResponse::HTTPResponse() : type(CompactResponse) {}
 
-std::string&	HTTPResponse::generateResponse()
+std::string& HTTPResponse::generateResponse()
 {
 	fullResponse = version + " " + statusCode + " " + reasonPhrase + "\r\n";
 	std::map<std::string, std::string>::iterator it;
@@ -16,6 +16,42 @@ std::string&	HTTPResponse::generateResponse()
 		fullResponse += body;
 	
 	return (fullResponse);
+}
+
+/*
+	HTTP/1.1 404 Not Found
+	Server: nginx/1.27.1
+	Date: Thu, 31 Oct 2024 22:52:16 GMT
+	Content-Type: text/html
+	Content-Length: 153
+	Connection: close
+
+	<html>
+	<head><title>404 Not Found</title></head>
+	<body>
+	<center><h1>404 Not Found</h1></center>
+	<hr><center>nginx/1.27.1</center>
+	</body>
+	</html>
+*/
+void HTTPResponse::buildDefaultErrorResponse(std::string statusCode, std::string reasonPhrase)
+{
+	version = "HTTP/1.1";
+	this->statusCode = statusCode;
+	this->reasonPhrase = reasonPhrase;
+	headers["Server"] = "Ranchero";
+	headers["Connection"] = "close";
+	headers["Content-Type"] = "text/html";
+
+	std::string body =	"<html>"
+						"<head><title>" + statusCode + " " + reasonPhrase + "</title></head>"
+						"<body>"
+						"<center><h1>404 Not Found</h1></center>"
+						"<hr><center>nginx/1.27.1</center>"
+						"</body>"
+						"</html>";
+	this->body = body;
+	headers["Content-Length"] = body.length();
 }
 
 void HTTPResponse::setFilePath(const std::string& filePath)

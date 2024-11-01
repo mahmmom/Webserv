@@ -24,6 +24,7 @@ class HTTPResponse
 	public:
 		HTTPResponse();
 		std::string&	generateResponse();
+		void			buildDefaultErrorResponse(std::string statusCode, std::string reasonPhrase);
 
 		void	setFilePath(const std::string& filePath);
 		void	setFileSize(const long long& fileSize);

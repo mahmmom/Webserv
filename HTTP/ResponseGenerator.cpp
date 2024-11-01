@@ -15,9 +15,6 @@ ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSe
 	reasonPhraseMap[500] = "Internal Server Error";
 }
 
-/*
-
-*/
 HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
 {
 	(void) request;
