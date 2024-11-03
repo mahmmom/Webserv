@@ -86,12 +86,21 @@ BaseSettings& BaseSettings::operator=(const BaseSettings& other)
 				path. Thus, we just detach that slash from the root if 
 				the user inputted a slash at the end.
 */
-void	BaseSettings::setRoot(const std::string& root)
+void BaseSettings::setRoot(const std::string& root)
 {
-	if (!root.empty() && root[root.size() - 1] == '/')
-		this->root = root.substr(0, root.length() - 1);
-	else
-		this->root = root;
+	if (!root.empty()) {
+        std::string::const_reverse_iterator rit = root.rbegin();
+        std::string::const_reverse_iterator rend = root.rend();
+
+        // Find the position of the last non-slash character
+        while (rit != rend && *rit == '/')
+            ++rit; // Move to the next character if it's a slash
+
+        // Create the new root string without trailing slashes
+        this->root = std::string(root.begin(), rit.base()); // Use base() to convert reverse iterator to normal iterator
+    }
+	else 
+    	this->root = root; // Assign empty root if the input is empty
 }
 
 void	BaseSettings::setAutoIndex(const std::string& autoIndex)

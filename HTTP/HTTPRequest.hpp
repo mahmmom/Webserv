@@ -30,7 +30,9 @@ class HTTPRequest
 		bool	processURI(std::string& uriTok);
 		bool	processVersion(std::string& versionTok);
 
-		void setStatus(const int& status);
+		void	setStatus(const int& status);
+
+		void	normalizeURI();
 
 		void	debugger();
 

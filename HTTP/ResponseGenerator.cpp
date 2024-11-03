@@ -75,7 +75,13 @@ HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, Base
            "<body>"
            "<h1>Index of " + request.getURI() + "</h1><hr><pre><a href=\"../\">../</a>\n";
 
-    DIR* dir = opendir((settings->getRoot() + request.getURI()).c_str());
+	std::string dirPath;
+	if (request.getURI()[0] == '/')
+		dirPath = settings->getRoot() + request.getURI();
+	else
+		dirPath = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+
+    DIR* dir = opendir(dirPath.c_str());
     if (dir == NULL) {
         // Handle error case
         response.setStatusCode("404");
@@ -89,7 +95,7 @@ HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, Base
         if (name == "." || name == "..") 
             continue;
 
-        std::string fullPath = settings->getRoot() + request.getURI() + name;
+        std::string fullPath = dirPath + name;
         if (isFile(fullPath)) {
             body += "<a href=\"" + name + "\">" + name + "</a>\n";
         } else {
@@ -202,8 +208,9 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 	std::map<int, std::string> errorPagesLevel = settings->getErrorPagesLevel();
 	std::string path = errorPages[statusCode];
 	std::string level = errorPagesLevel[statusCode];
+
 	std::string testPath; // Must check if the error_page listed in the error_page directive actually exists
-	if (path[0] == '/')
+	if (path[0] == '/') // Checking if the error_page directive entry was an absolute path 
 		testPath = settings->getRoot() + path;
 	else {
 		LocationSettings* derivedPtr = dynamic_cast<LocationSettings*>(settings);
@@ -350,7 +357,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 	if (request.getURI()[0] == '/')
 		path = settings->getRoot() + request.getURI();
 	else
-		path = settings->getRoot() + "/" + request.getURI();
+		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 
 	std::vector<std::string>::const_iterator it;
 	for (it = settings->getIndex().begin(); it != settings->getIndex().end(); it++) {
@@ -454,7 +461,7 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 	if (request.getURI()[0] == '/')
 		path = settings->getRoot() + request.getURI();
 	else
-		path = settings->getRoot() + "/" + request.getURI();
+		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 
 	std::cout << "Path test is " << path << std::endl;
 	if ((path[path.size() - 1] == '/') || isDirectory(path))

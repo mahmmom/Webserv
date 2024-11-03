@@ -88,7 +88,7 @@ void HTTPRequest::tokenizeHeaderFields(const std::string& fullRequest) {
 	}
 	processRequestLine(headerFields[0]);
 	buildHeaderMap(headerFields);
-
+	normalizeURI();
 	// debugger();
 }
 
@@ -334,6 +334,44 @@ bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields)
 	}
 	return (true);
 }
+
+/*
+	GENERAL
+
+		Overall, this function aims to merge trailing slashes if present in a request into 
+		one slash thereby changing [ GET //////index//index.html ] to [ GET /index/index.html ]
+
+	NOTES
+
+		Note 1:	This is used to check for ".." sequence to prevent directory traversal 
+				and stop attackers from accessing directories and files outside the scope 
+				of the web application.
+*/
+void HTTPRequest::normalizeURI()
+{
+    std::string normalizedURI;
+    bool lastWasSlash = false;
+
+    for (size_t i = 0; i < uri.size(); ++i) {
+        if (uri[i] == '.' && i + 1 < uri.size() && uri[i + 1] == '.') { // Note 1
+            i++; // Skip the next character
+            continue; // Continue to the next iteration
+        }
+
+        if (uri[i] == '/') {
+            if (!lastWasSlash) {
+                normalizedURI += uri[i];
+                lastWasSlash = true; // Set flag for last character being a slash
+            }
+        } else {
+            normalizedURI += uri[i];
+            lastWasSlash = false; // Reset flag since current character is not a slash
+        }
+    }
+
+    uri = normalizedURI; // Update the original URI with the normalized version
+}
+
 
 void HTTPRequest::setStatus(const int& status)
 {

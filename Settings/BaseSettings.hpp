@@ -12,6 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
+#include <algorithm>
 #include "ReturnDirective.hpp"
 #include "../Parser/DirectiveNode.hpp"
 
