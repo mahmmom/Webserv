@@ -199,13 +199,15 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 {
 	HTTPResponse response;
 	std::map<int, std::string> errorPages = settings->getErrorPages();
+	std::map<int, std::string> errorPagesLevel = settings->getErrorPagesLevel();
 	std::string path = errorPages[statusCode];
-
+	std::string level = errorPagesLevel[statusCode];
 	std::string testPath; // Must check if the error_page listed in the error_page directive actually exists
 	if (path[0] == '/')
 		testPath = settings->getRoot() + path;
 	else {
-		if (LocationSettings* derivedPtr = dynamic_cast<LocationSettings*>(settings))
+		LocationSettings* derivedPtr = dynamic_cast<LocationSettings*>(settings);
+		if (derivedPtr != NULL && level == "location")
 			testPath = settings->getRoot() + derivedPtr->getPath() + "/" + path;
 		else
 			testPath = settings->getRoot() + "/" + path;
@@ -343,6 +345,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 	if (request.getURI()[request.getURI().size() - 1] != '/')
 		return (redirector(request, request.getURI() + "/")); // redirect to path + "/"
 
+	// After the if statement above, we now ensure that all URI's passed here end with a trailing slash!
 	std::string	path;
 	if (request.getURI()[0] == '/')
 		path = settings->getRoot() + request.getURI();
@@ -351,7 +354,12 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 
 	std::vector<std::string>::const_iterator it;
 	for (it = settings->getIndex().begin(); it != settings->getIndex().end(); it++) {
-		std::string indexPath = path + (*it);
+		std::string indexPath;
+		if ((*it)[0] == '/')
+			indexPath = path + (*it).substr(1);
+		else
+			indexPath = path + (*it);
+
 		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/'))
 			return (handleSubRequest(request, (*it).substr(1)));
 		if (isFile(indexPath))
@@ -362,7 +370,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 				return (handleSubRequest(request, "/" + (*it)));
 		}
 		if (isDirectory(indexPath))
-			return (redirector(request, "/" + (*it) + "/")); // redirect to that path + "/"
+			return (redirector(request, request.getURI() + (*it) + "/")); // redirect to that path + "/"
 	}
 	return (handleAutoIndex(request, settings));
 }
@@ -429,7 +437,7 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 	long long fileSize;
 
 	fileSize = getFileSize(path);
-
+	std::cout << "Cockage\n";
 	if (fileSize == -1) {
 		Logger::log(Logger::ERROR, "Failed to determine file size", "ResponseGenerator::serveFile");
 		return (serveError(request, 500, settings));

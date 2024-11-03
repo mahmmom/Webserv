@@ -186,7 +186,6 @@ LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 
 	for (it = locations.begin(); it != locations.end(); it++) {
 		if ((*it)->getPath()[0] == '=') {
-			std::cout << "tis it " << (*it)->getPath().substr(1) << " and uri is " << uri << std::endl;
 			if ((*it)->getPath().substr(1) == uri)
 				return (*it);
 			continue ;
@@ -199,8 +198,6 @@ LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 			location = *it;
 		}
 	}
-
-	// std::cout << "Here is the longest match" << longestPathMatch << std::endl;
 	return (location);
 }
 
