@@ -71,7 +71,7 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 {
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (eventBlock.isEOF && (eventBlock.fd != servers[i]->getServerSocket())) {
-			if (!servers[i]->checkClientErased(eventBlock.fd)) // Note 1
+			if (!servers[i]->checkClientInServer(eventBlock.fd)) // Note 1
 			{
 				Logger::log(Logger::DEBUG, "Client with socket fd: " + Logger::intToString(eventBlock.fd) + 
 					" has triggered EV_EOF " + servers[i]->getServerInterface(), "ServerArena::manageReadEvent");
@@ -84,7 +84,7 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 			break ;
 		}
 		else if (eventBlock.isRead && (eventBlock.fd != servers[i]->getServerSocket())) {
-			if (!servers[i]->checkClientErased(eventBlock.fd))
+			if (!servers[i]->checkClientInServer(eventBlock.fd))
 			{
 				Logger::log(Logger::DEBUG, "Client with socket fd: " + Logger::intToString(eventBlock.fd) + 
 					" has sent data to server " + servers[i]->getServerInterface(), "ServerArena::manageReadEvent");
@@ -94,7 +94,6 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 		}
 	}
 }
-
 
 // void ServerArena::manageReadEvent(EventBlock& eventBlock)
 // {

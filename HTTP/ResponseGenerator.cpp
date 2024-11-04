@@ -439,19 +439,78 @@ HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseS
 	return (response);
 }
 
+bool	ResponseGenerator::parseRangedResponse(std::string& rangeHeader, long long& startByte,
+												long long& endByte, long long fileSize)
+{
+	if (rangeHeader.find("bytes=", 0) != 0)
+		return (false);
+
+	size_t		beginPos = rangeHeader.find("=") + 1;
+	size_t		endPos = rangeHeader.find("-");
+	std::string	startByteStr;
+	std::string	endByteStr;
+
+	if (beginPos == std::string::npos || endPos == std::string::npos)
+		return (false);
+	startByteStr = rangeHeader.substr(beginPos, endPos - beginPos);
+	endByteStr = rangeHeader.substr(endPos + 1);
+
+	if (startByteStr.find_first_not_of("0123456789") != std::string::npos)
+		return (false);
+	if (endByteStr.find_first_not_of("0123456789") != std::string::npos 
+		&& !endByteStr.empty())
+		return (false);
+	
+	startByte = stringToLongLong(startByteStr);
+	if (startByte == -1 || startByte == -2)
+		return (false);
+
+	endByte = stringToLongLong(endByteStr);
+	if (endByte == -1)
+		return (false);
+	if (endByte == -2)
+		endByte = std::min(startByte + MAX_RANGE_SIZE - 1, fileSize - 1);
+	else {
+		endByte = std::min(endByte, startByte + MAX_RANGE_SIZE - 1);
+		endByte = std::min(endByte, fileSize - 1);
+	}
+
+	if (startByte > endByte || endByte >= fileSize || startByte >= fileSize)
+		return (false);
+	return (true);
+}
+
+HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSettings* settings, 
+														std::string& path, long long fileSize)
+{
+	HTTPResponse 	response;
+	std::string		rangeHeader = request.getHeader("Range");
+	long long 		startByte;
+	long long		endByte;
+
+	if (parseRangedResponse(rangeHeader, startByte, endByte, fileSize) == false)
+		return (serveError(request, 416, settings));
+
+	response.setStatusCode("206");
+	return (response);
+}
+
 HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path)
 {
 	long long fileSize;
 
 	fileSize = getFileSize(path);
-	std::cout << "Cockage\n";
 	if (fileSize == -1) {
 		Logger::log(Logger::ERROR, "Failed to determine file size", "ResponseGenerator::serveFile");
 		return (serveError(request, 500, settings));
 	}
 	if (fileSize <= COMPACT_RESPONSE_LIMIT)
 		return (serveSmallFile(request, settings, path));
-	return (serveChunkedResponse(request, settings, path, fileSize));
+
+	if (!request.getHeader("Range").empty())
+		return (serveRangedResponse(request, settings, path, fileSize));
+	else
+		return (serveChunkedResponse(request, settings, path, fileSize));
 }
 
 HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings* settings)
@@ -487,6 +546,29 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 	if (settings->getReturnDirective().getEnabled())
 		return (handleReturnDirective(request, settings));
 	return (serveRequest(request, settings));
+}
+
+long long ResponseGenerator::stringToLongLong(const std::string& string)
+{
+	std::stringstream 	fileStream(string);
+	long long			longVal;
+
+	fileStream >> longVal;
+    if (fileStream.fail()) {
+        Logger::log(Logger::WARN,  "Invalid number format when attempting to convert bytes range header"
+										"value from string to long long", 
+			"ResponseGenerator::stringToLongLong");
+		return (-1);
+    }
+
+    // Check for leftover characters
+    if (!fileStream.eof()) {
+        Logger::log(Logger::WARN,  "Extra characters present after number while converting from string format"
+									"to long long in the bytes range header", 
+			"ResponseGenerator::stringToLongLong");
+		return (-2);
+    }
+	return (longVal);
 }
 
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)

@@ -42,7 +42,7 @@ class Server
 	public:
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 
-		bool checkClientErased(int& clientSocketFD);
+		bool checkClientInServer(int& clientSocketFD);
 		void setSocketOptions();
 		void setupServerSocket();
 		void bindAndListenServerSocket();

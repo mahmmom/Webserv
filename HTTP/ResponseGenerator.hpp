@@ -13,12 +13,14 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <cerrno>
+#include <algorithm>
 #include <dirent.h> // For directory operations
 #include <sys/stat.h> // For file status (to differentiate files from directories)
 
 
 #define COMPACT_RESPONSE_LIMIT 1048576 // 1 MB
 // #define COMPACT_RESPONSE_LIMIT 2097152 // 2 MB
+#define MAX_RANGE_SIZE 1048576 // 1 MB
 
 class ResponseGenerator
 {
@@ -30,6 +32,7 @@ class ResponseGenerator
 		MimeTypesSettings			mimeTypes;
 		std::string					intToString(const int intValue);
 		std::map<int, std::string>	reasonPhraseMap;
+		long long					stringToLongLong(const std::string& string);
 	public:
 		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes);
 
@@ -50,6 +53,8 @@ class ResponseGenerator
 		HTTPResponse	serveChunkedResponse(HTTPRequest& request, BaseSettings* settings, std::string& filePath, long long& fileSize);
 		HTTPResponse 	serveSmallFile(HTTPRequest& request, BaseSettings* settings, std::string& path);
 		HTTPResponse 	serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path);
+		bool			parseRangedResponse(std::string& rangeHeader, long long& startByte, long long& endByte, long long fileSize);
+		HTTPResponse	serveRangedResponse(HTTPRequest& request, BaseSettings* settings, std::string& path, long long fileSize);
 		HTTPResponse	serveRequest(HTTPRequest& request, BaseSettings* settings);
 
 		HTTPResponse	handleDeleteRequest(HTTPRequest& request);

@@ -45,7 +45,7 @@ Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, Eve
     serverInterface = std::string(serverStrAddress);
 }
 
-bool Server::checkClientErased(int& clientSocketFD)
+bool Server::checkClientInServer(int& clientSocketFD)
 {
     if (clients.count(clientSocketFD) > 0)
         return (false);
