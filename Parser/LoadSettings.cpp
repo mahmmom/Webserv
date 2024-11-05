@@ -123,6 +123,8 @@ void LoadSettings::processServerNode(ContextNode* serverNode, ServerSettings& se
 				serverSettings.setListenValues(directive->getArguments()[0]);
 			else if (directive->getDirectiveName() == "return")
 				serverSettings.setReturn(directive->getArguments());
+			else if (directive->getDirectiveName() == "cgi_extension")
+				serverSettings.setCgiExtensions(directive->getArguments());
 		}
 	}
 

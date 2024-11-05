@@ -26,7 +26,8 @@ PARSERSRCS = $(addprefix $(PARSERDIR)/, ConfigNode.cpp ConfigParser.cpp ConfigTo
 PARSEROBJS = $(addprefix $(OBJDIR)/, $(PARSERSRCS:$(PARSERDIR)/%.cpp=%.o))
 
 CONFIGDIR = Settings
-CONFIGSRCS = $(addprefix $(CONFIGDIR)/, BaseSettings.cpp LocationSettings.cpp ReturnDirective.cpp ServerSettings.cpp)
+CONFIGSRCS = $(addprefix $(CONFIGDIR)/, BaseSettings.cpp LocationSettings.cpp ReturnDirective.cpp ServerSettings.cpp \
+					CGIDirective.cpp)
 CONFIGOBJS = $(addprefix $(OBJDIR)/, $(CONFIGSRCS:$(CONFIGDIR)/%.cpp=%.o))
 
 LOGGERDIR = Logger

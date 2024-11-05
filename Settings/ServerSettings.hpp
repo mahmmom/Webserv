@@ -4,6 +4,7 @@
 
 #include <string>
 #include "BaseSettings.hpp"
+#include "CGIDirective.hpp"
 #include <vector>
 #include <algorithm>
 
@@ -51,9 +52,10 @@ class LocationSettings; // Note 1
 class ServerSettings : public BaseSettings
 {
 	private:
-		int			port;
-		std::string	ip;
+		int								port;
+		std::string						ip;
 		std::vector<LocationSettings* > locations; // Note 2
+		CGIDirective					cgiExtensions;
 		
 		void setPort(const std::string& portStr, const std::string& listenValue);
 		void setIP(const std::string& IPv4, const std::string& listenValue);
@@ -71,8 +73,10 @@ class ServerSettings : public BaseSettings
 		void				addLocation(LocationSettings& locationSettings);
 		LocationSettings*	findLocation(const std::string& uri);
 
-		void			setListenValues(const std::string &listenValue);
+		void			setListenValues(const std::string& listenValue);
 		void	 		setDefaultValues();
+		void			setCgiExtensions(const std::vector<std::string>& extensions);
+
 		int&			getPort();
 		std::string&	getIP();
 
