@@ -34,8 +34,6 @@ class HTTPRequest
 
 		void	normalizeURI();
 
-		void	debugger();
-
 	public:
 		int 								clientSocketFD;
 
@@ -47,6 +45,8 @@ class HTTPRequest
 		const std::string& 	getURI() const;
 
 		void 	setURI(const std::string& uri);
+
+		void	debugger();
 
 		HTTPRequest(const std::string& full_request, int clientSocketFD);
 		~HTTPRequest();

@@ -33,6 +33,7 @@ class ResponseGenerator
 		std::string					intToString(const int intValue);
 		std::map<int, std::string>	reasonPhraseMap;
 		long long					stringToLongLong(const std::string& string);
+		std::string 				longLongToString(long long value);
 	public:
 		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes);
 

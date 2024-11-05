@@ -114,7 +114,6 @@ void	ResponseManager::updateBytesSent(size_t& bytesSent)
 	this->bytesSent += bytesSent;
 }
 
-
 const bool& ResponseManager::getHeadersFullySent()
 {
 	return (this->headersFullySent);

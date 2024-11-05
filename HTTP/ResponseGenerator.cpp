@@ -423,7 +423,7 @@ HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseS
 	response.setVersion("HTTP/1.1");
 	response.setStatusCode("200");
 	response.setReasonPhrase("OK");
-
+	response.setHeaders("Accept-Ranges", "bytes");
 	response.setHeaders("Server", "Ranchero");
 	response.setHeaders("Transfer-Encoding", "chunked");
 	response.setHeaders("Content-Type", mimeTypes.getMimeType(filePath));
@@ -445,6 +445,7 @@ bool	ResponseGenerator::parseRangedResponse(std::string& rangeHeader, long long&
 	if (rangeHeader.find("bytes=", 0) != 0)
 		return (false);
 
+
 	size_t		beginPos = rangeHeader.find("=") + 1;
 	size_t		endPos = rangeHeader.find("-");
 	std::string	startByteStr;
@@ -465,18 +466,19 @@ bool	ResponseGenerator::parseRangedResponse(std::string& rangeHeader, long long&
 	if (startByte == -1 || startByte == -2)
 		return (false);
 
-	endByte = stringToLongLong(endByteStr);
-	if (endByte == -1)
-		return (false);
-	if (endByte == -2)
+	if (endByteStr.empty())
 		endByte = std::min(startByte + MAX_RANGE_SIZE - 1, fileSize - 1);
 	else {
+		endByte = stringToLongLong(endByteStr);
+		if (endByte == -1 || endByte == -2)
+			return (false);
 		endByte = std::min(endByte, startByte + MAX_RANGE_SIZE - 1);
 		endByte = std::min(endByte, fileSize - 1);
 	}
 
 	if (startByte > endByte || endByte >= fileSize || startByte >= fileSize)
 		return (false);
+
 	return (true);
 }
 
@@ -484,14 +486,36 @@ HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSe
 														std::string& path, long long fileSize)
 {
 	HTTPResponse 	response;
-	std::string		rangeHeader = request.getHeader("Range");
+	std::string		rangeHeader = request.getHeader("range");
 	long long 		startByte;
 	long long		endByte;
 
-	if (parseRangedResponse(rangeHeader, startByte, endByte, fileSize) == false)
+	if (parseRangedResponse(rangeHeader, startByte, endByte, fileSize) == false) {
+		Logger::log(Logger::ERROR, "Invalid range header", "ResponseGenerator::serveRangedResponse");
 		return (serveError(request, 416, settings));
+	}
 
+	std::ifstream fileStream;
+	fileStream.open(path.c_str(), std::ifstream::binary);
+	fileStream.seekg(startByte);
+	int rangeLen = endByte - startByte + 1 + 1;
+	char buffer[rangeLen];
+	fileStream.read(buffer, rangeLen);
+	size_t bytesRead = fileStream.gcount(); 
+	std::string bufferStr(buffer, bytesRead);
+	fileStream.close();
+
+	response.setVersion("HTTP/1.1");
 	response.setStatusCode("206");
+	response.setReasonPhrase("Partial Content");
+	response.setBody(bufferStr);
+	response.setHeaders("Content-Length", intToString(bufferStr.length()));
+	response.setHeaders("Content-Type", "text/plain");
+	response.setHeaders("Content-Range", "bytes " + longLongToString(startByte) + "-" 
+							+ longLongToString(endByte) + "/" + longLongToString(fileSize));
+	response.setHeaders("Server", "Ranchero");
+	response.setHeaders("Connection", "keep-alive");
+
 	return (response);
 }
 
@@ -504,10 +528,11 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* se
 		Logger::log(Logger::ERROR, "Failed to determine file size", "ResponseGenerator::serveFile");
 		return (serveError(request, 500, settings));
 	}
+
 	if (fileSize <= COMPACT_RESPONSE_LIMIT)
 		return (serveSmallFile(request, settings, path));
 
-	if (!request.getHeader("Range").empty())
+	if (!request.getHeader("range").empty())
 		return (serveRangedResponse(request, settings, path, fileSize));
 	else
 		return (serveChunkedResponse(request, settings, path, fileSize));
@@ -569,6 +594,13 @@ long long ResponseGenerator::stringToLongLong(const std::string& string)
 		return (-2);
     }
 	return (longVal);
+}
+
+std::string ResponseGenerator::longLongToString(long long value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
 }
 
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)

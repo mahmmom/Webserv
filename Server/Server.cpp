@@ -183,7 +183,7 @@ void Server::processGetRequest(int& clientSocketFD, HTTPRequest& request)
 
 void Server::handleClientRead(int& clientSocketFD)
 {
-	char buffer[BUFFER_SIZE] = {0};
+	char buffer[BUFFER_SIZE + 1] = {0};
     int bytes_read = recv(clientSocketFD, buffer, sizeof(buffer), 0);
 
     if (bytes_read < 0) {

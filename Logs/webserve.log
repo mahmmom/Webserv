@@ -1,14 +1,76 @@
-2024/11/03 06:55:35 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/03 06:55:35 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
-2024/11/03 06:55:35 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/03 06:55:35 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/03 06:55:38 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
-2024/11/03 06:55:38 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
-2024/11/03 06:55:38 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/03 06:55:38 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/03 06:55:38 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /alt/
-2024/11/03 06:55:38 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
-2024/11/03 06:55:38 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/03 06:55:38 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/03 06:55:38 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/03 06:55:38 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:51 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/05 04:50:51 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/05 04:50:51 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/05 04:50:51 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/05 04:50:54 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /ephrem.mp3
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedHeaders] Headers for a chunked response have been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendChunkedBody] A chunked response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has triggered EV_EOF 127.0.0.1
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::deregisterEvent] Deregistered READ event for fd 6
+2024/11/05 04:50:54 [INFO ] [Server::removeDisconnectedClients] Client with fd 6 has disconnected
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/05 04:50:54 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /ephrem.mp3
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been sent partially to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/05 04:50:54 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /ephrem.mp3
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been sent partially to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/05 04:50:54 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /ephrem.mp3
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been sent partially to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/05 04:50:54 [INFO ] [ResponseGenerator::handleRequest] Recieved a GET request from 6 for /ephrem.mp3
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been sent partially to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:54 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/05 04:50:54 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/05 04:50:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:50:59 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:51:04 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:51:09 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/05 04:51:14 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
