@@ -1,5 +1,21 @@
-2024/11/06 00:18:22 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/06 00:18:22 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
-2024/11/06 00:18:22 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/06 00:18:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/06 00:18:27 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:16:19 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/08 07:16:19 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/08 07:16:19 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/08 07:16:19 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:16:22 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
+2024/11/08 07:16:22 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/08 07:16:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:16:22 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/08 07:16:22 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/08 07:16:22 [INFO ] [ClientManager::parseHeaders] Received a POST request for /index/index.htmlfrom client with IP 127.0.0.1, with fd: 6
+2024/11/08 07:16:22 [DEBUG] [ClientManager::initializeBodyStorage] Temporary file for POST body created: Server/uploads/post_body_753130884_6.tmp
+2024/11/08 07:16:22 [DEBUG] [ClientManager::initializeBodyStorage] POST request body is complete from the first read for client with socket fd 6
+2024/11/08 07:16:22 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/08 07:16:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:16:22 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/08 07:16:22 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/08 07:16:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:16:23 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has triggered EV_EOF 127.0.0.1
+2024/11/08 07:16:23 [DEBUG] [KqueueManager::deregisterEvent] Deregistered READ event for fd 6
+2024/11/08 07:16:23 [INFO ] [Server::removeDisconnectedClients] Client with fd 6 has disconnected
+2024/11/08 07:16:23 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛

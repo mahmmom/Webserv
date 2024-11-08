@@ -9,7 +9,7 @@ HTTPSRCS = $(addprefix $(HTTPDIR)/, HTTPRequest.cpp HTTPResponse.cpp ResponseGen
 HTTPOBJS = $(addprefix $(OBJDIR)/, $(HTTPSRCS:$(HTTPDIR)/%.cpp=%.o))
 
 # NonBlockingServer.cpp
-SERVERSRCS1 = $(addprefix $(SERVERDIR)/, main.cpp Client.cpp Errors.cpp Server.cpp ServerArena.cpp)
+SERVERSRCS1 = $(addprefix $(SERVERDIR)/, main.cpp ClientManager.cpp Errors.cpp Server.cpp ServerArena.cpp)
 SERVEROBJS1 = $(addprefix $(OBJDIR)/, $(SERVERSRCS1:$(SERVERDIR)/%.cpp=%.o))
 
 SERVERSRCS2 = $(addprefix $(SERVERDIR)/, TestClient.cpp)
@@ -72,6 +72,8 @@ clean:
 fclean: clean
 	rm -f $(NAME1) $(NAME2)
 
-re: fclean all
+re:
+	$(MAKE) fclean
+	$(MAKE) all
 
 .PHONY: all clean fclean re

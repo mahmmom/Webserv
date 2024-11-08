@@ -6,7 +6,7 @@
 #include "../Settings/ServerSettings.hpp"
 #include "../Parser/MimeTypesSettings.hpp"
 #include <map>
-#include "Client.hpp"
+// #include "Client.hpp"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "Errors.hpp"
@@ -26,6 +26,9 @@
 #define MAX_HEADER_SIZE 8192 // 8 KB
 #define MAX_URI_SIZE 2048 // 2 KB
 
+#define TEMP_FILE_DIRECTORY "Server/uploads/"
+
+class ClientManager;
 class Server
 {
 	private:
@@ -38,7 +41,7 @@ class Server
 		std::vector<int>					toRemove;
 		struct sockaddr_in 					serverAddr;
 		std::map<int, ResponseManager* > 	responses; // change to responseState* later
-		std::map<int, Client>				clients;
+		std::map<int, ClientManager* >		clients;
 	public:
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 
@@ -58,14 +61,16 @@ class Server
 
 		void acceptNewClient();
 
-		void processGetRequest(int& clientSocketFD, HTTPRequest& request);
 		void handleClientRead(int& clientSocketFD);
+		void handleClientWrite(int& clientSocketFD);
+
+		void processGetRequest(int& clientSocketFD, HTTPRequest& request);
+		void processPostRequest(int& clientSocketFD, HTTPRequest& request);
 
 		void sendChunkedBody(int& clientSocketFD, ResponseManager* responseManager);
 		void sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseManager);
 		void sendChunkedResponse(int& clientSocketFD, ResponseManager* responseManager);
 		void sendCompactFile(int& clientSocketFD, ResponseManager* responseManager);
-		void handleClientWrite(int& clientSocketFD);
 
 		void handleExcessHeaders(int& clientSocketFD);
 		void handleExcessURI(int& clientSocketFD);
@@ -74,6 +79,8 @@ class Server
 
 		void removeBadClients(int& clientSocketFD);
 		void removeDisconnectedClients(int& clientSocketFD);
+
+		ServerSettings&	getServerSettings();
 };
 
 #endif

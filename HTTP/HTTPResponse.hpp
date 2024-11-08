@@ -3,6 +3,8 @@
 
 #include <string>
 #include <map>
+#include <iostream>
+#include <sstream>
 
 enum ResponseType {
 	CompactResponse,
@@ -21,6 +23,8 @@ class HTTPResponse
 		std::string							fullResponse;
 		std::string							filePath;
 		long long							fileSize;
+
+		std::string sizeTToString(size_t value);
 	public:
 		HTTPResponse();
 		std::string&	generateResponse();

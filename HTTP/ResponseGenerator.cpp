@@ -10,9 +10,13 @@ ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSe
 	reasonPhraseMap[303] = "See Other";
 	reasonPhraseMap[307] = "Temporary Redirect";
 	reasonPhraseMap[308] = "Permanent Redirect";
+	reasonPhraseMap[400] = "Bad Request";
 	reasonPhraseMap[403] = "Forbidden";
 	reasonPhraseMap[404] = "Not Found";
+	reasonPhraseMap[411] = "Length Required";
 	reasonPhraseMap[500] = "Internal Server Error";
+	reasonPhraseMap[501] = "Not Implemented";
+	reasonPhraseMap[505] = "HTTP Version Not Supported";
 }
 
 HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, BaseSettings* settings)
@@ -308,7 +312,7 @@ HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode,
 		response.setHeaders("Content-Length", intToString(body.size()));
 	}
 	else
-		response.setReasonPhrase("Uknown Status");
+		response.setReasonPhrase("Unknown Status");
 	response.setHeaders("Connection", "keep-alive"); // status codes in 500 range except 503 need to close the connection!
 
 	return (response);
@@ -557,20 +561,85 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 
 HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 {
-	if (serverSettings.getReturnDirective().getEnabled())
-		return (handleReturnDirective(request, &serverSettings));
-
 	BaseSettings*		settings = &serverSettings;
 	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
 
-	if (locationSettings) {
+	if (locationSettings)
 		settings = locationSettings;
+
+	if (request.getStatus() != 200)
+		return (serveError(request, request.getStatus(), settings));
+
+	if (serverSettings.getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, &serverSettings));
+
+	if (locationSettings) {
 		if (!locationSettings->isMethodAllowed(request.getMethod()))
 			return (serveError(request, 403, settings));
 	}
 	if (settings->getReturnDirective().getEnabled())
 		return (handleReturnDirective(request, settings));
+
 	return (serveRequest(request, settings));
+}
+
+HTTPResponse	ResponseGenerator::handlePostRequest(HTTPRequest& request)
+{
+	BaseSettings*		settings = &serverSettings;
+	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
+
+	if (locationSettings)
+		settings = locationSettings;
+
+	if (request.getStatus() != 200)
+		return (serveError(request, request.getStatus(), settings));
+
+	if (serverSettings.getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, &serverSettings));
+
+	if (locationSettings)
+	{
+		if (locationSettings->isMethodAllowed(request.getMethod()) == false)
+			return (serveError(request, 405, settings));
+	}
+
+	if (settings->getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, settings));
+
+	HTTPResponse response;
+
+	response.setVersion("HTTP/1.1");
+	response.setStatusCode("200");
+	response.setReasonPhrase("OK");
+ 	std::string body =	"<html>"
+							"<head><title>Request Processed</title></head>"
+							"<body>"
+								"<h2>Request Successfully Processed</h2>"
+								"<p>Your request has been processed by our server. Thank you!</p>"
+							"</body>"
+						"</html>";
+	response.setBody(body);
+	response.setHeaders("Content-Length", longLongToString(body.length()));
+	response.setHeaders("Content-Type", "text/html");
+	response.setHeaders("Server", "Ranchero");
+	response.setHeaders("Connection", "keep-alive");
+
+	return (response);
+}
+
+HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
+{
+	if (request.getMethod() == "GET")
+		return (handleGetRequest(request));
+	// else if (request.getMethod() == "HEAD ")
+	// 	;
+	else if (request.getMethod() == "POST")
+		return (handlePostRequest(request));
+	// else if (request.getMethod() == "DELETE")
+	// 	;
+
+	HTTPResponse deleteLater;
+	return deleteLater;
 }
 
 long long ResponseGenerator::stringToLongLong(const std::string& string)
@@ -601,24 +670,4 @@ std::string ResponseGenerator::longLongToString(long long value)
     std::ostringstream oss;
     oss << value;
     return oss.str();
-}
-
-HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
-{
-	if (request.getMethod() == "GET") {
-		std::string message = "Recieve a GET request from "  ;
-		Logger::log(Logger::INFO, "Recieved a GET request from " 
-			+ Logger::intToString(request.clientSocketFD) + " for "
-			+ request.getURI(), "ResponseGenerator::handleRequest");
-		return (handleGetRequest(request));
-	}
-	// else if (request.getMethod() == "HEAD ")
-	// 	;
-	// else if (request.getMethod() == "POST")
-	// 	;
-	// else if (request.getMethod() == "DELETE")
-	// 	;
-
-	HTTPResponse deleteLater;
-	return deleteLater;
 }

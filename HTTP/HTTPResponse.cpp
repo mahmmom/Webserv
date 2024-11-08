@@ -51,7 +51,7 @@ void HTTPResponse::buildDefaultErrorResponse(std::string statusCode, std::string
 						"</body>"
 						"</html>";
 	this->body = body;
-	headers["Content-Length"] = body.length();
+	headers["Content-Length"] = sizeTToString(body.length());
 }
 
 void HTTPResponse::setFilePath(const std::string& filePath)
@@ -112,4 +112,12 @@ const ResponseType& HTTPResponse::getType()
 const std::string& HTTPResponse::getReasonPhrase()
 {
 	return (reasonPhrase);
+}
+
+std::string HTTPResponse::sizeTToString(size_t value)
+{
+	std::string xToString(size_t value);
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
 }

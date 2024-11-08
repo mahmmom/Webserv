@@ -135,31 +135,33 @@ void	BaseSettings::setClientMaxBodySize(const std::string& clientMaxBodySize)
 
 	size_t	lastCharPos = clientMaxBodySize.find_first_not_of("0123456789");
 	int 	factor = 1;
+	std::string	numericStr;
 	if (lastCharPos != std::string::npos && lastCharPos != clientMaxBodySize.size() - 1) 
 	{
 		if (lastCharPos != clientMaxBodySize.size() - 1)
 			throw (std::runtime_error("\"client_max_body_size\" directive invalid value")); // Note 1
-
 	}
-	char	lastChar = std::tolower(clientMaxBodySize[lastCharPos]);
-	if (lastChar != 'm' && lastChar != 'k' && lastChar != 'g')
-		throw (std::runtime_error("\"client_max_body_size\" directive invalid value")); // Note 2
+	else if (lastCharPos != std::string::npos)
+	{
+		char	lastChar = std::tolower(clientMaxBodySize[lastCharPos]);
+		if (lastChar != 'm' && lastChar != 'k' && lastChar != 'g')
+			throw (std::runtime_error("\"client_max_body_size\" directive invalid value")); // Note 2
 
-	std::string	numericStr;
-	if (lastCharPos != std::string::npos) {
-		numericStr = clientMaxBodySize.substr(0, clientMaxBodySize.size() - 1);
+		if (lastCharPos != std::string::npos) {
+			numericStr = clientMaxBodySize.substr(0, clientMaxBodySize.size() - 1);
 
-		if (std::tolower(clientMaxBodySize[lastCharPos]) == 'k')
-			factor = 1024;
-		else if (std::tolower(clientMaxBodySize[lastCharPos]) == 'm')
-			factor = 1024 * 1024; // 1,048,576
-		else if (std::tolower(clientMaxBodySize[lastCharPos]) == 'g')
-			factor = 1024 * 1024 * 1024; // 1,073,741,824
+			if (std::tolower(clientMaxBodySize[lastCharPos]) == 'k')
+				factor = 1024;
+			else if (std::tolower(clientMaxBodySize[lastCharPos]) == 'm')
+				factor = 1024 * 1024; // 1,048,576
+			else if (std::tolower(clientMaxBodySize[lastCharPos]) == 'g')
+				factor = 1024 * 1024 * 1024; // 1,073,741,824
+		}
 	}
 	else
 		numericStr = clientMaxBodySize;
-	std::stringstream ss(numericStr);
 
+	std::stringstream ss(numericStr);
 	size_t size = 0;
 
 	ss >> size;

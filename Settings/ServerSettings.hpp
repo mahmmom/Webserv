@@ -45,7 +45,14 @@
 			LocationConfig locationConfig. No pointer is needed in this case. Checkout Nginx 2.0 but that's because 
 			we wouldn't actually be handling locationConfig directly unlike in this implementation, instead the 
 			LocationConfig object is simply assigned and the parsing of duplicates is actually done directly on 
-			the map itself.
+			the map itself. If you use a map, then you can set a forwardly declared class as a VALUE (generally, but 
+			not ALWAYS, see the last sentence of this paragraph to know why) but NEVER as a KEY. 
+			Keys require full definitions because they need to be compared to maintain the order within the map.
+			By default, std::map uses std::less<KeyType> to compare keys. std::less relies on the < operator or a custom 
+			comparator, both of which need to "see" the full class definition to know how to compare instances of KeyType. 
+			Values can be forward-declared since they don’t need ordering, just storage. The only time the compiler needs 
+			the full definition of ValueType is when you actually create, copy, or assign an instance of that type (e.g., 
+			when inserting or accessing values). For simply declaring the map, a forward declaration is enough.
 */
 class LocationSettings; // Note 1
 

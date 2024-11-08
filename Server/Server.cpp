@@ -1,5 +1,6 @@
 
 #include "Server.hpp"
+#include "ClientManager.hpp"
 
 size_t simulatedSend(int socket, const void* buffer, size_t length, int flags)
 {
@@ -133,7 +134,6 @@ std::string& Server::getServerInterface()
     return (serverInterface);
 }
 
-
 void Server::acceptNewClient()
 {
     struct sockaddr_in  clientAddr;
@@ -158,62 +158,83 @@ void Server::acceptNewClient()
         close(clientSocket);
         return ;
     }
-    clients.insert(std::make_pair(clientSocket, Client(clientSocket)));
-    inet_ntop(clientAddr.sin_family, &(clientAddr.sin_addr),
-        clientStrAddress, sizeof(clientStrAddress));
 
+    inet_ntop(clientAddr.sin_family, &(clientAddr.sin_addr), clientStrAddress, sizeof(clientStrAddress));
+    clients[clientSocket] = new ClientManager(clientSocket, clientStrAddress);
     eventManager->registerEvent(clientSocket, READ);
 }
 
+/*
+    NOTES
+
+        Note 1: Everytime we write to a client, that means that we have recieved their request completely and 
+                thus, in order to allow for new requests from that client without actually removing them from 
+                our clients map, we simply reset the ClientManager class attributes via the method 
+                ClientManager::resetClientState(). By doing so, the data for the current request will not get 
+                jumbled up with data for the upcoming request made by the client.
+*/
 void Server::processGetRequest(int& clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request);
-    
+
     ResponseManager* responseManager = NULL;
     if (response.getType() == CompactResponse)
         responseManager = new ResponseManager(response.generateResponse(), false);
     else
         responseManager = new ResponseManager(response.generateResponse(), response.getFilePath(), response.getFileSize());
-    responses[clientSocketFD] =  responseManager;
+    if (clients.count(clientSocketFD) > 0) // Note 1
+        clients[clientSocketFD]->resetClientManager();
 
+    responses[clientSocketFD] =  responseManager;
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+void Server::processPostRequest(int& clientSocketFD, HTTPRequest& request)
+{
+    ResponseGenerator responseGenerator(serverSettings, mimeTypes);
+
+    HTTPResponse response = responseGenerator.handleRequest(request);
+
+    ResponseManager* responseManager = NULL;
+    responseManager = new ResponseManager(response.generateResponse(), false);
+    if (clients.count(clientSocketFD) > 0)
+        clients[clientSocketFD]->resetClientManager();
+    responses[clientSocketFD] =  responseManager;
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
 void Server::handleClientRead(int& clientSocketFD)
 {
 	char buffer[BUFFER_SIZE + 1] = {0};
-    int bytes_read = recv(clientSocketFD, buffer, sizeof(buffer), 0);
+    int bytesRead = recv(clientSocketFD, buffer, sizeof(buffer), 0);
 
-    if (bytes_read < 0) {
+    if (bytesRead < 0) {
         Logger::log(Logger::ERROR, "Failed to recieve data from client with socket fd: "
             + Logger::intToString(clientSocketFD), "Server::handleClientRead");
         removeBadClients(clientSocketFD);
         close(clientSocketFD);
     }
-    else if (bytes_read == 0) {
+    else if (bytesRead == 0) {
         removeDisconnectedClients(clientSocketFD);
     }
     else {
-        std::map<int, Client>::iterator it = clients.find(clientSocketFD);
+        std::map<int, ClientManager* >::iterator it = clients.find(clientSocketFD);
         if (it != clients.end())
         {
-            buffer[bytes_read] = '\0';
-            it->second.getBuffer().append(buffer, bytes_read);
+
+            buffer[bytesRead] = '\0';
             std::cout << "Recieved from "
-					<< "(" << it->second.getSocket() << ")"
-					<< " the following -> " << it->second.getBuffer()
-					<< " (bytes recieved: " << bytes_read << ")"
-					<< std::endl << std::endl;
+					<< "(" << it->second->getSocket() << ")"
+					<< " the following -> " << buffer
+					<< " (bytes recieved: " << bytesRead << ")"
+					<< std::endl;
 
-            HTTPRequest request(buffer, it->second.getSocket());
+            it->second->updateLastRequestTime();
+            // it->second->incrementRequestsNumber();
+            it->second->processIncomingData(*this, buffer, bytesRead);
 
-            (it)->second.request = request;
-            (it)->second.lastRequestTime = std::time(0);
-
-            if (request.getMethod() == "GET")
-                processGetRequest(clientSocketFD, request);
         }
     }
 }
@@ -376,23 +397,23 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
 */
 void    Server::checkTimeouts()
 {
-    std::map<int, Client>::iterator it = clients.begin();
+    std::map<int, ClientManager* >::iterator it = clients.begin();
 
     while (it != clients.end()) {
         BaseSettings*		settings = &serverSettings;
-        LocationSettings* 	locationSettings = serverSettings.findLocation((it)->second.request.getURI());
+        LocationSettings* 	locationSettings = serverSettings.findLocation((it)->second->getRequest().getURI());
 
         if (locationSettings)
             settings = locationSettings;
 
         size_t timeoutValue = settings->getKeepaliveTimeout();
 
-        if (it->second.isTimedout(timeoutValue)) {
-            Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(it->second.getSocket()) + 
+        if (it->second->isTimedout(timeoutValue)) {
+            Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(it->second->getSocket()) + 
                 " has timed out, proceeding to disconnect", "Server::checkTimeouts");
-            eventManager->deregisterEvent(it->second.getSocket(), READ);
-            close(it->second.getSocket());
-            std::map<int, Client>::iterator toErase = it; // Note 1
+            eventManager->deregisterEvent(it->second->getSocket(), READ);
+            close(it->second->getSocket());
+            std::map<int, ClientManager* >::iterator toErase = it; // Note 1
             it++;
             clients.erase(toErase);  // Erase using the saved iterator
         }
@@ -464,6 +485,19 @@ void Server::removeDisconnectedClients(int& clientSocketFD)
             " has disconnected", "Server::removeDisconnectedClients");
 }
 
+/*
+    ALL THE ERROR HANDLING FUNCTIONS BELOW DO NOT GET SENT TO ANY OF THE FOLLOWING:
+        * processGetRequest
+        * processPostRequest
+        * processHeadRequest
+        * processDeleteRequest
+    
+    and thus there is no call to this function:
+        HTTPResponse response = responseGenerator.handleRequest(request);
+    instead, they all go directly to:
+        HTTPResponse response;
+        response.buildDefaultErrorResponse("414", "URI Too Long");
+*/
 void Server::handleExcessHeaders(int& clientSocketFD)
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
@@ -486,7 +520,7 @@ void Server::handleExcessURI(int& clientSocketFD)
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                     + " sent a URI that exceeded the permissible limit -> " 
                     + Logger::intToString(MAX_URI_SIZE) + " bytes", 
-                    "Server::handleExcessHeader");
+                    "Server::handleExcessURI");
     
     removeBadClients(clientSocketFD);
 
@@ -502,7 +536,7 @@ void Server::handleInvalidGetRequest(int& clientSocketFD)
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                 + " made a GET request that includes a body", 
-                "Server::handleExcessHeader");
+                "Server::handleInvalidGetRequest");
 
     removeBadClients(clientSocketFD);
 
@@ -518,8 +552,8 @@ void Server::handleInvalidRequest(int& clientSocketFD, std::string statusCode, s
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                 + " made an invalid request", 
-                "Server::handleExcessHeader");
-    
+                "Server::handleInvalidRequest");
+
     removeBadClients(clientSocketFD);
 
     HTTPResponse response;
@@ -528,4 +562,9 @@ void Server::handleInvalidRequest(int& clientSocketFD, std::string statusCode, s
     responses[clientSocketFD] =  responseManager;
 
     eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+ServerSettings&	Server::getServerSettings()
+{
+    return (serverSettings);
 }
