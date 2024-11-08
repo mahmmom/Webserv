@@ -80,28 +80,28 @@ void	ClientManager::parseHeaders(Server &server)
 	if (request.getMethod() == "GET")
 	{
 		Logger::log(Logger::INFO, "Received a GET request for " + request.getURI() + 
-		"from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handleGetRequest(server);
 	}
 	else if (request.getMethod() == "HEAD")
 	{
 		Logger::log(Logger::INFO, "Received a HEAD request for " + request.getURI() + 
-		"from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		// server.processHeadRequest(fd, request);
 	}
 	else if (request.getMethod() == "POST")
 	{
 		Logger::log(Logger::INFO, "Received a POST request for " + request.getURI() + 
-		"from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handlePostRequest(server);
 	}
 	else if (request.getMethod() == "DELETE")
 	{
 		Logger::log(Logger::INFO, "Received a DELETE request for " + request.getURI() + 
-		"from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		// server.processDeleteRequest(fd, request);
 	}

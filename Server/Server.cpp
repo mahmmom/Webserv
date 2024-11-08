@@ -568,3 +568,8 @@ ServerSettings&	Server::getServerSettings()
 {
     return (serverSettings);
 }
+
+std::map<int, ClientManager* >&	Server::getClients()
+{
+    return (clients);
+}

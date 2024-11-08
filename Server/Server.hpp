@@ -80,7 +80,8 @@ class Server
 		void removeBadClients(int& clientSocketFD);
 		void removeDisconnectedClients(int& clientSocketFD);
 
-		ServerSettings&	getServerSettings();
+		ServerSettings&					getServerSettings();
+		std::map<int, ClientManager* >&	getClients();
 };
 
 #endif

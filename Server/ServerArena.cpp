@@ -69,8 +69,11 @@ void ServerArena::displayServersRegistry()
 */
 void ServerArena::manageReadEvent(EventBlock& eventBlock)
 {
-	for (size_t i = 0; i < servers.size(); i++) {
-		if (eventBlock.isEOF && (eventBlock.fd != servers[i]->getServerSocket())) {
+	for (size_t i = 0; i < servers.size(); i++)
+	{
+		bool isClientFD = servers[i]->getClients().count(eventBlock.fd) > 0;
+
+		if (isClientFD && eventBlock.isEOF && (eventBlock.fd != servers[i]->getServerSocket())) {
 			if (!servers[i]->checkClientInServer(eventBlock.fd)) // Note 1
 			{
 				Logger::log(Logger::DEBUG, "Client with socket fd: " + Logger::intToString(eventBlock.fd) + 
@@ -83,7 +86,7 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 			servers[i]->acceptNewClient();
 			break ;
 		}
-		else if (eventBlock.isRead && (eventBlock.fd != servers[i]->getServerSocket())) {
+		else if (isClientFD && eventBlock.isRead && (eventBlock.fd != servers[i]->getServerSocket())) {
 			if (!servers[i]->checkClientInServer(eventBlock.fd))
 			{
 				Logger::log(Logger::DEBUG, "Client with socket fd: " + Logger::intToString(eventBlock.fd) + 
