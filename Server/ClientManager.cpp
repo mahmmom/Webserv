@@ -127,19 +127,19 @@ void	ClientManager::handleGetRequest(Server &server)
 
 void	ClientManager::handlePostRequest(Server &server)
 {
-	if (request.getStatus() != 200)
-	{
-		Logger::log(Logger::WARN, "Invalid POST request status for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
+	// if (request.getStatus() != 200)
+	// {
+	// 	Logger::log(Logger::WARN, "Invalid POST request status for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
 
-		std::map<int, std::string> reasonPhraseMap;
-		reasonPhraseMap[400] = "Bad Request";
-		reasonPhraseMap[411] = "Length Required";
-		reasonPhraseMap[501] = "Not Implemented";
-		reasonPhraseMap[505] = "HTTP Version Not Supported";
+	// 	std::map<int, std::string> reasonPhraseMap;
+	// 	reasonPhraseMap[400] = "Bad Request";
+	// 	reasonPhraseMap[411] = "Length Required";
+	// 	reasonPhraseMap[501] = "Not Implemented";
+	// 	reasonPhraseMap[505] = "HTTP Version Not Supported";
 	
-		server.handleInvalidRequest(fd, intToString(request.getStatus()), reasonPhraseMap[request.getStatus()]);
-		return ;
-	}
+	// 	server.handleInvalidRequest(fd, intToString(request.getStatus()), reasonPhraseMap[request.getStatus()]);
+	// 	return ;
+	// }
 	if (request.getHeader("transfer-encoding") == "chunked")
 	{
 		Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
@@ -158,7 +158,8 @@ void	ClientManager::handlePostRequest(Server &server)
 	{
 		Logger::log(Logger::WARN, "Body size of POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
 		server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
-		return;
+		request.setStatus(413);
+		return ;
 	}
 	initializeBodyStorage(server);
 }

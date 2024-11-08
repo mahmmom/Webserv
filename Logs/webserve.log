@@ -1,21 +1,37 @@
-2024/11/08 07:16:19 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/08 07:16:19 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
-2024/11/08 07:16:19 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/08 07:16:19 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/08 07:16:22 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
-2024/11/08 07:16:22 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
-2024/11/08 07:16:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/08 07:16:22 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/08 07:16:22 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/08 07:16:22 [INFO ] [ClientManager::parseHeaders] Received a POST request for /index/index.htmlfrom client with IP 127.0.0.1, with fd: 6
-2024/11/08 07:16:22 [DEBUG] [ClientManager::initializeBodyStorage] Temporary file for POST body created: Server/uploads/post_body_753130884_6.tmp
-2024/11/08 07:16:22 [DEBUG] [ClientManager::initializeBodyStorage] POST request body is complete from the first read for client with socket fd 6
-2024/11/08 07:16:22 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
-2024/11/08 07:16:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/08 07:16:22 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/08 07:16:22 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/08 07:16:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/08 07:16:23 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has triggered EV_EOF 127.0.0.1
-2024/11/08 07:16:23 [DEBUG] [KqueueManager::deregisterEvent] Deregistered READ event for fd 6
-2024/11/08 07:16:23 [INFO ] [Server::removeDisconnectedClients] Client with fd 6 has disconnected
-2024/11/08 07:16:23 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:44:44 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/08 07:44:44 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/08 07:44:44 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/08 07:44:44 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:44:49 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:44:54 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:44:59 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:04 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:09 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:14 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:19 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:21 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
+2024/11/08 07:45:21 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/08 07:45:21 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:21 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/08 07:45:21 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/08 07:45:21 [INFO ] [ClientManager::parseHeaders] Received a POST request for /index/index.htmlfrom client with IP 127.0.0.1, with fd: 6
+2024/11/08 07:45:21 [WARN ] [ClientManager::handlePostRequest] Chunked Transfer-Encoding not supported for client with socket fd 6
+2024/11/08 07:45:21 [WARN ] [Server::handleInvalidRequest] Client with socket FD: 6 made an invalid request
+2024/11/08 07:45:21 [INFO ] [Server::removeBadClients] Client with fd 6 has exhibited abnormal activity and has been removed
+2024/11/08 07:45:21 [DEBUG] [KqueueManager::deregisterEvent] Deregistered READ event for fd 6
+2024/11/08 07:45:21 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/08 07:45:21 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:21 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/08 07:45:21 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/08 07:45:21 [INFO ] [Server::sendCompactFile] Disconnecting client with socket fd: 6 upon sending a compact response
+2024/11/08 07:45:21 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:26 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:31 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:36 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:46 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:51 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:45:56 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:46:01 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:46:06 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/08 07:46:11 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
