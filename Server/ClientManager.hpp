@@ -41,6 +41,7 @@ class ClientManager
 
 		void	handleGetRequest(Server &server);
 		void	handleHeadRequest(Server &server);
+		void	handleDeleteRequest(Server &server);
 		void	handlePostRequest(Server &server);
 
 		int					getSocket() const;

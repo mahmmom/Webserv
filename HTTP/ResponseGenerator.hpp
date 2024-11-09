@@ -32,6 +32,9 @@ class ResponseGenerator
 		MimeTypesSettings			mimeTypes;
 		std::string					intToString(const int intValue);
 		std::map<int, std::string>	reasonPhraseMap;
+		
+		int 						isSafeToDelete(const std::string &path);
+		
 		long long					stringToLongLong(const std::string& string);
 		std::string 				longLongToString(long long value);
 	public:

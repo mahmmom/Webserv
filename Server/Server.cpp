@@ -205,6 +205,34 @@ void Server::processPostRequest(int& clientSocketFD, HTTPRequest& request)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
+void Server::processHeadRequest(int& clientSocketFD, HTTPRequest& request)
+{
+    ResponseGenerator responseGenerator(serverSettings, mimeTypes);
+
+    HTTPResponse response = responseGenerator.handleRequest(request);
+
+    ResponseManager* responseManager = NULL;
+    responseManager = new ResponseManager(response.generateResponse(), false);
+    if (clients.count(clientSocketFD) > 0)
+        clients[clientSocketFD]->resetClientManager();
+    responses[clientSocketFD] =  responseManager;
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
+void Server::processDeleteRequest(int& clientSocketFD, HTTPRequest& request)
+{
+    ResponseGenerator responseGenerator(serverSettings, mimeTypes);
+
+    HTTPResponse response = responseGenerator.handleRequest(request);
+
+    ResponseManager* responseManager = NULL;
+    responseManager = new ResponseManager(response.generateResponse(), false);
+    if (clients.count(clientSocketFD) > 0)
+        clients[clientSocketFD]->resetClientManager();
+    responses[clientSocketFD] =  responseManager;
+    eventManager->registerEvent(clientSocketFD, WRITE);
+}
+
 void Server::handleClientRead(int& clientSocketFD)
 {
 	char buffer[BUFFER_SIZE + 1] = {0};

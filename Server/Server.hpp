@@ -65,7 +65,9 @@ class Server
 		void handleClientWrite(int& clientSocketFD);
 
 		void processGetRequest(int& clientSocketFD, HTTPRequest& request);
+		void processHeadRequest(int& clientSocketFD, HTTPRequest& request);
 		void processPostRequest(int& clientSocketFD, HTTPRequest& request);
+		void processDeleteRequest(int& clientSocketFD, HTTPRequest& request);
 
 		void sendChunkedBody(int& clientSocketFD, ResponseManager* responseManager);
 		void sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseManager);

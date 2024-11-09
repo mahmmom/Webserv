@@ -70,7 +70,6 @@ void	ClientManager::parseHeaders(Server &server)
 	requestHeaders.resize(endOfHeaders);
 
 	this->request = HTTPRequest(requestHeaders,fd);
-
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
 		server.handleExcessURI(fd);
@@ -89,7 +88,14 @@ void	ClientManager::parseHeaders(Server &server)
 		Logger::log(Logger::INFO, "Received a HEAD request for " + request.getURI() + 
 		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
-		// server.processHeadRequest(fd, request);
+		handleHeadRequest(server);
+	}
+	else if (request.getMethod() == "DELETE")
+	{
+		Logger::log(Logger::INFO, "Received a DELETE request for " + request.getURI() + 
+		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+			"ClientManager::parseHeaders");
+		handleDeleteRequest(server);
 	}
 	else if (request.getMethod() == "POST")
 	{
@@ -97,13 +103,6 @@ void	ClientManager::parseHeaders(Server &server)
 		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handlePostRequest(server);
-	}
-	else if (request.getMethod() == "DELETE")
-	{
-		Logger::log(Logger::INFO, "Received a DELETE request for " + request.getURI() + 
-		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
-			"ClientManager::parseHeaders");
-		// server.processDeleteRequest(fd, request);
 	}
 	else
 	{
@@ -117,12 +116,40 @@ void	ClientManager::handleGetRequest(Server &server)
 	if (!requestBody.empty() || !request.getHeader("content-length").empty() || request.getHeader("transfer-encoding") == "chunked") {
 		// server.handleInvalidGetRequest(fd);
 		Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(fd)
-                + " made a GET request that includes a body", 
-                "Server::handleInvalidGetRequest");
+                + " made a GET request that includes a body and/or contains body-related"
+				+ " headers", 
+                "Server::handleGetRequest");
 		request.setStatus(400);
 	}
 	// else
 	server.processGetRequest(fd, request);
+}
+
+void	ClientManager::handleHeadRequest(Server &server)
+{
+	if (!requestBody.empty() || !request.getHeader("content-length").empty() || request.getHeader("transfer-encoding") == "chunked") {
+		// server.handleInvalidGetRequest(fd);
+		Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(fd)
+                + " made a HEAD request that includes a body and/or contains body-related"
+				+ " headers", 
+                "Server::handleHeadRequest");
+		request.setStatus(400);
+	}
+	// else
+	server.processGetRequest(fd, request);
+}
+
+void	ClientManager::handleDeleteRequest(Server &server)
+{
+	if (!requestBody.empty() || !request.getHeader("content-length").empty() || request.getHeader("transfer-encoding") == "chunked") {
+		// server.handleInvalidGetRequest(fd);
+		Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(fd)
+                + " made a DELETE request that includes a body and/or contains body-related"
+				+ " headers", 
+                "Server::handleDeleteRequest");
+		request.setStatus(400);
+	}
+	server.processDeleteRequest(fd, request);
 }
 
 void	ClientManager::handlePostRequest(Server &server)
@@ -163,6 +190,7 @@ void	ClientManager::handlePostRequest(Server &server)
 	}
 	initializeBodyStorage(server);
 }
+
 
 void	ClientManager::initializeBodyStorage(Server &server)
 {

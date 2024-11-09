@@ -1,5 +1,6 @@
 
 #include "ResponseGenerator.hpp"
+#include "HTTPResponse.hpp"
 
 ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes) : 
 	serverSettings(serverSettings), mimeTypes(mimeTypes)
@@ -627,16 +628,138 @@ HTTPResponse	ResponseGenerator::handlePostRequest(HTTPRequest& request)
 	return (response);
 }
 
+HTTPResponse ResponseGenerator::handleHeadRequest(HTTPRequest& request)
+{
+	HTTPResponse response = handleGetRequest(request);
+	response.setType(CompactResponse);
+	response.setBody("");
+
+	std::cout << "Tis is it \n" << response.generateResponse() << std::endl;
+	return (response);
+}
+
+int ResponseGenerator::isSafeToDelete(const std::string &path)
+{
+    struct stat pathStat;
+    
+    // Attempt to retrieve file status
+    if (stat(path.c_str(), &pathStat) != 0) {
+        if (errno == ENOENT) {
+            // File does not exist
+            return 404; // Not Found
+        }
+        // Other errors (e.g., permission issues accessing the file)
+        return 500; // Internal Server Error
+    }
+
+    // Check if it is a regular file
+    if (!S_ISREG(pathStat.st_mode)) {
+        // Target is not a regular file, like a directory
+        return 403; // Forbidden (or 400 Bad Request if preferred)
+    }
+    
+    // Check if the user has write permission on the file
+    if ((pathStat.st_mode & S_IWUSR) == 0) {
+        // No write permission on the file
+        return 403; // Forbidden
+    }
+
+    // Check if the user has write and execute permissions on the directory
+    std::string dirPath = path.substr(0, path.find_last_of("/"));
+    struct stat dirStat;
+    if (stat(dirPath.c_str(), &dirStat) != 0) {
+        // Could not access directory
+        return 500; // Internal Server Error
+    }
+    
+    if ((dirStat.st_mode & S_IWUSR) == 0 || (dirStat.st_mode & S_IXUSR) == 0) {
+        // No write/execute permission on the containing directory
+        return 403; // Forbidden
+    }
+
+    // // Optional: Check ownership to ensure the current user is the owner
+    // if (pathStat.st_uid != geteuid()) {
+    //     // Current user is not the owner of the file
+    //     return 403; // Forbidden
+    // }
+    
+    return 200; // OK, safe to delete
+}
+
+HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
+{
+
+	BaseSettings*		settings = &serverSettings;
+	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
+
+	if (locationSettings)
+		settings = locationSettings;
+
+	if (request.getStatus() != 200)
+		return (serveError(request, request.getStatus(), settings));
+
+	if (serverSettings.getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, &serverSettings));
+
+	if (locationSettings) {
+		if (!locationSettings->isMethodAllowed(request.getMethod()))
+			return (serveError(request, 403, settings));
+	}
+	if (settings->getReturnDirective().getEnabled())
+		return (handleReturnDirective(request, settings));
+
+    HTTPResponse response;
+    std::string filePath;
+
+    // Construct the file path based on the root directory and request URI
+    if (request.getURI()[0] == '/')
+        filePath = serverSettings.getRoot() + request.getURI();
+    else
+        filePath = serverSettings.getRoot() + "/" + request.getURI();
+
+    // Use isSafeToDelete to check the file and get the status code
+    int statusCode = isSafeToDelete(filePath);
+    if (statusCode != 200) {
+        // Return an error response based on the status code
+        response.setVersion("HTTP/1.1");
+        response.setStatusCode(std::to_string(statusCode));
+        response.setReasonPhrase(reasonPhraseMap[statusCode]);
+        response.setHeaders("Server", "Ranchero");
+        response.setHeaders("Content-Length", "0"); // No body for error responses
+        return response;
+    }
+
+
+    // Attempt to delete the file
+    if (remove(filePath.c_str()) != 0) {
+        // Unexpected error during deletion
+        response.setVersion("HTTP/1.1");
+        response.setStatusCode("500");
+        response.setReasonPhrase("Internal Server Error");
+        response.setHeaders("Server", "Ranchero");
+        response.setHeaders("Content-Length", "0"); // No body
+        return response;
+    }
+
+    // File deleted successfully, return 204 No Content
+    response.setVersion("HTTP/1.1");
+    response.setStatusCode("204");
+    response.setReasonPhrase("No Content");
+    response.setHeaders("Server", "Ranchero");
+    response.setHeaders("Content-Length", "0"); // No body
+    return response;
+}
+
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
 {
 	if (request.getMethod() == "GET")
 		return (handleGetRequest(request));
-	// else if (request.getMethod() == "HEAD ")
-	// 	;
+	else if (request.getMethod() == "HEAD")
+		return (handleHeadRequest(request));
 	else if (request.getMethod() == "POST")
 		return (handlePostRequest(request));
-	// else if (request.getMethod() == "DELETE")
-	// 	;
+	else if (request.getMethod() == "DELETE")
+		return (handleDeleteRequest(request));
 
 	HTTPResponse deleteLater;
 	return deleteLater;
