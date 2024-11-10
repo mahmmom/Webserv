@@ -7,6 +7,7 @@
 #include "../Parser/LoadSettings.hpp"
 #include "ServerArena.hpp"
 #include "../Logger/Logger.hpp"
+#include <signal.h>
 
 int main(int argc, char *argv[])
 {

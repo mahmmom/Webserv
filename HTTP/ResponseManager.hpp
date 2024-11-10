@@ -21,7 +21,7 @@ class ResponseManager
 		long long		fileSize;
 		std::string		filePath;
 		std::string		headers;
-		size_t			bytesSent;
+		int				bytesSent;
 		bool			closeConnection;
 		bool			headersFullySent;
 		std::string		chunk;
@@ -35,11 +35,11 @@ class ResponseManager
 
 		void				setHeadersFullySent();
 		void				resetBytesSent();
-		void				updateBytesSent(size_t& bytesSent);
+		void				updateBytesSent(int& bytesSent);
 
 		const bool&			getHeadersFullySent();
 		const bool&			getCloseConnection();
-		const size_t&		getBytesSent();
+		const int&		getBytesSent();
 		const std::string&	getCompactResponse();
 		const ResponseType& getType();
 		const std::string&	getHeaders();

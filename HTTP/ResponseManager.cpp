@@ -81,6 +81,16 @@ std::string	ResponseManager::obtainChunk()
 // 	return currentChunk;
 // }
 
+
+/*
+	NOTES
+
+		Note 1: I have decided to cast bytesSent to size_t instead of compactResponse.size()
+				to int. This is the safer option. Yes, bytesSent could be negative if an issue 
+				with the send() function has occured but that would have been captured by the 
+				functions that call send in the Server class before isFinished is ever called. 
+				Thus, casting bytesSent to size_t is indeed, the safer option.
+*/
 bool	ResponseManager::isFinished()
 {
 	if (type == ChunkedResponse)
@@ -93,7 +103,7 @@ bool	ResponseManager::isFinished()
 	}
 	else 
 	{
-		if (bytesSent >= compactResponse.size())
+		if (static_cast<size_t>(bytesSent) >= compactResponse.size()) // Note 1
 			return (true);
 	}
 	return (false);
@@ -109,7 +119,7 @@ void	ResponseManager::resetBytesSent()
 	bytesSent = 0;
 }
 
-void	ResponseManager::updateBytesSent(size_t& bytesSent)
+void	ResponseManager::updateBytesSent(int& bytesSent)
 {
 	this->bytesSent += bytesSent;
 }
@@ -124,7 +134,7 @@ const bool&	ResponseManager::getCloseConnection()
 	return (this->closeConnection);
 }
 
-const size_t&	ResponseManager::getBytesSent()
+const int&	ResponseManager::getBytesSent()
 {
 	return (this->bytesSent);
 }

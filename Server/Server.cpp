@@ -55,8 +55,9 @@ bool Server::checkClientInServer(int& clientSocketFD)
 
 void Server::setSocketOptions()
 {
-    if (serverSocket == -1)
+    if (serverSocket == -1) {
         return ;
+    }
 
 	int opt = 1;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
@@ -82,8 +83,9 @@ void Server::setupServerSocket()
 
 void Server::bindAndListenServerSocket()
 {
-    if (serverSocket == -1)
+    if (serverSocket == -1) {
         return ;
+    }
 
 	if(bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
         Logger::log(Logger::ERROR, "Failed to bind server socket: " + std::string(strerror(errno)), "Server::bindAndListenServerSocket");
@@ -98,8 +100,9 @@ void Server::bindAndListenServerSocket()
 
 void Server::setNonBlocking(int& sockFD)
 {
-    if (serverSocket == -1)
+    if (serverSocket == -1) {
         return ;
+    }
 	int flags = fcntl(sockFD, F_GETFL, 0);
     if (flags < 0) {
         Logger::log(Logger::ERROR, "Failed to set socket to nonblocking: " + std::string(strerror(errno)), "Server::setNonBlocking");
@@ -290,7 +293,7 @@ void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseMa
     std::string headers = responseManager->getHeaders();
     const char* response = headers.c_str() + responseManager->getBytesSent();
     size_t      len = headers.length() - responseManager->getBytesSent();
-    size_t      bytesSent = send(clientSocketFD, response, len, 0);
+    int      bytesSent = send(clientSocketFD, response, len, 0);
 
     if (bytesSent < 0)
     {
@@ -304,7 +307,7 @@ void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseMa
     }
 
     responseManager->updateBytesSent(bytesSent);
-    if (responseManager->getBytesSent() >= responseManager->getHeaders().size())
+    if (static_cast<size_t>(responseManager->getBytesSent()) >= responseManager->getHeaders().size())
     {
         responseManager->resetBytesSent();
         responseManager->setHeadersFullySent();
@@ -322,7 +325,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
 
     const char* response = chunk.c_str() + responseManager->getBytesSent();
     size_t      len = chunk.length() - responseManager->getBytesSent();
-    size_t      bytesSent = send(clientSocketFD, response, len, 0);
+    int         bytesSent = send(clientSocketFD, response, len, 0);
 
     if (bytesSent < 0)
     {
@@ -336,7 +339,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
     }
 
     responseManager->updateBytesSent(bytesSent);
-    if (responseManager->getBytesSent() >= chunk.length())
+    if (static_cast<size_t>(responseManager->getBytesSent()) >= chunk.length())
     {
         responseManager->resetBytesSent();
         Logger::log(Logger::DEBUG, "A chunked response has been fully sent to client with socket fd " + 
@@ -348,7 +351,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
     if (responseManager->isFinished())
     {
         std::string closingChunk = "0\r\n\r\n";
-        size_t      bytesSent = send(clientSocketFD, closingChunk.c_str(), closingChunk.size(), 0);
+        int         bytesSent = send(clientSocketFD, closingChunk.c_str(), closingChunk.size(), 0);
         if (bytesSent < 0)
         {
             Logger::log(Logger::DEBUG, "Failed to send a chunked response to client with "
@@ -380,7 +383,7 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
     std::string compactResponse = responseManager->getCompactResponse();
     const char* response = compactResponse.c_str() + responseManager->getBytesSent();
     size_t      len = compactResponse.length() - responseManager->getBytesSent();
-    size_t      bytesSent = send(clientSocketFD, response, len, 0);
+    int         bytesSent = send(clientSocketFD, response, len, 0);
     // size_t      bytesSent = simulatedSend(clientSocketFD, response, len, 0);
 
     if (bytesSent < 0)

@@ -194,7 +194,23 @@ void	ClientManager::handlePostRequest(Server &server)
 
 void	ClientManager::initializeBodyStorage(Server &server)
 {
-	std::string filename = "post_body_" + Logger::intToString(std::chrono::system_clock::now().time_since_epoch().count()) + "_" + Logger::intToString(fd) + ".tmp";
+	// std::string filename = "post_body_" + Logger::intToString(std::chrono::system_clock::now().time_since_epoch().count()) + "_" + Logger::intToString(fd) + ".tmp";
+	// requestBodyFilePath = TEMP_FILE_DIRECTORY + filename;
+
+	// requestBodyFile.open(requestBodyFilePath.c_str(), std::ios::out | std::ios::binary);
+	// if (!requestBodyFile.is_open())
+	// {
+	// 	Logger::log(Logger::ERROR, "Failed to open temporary file for storing POST body for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
+	// 	server.handleInvalidRequest(fd, "500", "Internal Server Error");
+	// 	return;
+	// }
+
+	std::string filename;
+	{
+		std::ostringstream oss;
+		oss << "post_body_" << Logger::intToString(static_cast<int>(time(0))) << "_" << Logger::intToString(fd) << ".tmp";
+		filename = oss.str();
+	}
 	requestBodyFilePath = TEMP_FILE_DIRECTORY + filename;
 
 	requestBodyFile.open(requestBodyFilePath.c_str(), std::ios::out | std::ios::binary);

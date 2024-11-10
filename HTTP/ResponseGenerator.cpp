@@ -722,7 +722,7 @@ HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
     if (statusCode != 200) {
         // Return an error response based on the status code
         response.setVersion("HTTP/1.1");
-        response.setStatusCode(std::to_string(statusCode));
+        response.setStatusCode(longLongToString(statusCode));
         response.setReasonPhrase(reasonPhraseMap[statusCode]);
         response.setHeaders("Server", "Ranchero");
         response.setHeaders("Content-Length", "0"); // No body for error responses
