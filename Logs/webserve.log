@@ -1,25 +1,11 @@
-2024/11/11 22:39:59 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/11 22:39:59 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/11 22:39:59 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:04 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/11 22:40:05 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/11 22:40:05 [INFO ] [ClientManager::parseHeaders] Received a GET request for /index/ from client with IP 127.0.0.1, with fd: 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/11 22:40:05 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/11 22:40:05 [INFO ] [ClientManager::parseHeaders] Received a GET request for /favicon.ico from client with IP 127.0.0.1, with fd: 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/11 22:40:05 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/11 22:40:05 [INFO ] [ClientManager::parseHeaders] Received a GET request for /error_pages/404.html from client with IP 127.0.0.1, with fd: 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:05 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/11 22:40:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/11 22:40:07 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.
+2024/11/12 00:19:13 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/12 00:19:13 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/12 00:19:13 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/12 00:19:13 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:18 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:23 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:28 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:33 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:38 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:43 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/12 00:19:43 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.

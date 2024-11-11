@@ -188,6 +188,26 @@ void	ServerSettings::addLocation(LocationSettings& locationSettings)
 	location /foo
 
 	location /foo/bar
+
+	NOTES
+
+		Note 1:	+ 1 to skip the current slash itself. 
+		
+			* ex1: uri is /index and we have location /index
+					current longest match: ""
+				first match: /index would return pos = std::string::npos and subPath would be /index
+					current longest match: /index
+
+				set location -> /index
+
+			* ex 2: uri is /index/error_pages/404.html and we have location /index/error_pages
+					current longest match: ""
+				first match: /index/error_pages/404.html would return pos = 6 and subPath would be /index/
+					current longest match: /index/
+				second match: /index/error_pages/404.html would return pos = 18 and subPath would be /index/error_pages/
+					current longest match: /index/error_pages
+				
+				set location -> /index/error_pages
 */
 LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 {
@@ -201,7 +221,7 @@ LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 				return (*it);
 			continue ;
 		}
-		size_t pos = uri.find("/", longestPathMatch.size() + 1);
+		size_t pos = uri.find("/", longestPathMatch.size() + 1); // Note 1
 		std::string subPath = uri.substr(0, pos);
 
 		if ((*it)->getPath() == subPath) {
