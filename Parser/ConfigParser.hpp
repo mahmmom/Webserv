@@ -13,11 +13,12 @@
 
 class ConfigParser {
 	private:
-		std::vector<std::string>	_tokens;
-		std::string					_configFileName;
-		ConfigNode*					_configTreeRoot;
+		std::vector<std::string>	tokens;
+		std::string					configFileName;
+		ConfigNode*					configTreeRoot;
 	public:
 		ConfigParser(const std::string& _configFileName);
+		~ConfigParser();
 		void		parse();
 		ConfigNode*	getConfigTreeRoot();
 };

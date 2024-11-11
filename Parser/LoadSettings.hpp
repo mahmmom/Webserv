@@ -19,7 +19,8 @@
 class LoadSettings
 {
 	private:
-		ConfigNode* rootNode;
+		ConfigNode*		rootNode;
+		DirectiveNode	defaultIndexDirective;
 		std::string HttpRoot;
 		std::string HttpAutoIndex;
 		std::string HttpClientMaxBodySize;

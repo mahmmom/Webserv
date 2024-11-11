@@ -15,7 +15,7 @@ class ConfigNode
 {
 	private:
 		NodeType	type;		
-		ConfigNode*	parent;
+		ConfigNode*	parent; // Always will be a contextNode (or NULL for the root) 
 	public:
 		ConfigNode(NodeType type, ConfigNode* parentNode = NULL);
 		virtual ~ConfigNode();

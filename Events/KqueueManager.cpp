@@ -5,6 +5,7 @@
 #include "EventManager.hpp"
 
 #include <iostream>
+#include <unistd.h>
 
 /*
     GENERAL INFO:
@@ -116,6 +117,13 @@ EventBlock KqueueManager::getEvent(const int& index)
 	eventBlock.isWrite = (eventlist[index].filter == EVFILT_WRITE);
 
 	return (eventBlock);
+}
+
+KqueueManager::~KqueueManager()
+{
+    if (kq != -1) {
+        close(kq);
+    }
 }
 
 #endif

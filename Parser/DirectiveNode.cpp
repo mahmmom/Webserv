@@ -1,7 +1,7 @@
 
 #include "DirectiveNode.hpp"
 
-DirectiveNode::DirectiveNode(std::string& directiveName, ConfigNode* parent) : 
+DirectiveNode::DirectiveNode(const std::string& directiveName, ConfigNode* parent) : 
 	ConfigNode(Directive, parent), directiveName(directiveName), numOfArguments(0) {}
 
 DirectiveNode::~DirectiveNode()

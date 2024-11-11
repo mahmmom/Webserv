@@ -1,18 +1,24 @@
 
 #include "ConfigParser.hpp"
 
-ConfigParser::ConfigParser(const std::string& filename) : _configFileName(filename) {}
+ConfigParser::ConfigParser(const std::string& filename) : configFileName(filename) {}
 
-ConfigNode* ConfigParser::getConfigTreeRoot()
+ConfigParser::~ConfigParser()
 {
-	return (_configTreeRoot);
+	if (configTreeRoot)
+    	delete configTreeRoot;
 }
 
 void	ConfigParser::parse()
 {
-	_tokens = ConfigTokenizer::tokenize(_configFileName);
-	SyntaxAuditor::checkConfigSyntax(_tokens);
-	_configTreeRoot = TreeGenerator::generateTree(_tokens);
+	tokens = ConfigTokenizer::tokenize(configFileName);
+	SyntaxAuditor::checkConfigSyntax(tokens);
+	configTreeRoot = TreeGenerator::generateTree(tokens);
 	TreeAuditor	treeAudit;
-	treeAudit.checkTreeLogic(_configTreeRoot);
+	treeAudit.checkTreeLogic(configTreeRoot);
+}
+
+ConfigNode* ConfigParser::getConfigTreeRoot()
+{
+	return (configTreeRoot);
 }

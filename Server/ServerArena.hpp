@@ -18,6 +18,8 @@
     typedef EpollManager EventHandler;
 #endif
 
+extern int running;
+
 class ServerArena
 {
 	private:
@@ -32,6 +34,7 @@ class ServerArena
 		void initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes);
 		void manageReadEvent(EventBlock& eventBlock);
 		void manageWriteEvent(EventBlock& eventBlock);
+		void pseudoDestructor();
 };
 
 #endif

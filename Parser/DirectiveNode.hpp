@@ -10,7 +10,7 @@ class DirectiveNode : public ConfigNode
 		std::vector<std::string>	arguments;
 		int							numOfArguments;
 	public:
-		DirectiveNode(std::string& directiveName, ConfigNode* parent);
+		DirectiveNode(const std::string& directiveName, ConfigNode* parent);
 		~DirectiveNode();
 		void							addArgument(std::string& argument);
 		const std::string&				getDirectiveName() const;

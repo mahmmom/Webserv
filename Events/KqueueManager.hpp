@@ -17,6 +17,7 @@ class KqueueManager : public EventManager
 	    std::vector<struct kevent> eventlist;
 	public:
 		KqueueManager();
+		~KqueueManager();
 		int			eventListener();
 		void		deregisterEvent(int socketFD, EventType event);
 		void 		registerEvent(int socketFD, EventType event);

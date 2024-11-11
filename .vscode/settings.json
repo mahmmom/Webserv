@@ -75,6 +75,7 @@
 		"locale": "cpp",
 		"mutex": "cpp",
 		"optional": "cpp",
-		"ratio": "cpp"
+		"ratio": "cpp",
+		"__functional_base_03": "cpp"
 	}
 }

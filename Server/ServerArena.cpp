@@ -1,10 +1,20 @@
 
 #include "ServerArena.hpp"
 
+int running = 1;
+
 ServerArena::ServerArena(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes,
 								EventManager* eventManager) : eventManager(eventManager)
 {
 	initializeServers(serverSettings, mimeTypes);
+}
+
+void ServerArena::pseudoDestructor()
+{
+	for (size_t i = 0; i < servers.size(); i++) {
+		delete (servers[i]);
+	}
+	servers.clear();
 }
 
 void ServerArena::initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes)
@@ -146,9 +156,14 @@ void ServerArena::manageTimeouts()
 void ServerArena::run()
 {
 	lastTimeoutCheck = std::time(0);
-    while (true)
+
+    while (running)
     {
+		if (!running)
+			break ;
+	
 		manageTimeouts();
+
 		Logger::log(Logger::DEBUG, "⌛ Waiting for events ⌛", "ServerArena::run");
 
         int nev = eventManager->eventListener();
@@ -162,29 +177,12 @@ void ServerArena::run()
                 manageReadEvent(eventBlock);
             }
             else if (eventBlock.isWrite) {
-				// std::cout << "djfksfjkldsjfkldsjfkldsjfkldsjfkds\n";
                 manageWriteEvent(eventBlock);
             }
         }
-
-		// for (int i = 0; i < nev; i++) {
-        //     EventBlock eventBlock = eventManager->getEvent(i);
-		// 	// THIS MIGHT HAVE TO BE SPLIT INTO TWO FOR LOOPS UPON CGI IMPLEMENTATION
-		// 	// WHERE ONE LOOP HANDLES ALL THE READ EVENTS FIRST AND ANOTHER HANDLES 
-		// 	// ONE THEN HANDLES ALL THE WRITE EVENTS
-        //     if (eventBlock.isRead || eventBlock.isEOF) {
-        //         manageReadEvent(eventBlock);
-        //     }
-        // }
-		// for (int i = 0; i < nev; i++) {
-        //     EventBlock eventBlock = eventManager->getEvent(i);
-		// 	// THIS MIGHT HAVE TO BE SPLIT INTO TWO FOR LOOPS UPON CGI IMPLEMENTATION
-		// 	// WHERE ONE LOOP HANDLES ALL THE READ EVENTS FIRST AND ANOTHER HANDLES 
-		// 	// ONE THEN HANDLES ALL THE WRITE EVENTS
-        //     if (eventBlock.isWrite) {
-		// 		// std::cout << "djfksfjkldsjfkldsjfkldsjfkldsjfkds\n";
-        //         manageWriteEvent(eventBlock);
-        //     }
-        // }
    }
+
+	Logger::log(Logger::DEBUG, "🤠 Ranchero has been shut down.", "ServerArena::run");
+	std::cout << "\n🤠\033[1;35m Ranchero has been shut down.\033[0m" << std::endl;
+	pseudoDestructor();
 }

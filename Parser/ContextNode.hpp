@@ -30,9 +30,9 @@ class ContextNode : public ConfigNode
 		std::vector<ConfigNode*>	children;
 	public:
 		ContextNode(std::string& contextName, ConfigNode* parent, const std::string& path = "No path for this context"); // Note 1
+		~ContextNode();
 		void	addMethod(std::string& method);
 		void	addChild(ConfigNode* child);
-		~ContextNode();
 		const std::string&					getContextName() const;
 		const std::string&					getPath() const;
 		const std::vector<ConfigNode*>&		getChildren() const;

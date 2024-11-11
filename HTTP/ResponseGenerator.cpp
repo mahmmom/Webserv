@@ -284,8 +284,6 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 */
 HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode, BaseSettings* settings)
 {
-	(void) settings;
-	(void) request;
 	if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
 		return (serveErrorPage(request, statusCode, settings));
 
@@ -750,6 +748,17 @@ HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
     return response;
 }
 
+/*
+	NOTES:
+
+		Note 1:	This is just to shut the compiler up. We will never hit this point
+				because at this point in the code, we have guaranteed that the 
+				method in the requestURI has to be one of these 4. The functions 
+				ClientManager::parseHeaders(Server &server) and the subcall to
+				server.handleInvalidRequest(fd, "501", "Not Implemented"); have handled 
+				this case already and this function HTTPResponse won't be called by the 
+				Server class object in that scenario.
+*/
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
 {
 	if (request.getMethod() == "GET")
@@ -760,9 +769,9 @@ HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
 		return (handlePostRequest(request));
 	else if (request.getMethod() == "DELETE")
 		return (handleDeleteRequest(request));
-
-	HTTPResponse deleteLater;
-	return deleteLater;
+	
+	HTTPResponse controlPathResponse;
+	return (controlPathResponse); // Note 1
 }
 
 long long ResponseGenerator::stringToLongLong(const std::string& string)

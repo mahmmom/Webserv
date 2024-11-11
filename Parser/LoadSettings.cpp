@@ -1,16 +1,14 @@
 
 #include "LoadSettings.hpp"
 
-LoadSettings::LoadSettings(ConfigNode* root)
+LoadSettings::LoadSettings(ConfigNode* root) : defaultIndexDirective("index", root)
 {
 	this->HttpRoot = DEFAULT_HTTP_ROOT;
 	this->HttpAutoIndex = DEFAULT_HTTP_AUTOINDEX;
 
-	std::string directiveName = "index";
-	DirectiveNode *indexDirective = new DirectiveNode(directiveName, root);
 	std::string directiveArgument = DEFAULT_HTTP_INDEX;
-	indexDirective->addArgument(directiveArgument);
-	this->HttpIndexArgs.push_back(indexDirective);
+	defaultIndexDirective.addArgument(directiveArgument);
+	this->HttpIndexArgs.push_back(&defaultIndexDirective);
 
 	this->HttpClientMaxBodySize = DEFAULT_HTTP_CLIENT_MAX_BODY_SIZE;
 
@@ -200,15 +198,15 @@ void LoadSettings::processHTTPNode(ContextNode* root, std::vector<ServerSettings
 			serverSettingsVector.push_back(serverSettings);
 		}
 	}
-
-	std::cout << "\n======== HTTP CONTEXT LEVEL ========\n";
-	this->debugger();
 }
 
 void	LoadSettings::loadServers(std::vector<ServerSettings>& serverSettingsVector)
 {
 	ContextNode* rootNode = static_cast<ContextNode* >(this->rootNode);
 	processHTTPNode(rootNode, serverSettingsVector);
+
+	std::cout << "\n======== HTTP CONTEXT LEVEL ========\n";
+	this->debugger();
 }
 
 void LoadSettings::debugger() const
@@ -236,16 +234,16 @@ void LoadSettings::debugger() const
 
 	// Print HttpIndexArgs
 	std::cout << "HttpIndexArgs:" << std::endl;
-	for (std::vector<DirectiveNode*>::const_iterator it = HttpIndexArgs.begin(); it != HttpIndexArgs.end(); ++it) {
-		if (*it) {
-			std::cout << "  Directive: " << (*it)->getDirectiveName() << std::endl;
-			std::cout << "  Arguments: ";
-			const std::vector<std::string>& args = (*it)->getArguments();
-			for (std::vector<std::string>::const_iterator argIt = args.begin(); argIt != args.end(); ++argIt) {
-				std::cout << *argIt << " ";
-			}
-			std::cout << std::endl;
-			std::cout << "  Number of arguments: " << (*it)->getNumOfArguments() << std::endl;
+		for (std::vector<DirectiveNode*>::const_iterator it = HttpIndexArgs.begin(); it != HttpIndexArgs.end(); ++it) {
+			if (*it) {
+				std::cout << "  Directive: " << (*it)->getDirectiveName() << std::endl;
+				std::cout << "  Arguments: ";
+				const std::vector<std::string>& args = (*it)->getArguments();
+				for (std::vector<std::string>::const_iterator argIt = args.begin(); argIt != args.end(); ++argIt) {
+					std::cout << *argIt << " ";
+				}
+				std::cout << std::endl;
+				std::cout << "  Number of arguments: " << (*it)->getNumOfArguments() << std::endl;
 		}
 	}
 }

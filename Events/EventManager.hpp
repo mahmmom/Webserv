@@ -21,6 +21,7 @@ struct EventBlock
 class EventManager
 {
 	public:
+		virtual				~EventManager() = 0;
 		virtual int			eventListener() = 0;
 		virtual void		deregisterEvent(int socketFD, EventType event) = 0;
 		virtual void 		registerEvent(int socketFD, EventType event) = 0;

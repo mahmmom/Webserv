@@ -46,6 +46,25 @@ Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, Eve
     serverInterface = std::string(serverStrAddress);
 }
 
+Server::~Server()
+{
+    std::map<int, ResponseManager* >::iterator responsesIt;
+    for (responsesIt = responses.begin(); responsesIt != responses.end(); responsesIt++) {
+        delete responsesIt->second;
+    }
+    responses.clear();
+
+    std::map<int, ClientManager* >::iterator clientsIt;
+    for (clientsIt = clients.begin(); clientsIt != clients.end(); clientsIt++) {
+        delete clientsIt->second;
+    }
+    clients.clear();
+
+    if (serverSocket != -1) {
+       close(serverSocket);
+    }
+}
+
 bool Server::checkClientInServer(int& clientSocketFD)
 {
     if (clients.count(clientSocketFD) > 0)
@@ -297,7 +316,7 @@ void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseMa
 
     if (bytesSent < 0)
     {
-        Logger::log(Logger::DEBUG, "Failed to send headers for a chunked response to client with "
+        Logger::log(Logger::ERROR, "Failed to send headers for a chunked response to client with "
             "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
@@ -329,8 +348,9 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
 
     if (bytesSent < 0)
     {
-        Logger::log(Logger::DEBUG, "Failed to send a chunked response to client with "
-            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+        Logger::log(Logger::WARN, "Failed to send a chunked response to client with "
+            "socket fd, the client could be re-establishing a new connection more appropriate "
+            "for chunked-encoding" + Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         delete (responseManager);
@@ -354,7 +374,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
         int         bytesSent = send(clientSocketFD, closingChunk.c_str(), closingChunk.size(), 0);
         if (bytesSent < 0)
         {
-            Logger::log(Logger::DEBUG, "Failed to send a chunked response to client with "
+            Logger::log(Logger::ERROR, "Failed to send the closing chunked response to client with "
                 "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
             eventManager->deregisterEvent(clientSocketFD, WRITE);
             responses.erase(clientSocketFD);
@@ -459,7 +479,10 @@ void Server::removeBadClients(int& clientSocketFD)
     Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
             " has exhibited abnormal activity and has been removed", "Server::removeBadClients");
 
+    ClientManager* clientManager = clients[clientSocketFD];
     eventManager->deregisterEvent(clientSocketFD, READ);
+    clients.erase(clientSocketFD);
+    delete clientManager;
 }
 
 /*
@@ -472,6 +495,11 @@ void Server::removeBadClients(int& clientSocketFD)
             seen it, and can't think of a case where it could be.
 
         Note 2:
+            .erase() doesn't need an iterator here because we are working with maps; for std::maps, we can erase an 
+            element by its key because no duplicate keys are allowed. But for a vector, we can have duplicate values 
+            and thus, the erase method (its version of the override) requires an iterator.
+
+        Note 3:
             Ok so EV_DELETE used in the deregistering of an event is a bit weird because of how 
             the manual explains it. But I guarantee you that my explanation is in fact how it behaves, 
             I've spent hours and hours trying to experiment till I figured it out. So the manual says 
@@ -497,11 +525,6 @@ void Server::removeBadClients(int& clientSocketFD)
             it's sent, I want to delete it off the kqeueue but I still want the Read event open! Nevertheless, when 
             I disconnect a client, who cares, we have to close the socket's fd anyways and that automatically deletes 
             all events.
-
-        Note 3:
-            .erase() doesn't need an iterator here because we are working with maps; for std::maps, we can erase an 
-            element by its key because no duplicate keys are allowed. But for a vector, we can have duplicate values 
-            and thus, the erase method (its version of the override) requires an iterator.
 */
 void Server::removeDisconnectedClients(int& clientSocketFD)
 {
@@ -509,11 +532,13 @@ void Server::removeDisconnectedClients(int& clientSocketFD)
         Logger::log(Logger::WARN, "Already handled this EOF", "Server::removeDisconnectedClients");
         return ;  // Note 1
     }
+    ClientManager* ClientManager = clients[clientSocketFD];
     eventManager->deregisterEvent(clientSocketFD, READ);
-    close(clientSocketFD); // Note 2
-    clients.erase(clientSocketFD);  // Note 3
+    clients.erase(clientSocketFD);  // Note 2
     Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
             " has disconnected", "Server::removeDisconnectedClients");
+    delete(ClientManager);
+    close(clientSocketFD); // Note 3
 }
 
 /*

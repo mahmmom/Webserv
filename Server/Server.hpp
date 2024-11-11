@@ -38,12 +38,12 @@ class Server
 		ServerSettings						serverSettings;
 		MimeTypesSettings					mimeTypes;
 		EventManager*						eventManager;
-		std::vector<int>					toRemove;
 		struct sockaddr_in 					serverAddr;
 		std::map<int, ResponseManager* > 	responses; // change to responseState* later
 		std::map<int, ClientManager* >		clients;
 	public:
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
+		~Server();
 
 		bool checkClientInServer(int& clientSocketFD);
 		void setSocketOptions();
