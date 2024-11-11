@@ -183,12 +183,41 @@ void	ServerSettings::addLocation(LocationSettings& locationSettings)
 }
 
 /*
-	GET /foo/bar
+	---------------------------------------------------------------------------
+	SAMPLES
 
-	location /foo
+		GET /foo/bar
 
-	location /foo/bar
+		location /foo
 
+		location /foo/bar
+
+	---------------------------------------------------------------------------
+	GENERAL
+
+		*	If in the location block you set a path without a preceeding slash 
+			as follows:
+
+				location alt {						location /alt {
+									instead of 
+				}									}
+
+			then what would happen is that no uri would match the location 
+			because uri's always start with a preceeding slash like for example 
+			GET /alt/alt.html. So since alt != /alt, no location block would 
+			ever match this. This is actually in line with Nginx behavior, a 
+			conclusion I have come to after thorough testing. Basically, it's one 
+			of these Nginx quirks where it is not explicitly forbidden to not put 
+			an absolute path for a location block, you should always do so. Same 
+			thing with error_pages, it is not explicitly forbidden to put an absolute 
+			path, but you should always do so (unless you set error_pages in a location 
+			block and the location actually has the error_pages relative path you asked 
+			for), otherwise, you would get a "localhost redirected you too many times" 
+			error on the browser since Nginx handles error_page displays via a 302 
+			redirect which appends the error_page uri always to the current uri 
+			automatically.
+
+	---------------------------------------------------------------------------
 	NOTES
 
 		Note 1:	+ 1 to skip the current slash itself. 

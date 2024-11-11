@@ -168,6 +168,14 @@ long long ResponseGenerator::getFileSize(std::string& filePath)
 			* Headers from the original request are preserved
 			* The client only receives the final response
 		
+		These are usually triggered when there is an absolute path specified 
+		in the Nginx config file, such as in the last entry of the index 
+		directive or in the error_page directive. When being "transferred", 
+		to an absolute path, and I am using the word transfered because typically, 
+		Nginx does not "redirect" you to an absolute URI, instead it does so 
+		internally, and this is being mimicked via the this function, 
+		handleSubRequest().
+		
 		As for the too many redirects scenario (for example if in the return 
 		directive you return a page to the same location block like this: 
 			location /index {
@@ -178,7 +186,7 @@ long long ResponseGenerator::getFileSize(std::string& filePath)
 		the server must actually server all the requests being made. What happens 
 		instead is that browsers have a built-in limit for how many times they 
 		will follow redirects. This limit is generally around 20 to 50 redirects. 
-		If this limit is exceeded, the itself browser will stop making requests 
+		If this limit is exceeded, the browser itself will stop making requests 
 		and display the error message which says: "This page isn’t working 
 		localhost redirected you too many times."
 */

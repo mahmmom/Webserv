@@ -1,0 +1,164 @@
+
+(http)
+    client_max_body_size 10g 
+    root Content//// 
+    keepalive_timeout 22s 
+    (server)
+        listen localhost:8378 
+        autoindex on 
+        (location)
+            autoindex on 
+            (limit_except)
+                Methods: GET HEAD POST 
+                deny all 
+            keepalive_timeout 15s 
+        (location)
+            index alt.html 
+            error_page 404 404.html 
+        error_page 404 error_pages/404.html 
+        error_page 403 error_pages/403.html 
+        cgi_extension *.sh 
+        cgi_extension *.py 
+
+====== LOCATION CONTEXT LEVEL ======
+root: Content
+autoIndex: on
+clientMaxBodySize: 10737418240
+keepaliveTimeout: 15
+errorPages:
+  [403] = error_pages/403.html
+  [404] = error_pages/404.html
+errorPagesLevel:
+  [403] = server
+  [404] = server
+index:
+  index.html
+returnDirective:
+    statusCode: -1
+    textOrURL : 
+path: /index
+allowedMethods:
+  GET
+  HEAD
+  POST
+
+====== LOCATION CONTEXT LEVEL ======
+root: Content
+autoIndex: on
+clientMaxBodySize: 10737418240
+keepaliveTimeout: 22
+errorPages:
+  [403] = error_pages/403.html
+  [404] = 404.html
+errorPagesLevel:
+  [403] = server
+  [404] = location
+index:
+  alt.html
+returnDirective:
+    statusCode: -1
+    textOrURL : 
+path: /alt
+allowedMethods:
+  GET
+  HEAD
+  POST
+  DELETE
+
+====== SERVER CONTEXT LEVEL ======
+root: Content
+autoIndex: on
+clientMaxBodySize: 10737418240
+keepaliveTimeout: 22
+errorPages:
+  [403] = error_pages/403.html
+  [404] = error_pages/404.html
+errorPagesLevel:
+  [403] = server
+  [404] = server
+index:
+  index.html
+returnDirective:
+    statusCode: -1
+    textOrURL : 
+cgiExtensions:
+    extensions: 
+	*.sh, *.py, 
+    enabled : 1
+port: 8378
+ip: 127.0.0.1
+
+======== HTTP CONTEXT LEVEL ========
+HttpRoot: Content////
+HttpAutoIndex: off
+HttpClientMaxBodySize: 10g
+HttpKeepaliveTimeout 22s
+HttpErrorArgs:
+HttpIndexArgs:
+  Directive: index
+  Arguments: index.html 
+  Number of arguments: 1
+
+[0;92m🤠 Ranchero is running.[0m
+
+🗃️  You can find logs at: [1;94mlogs/webserv.log[0m
+
+🖥 Server Registry:
+│
+└── [0;36m🔵 Listening on Port [1;33m8378[0;36m through interface 127.0.0.1 🗄️[0m
+Recieved from (6) the following -> GET /alt/ HTTP/1.1
+Host: localhost:8378
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+sec-ch-ua: "Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+ (bytes recieved: 671)
+klsjklsdjalk
+Path test is Content/alt/
+Recieved from (6) the following -> GET /favicon.ico HTTP/1.1
+Host: localhost:8378
+Connection: keep-alive
+sec-ch-ua: "Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"
+sec-ch-ua-mobile: ?0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+sec-ch-ua-platform: "macOS"
+Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+Referer: http://localhost:8378/alt/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+ (bytes recieved: 597)
+Path test is Content/favicon.ico
+[31mThis is test path -> Content/error_pages/404.html[0m
+Recieved from (6) the following -> GET /error_pages/404.html HTTP/1.1
+Host: localhost:8378
+Connection: keep-alive
+sec-ch-ua: "Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"
+sec-ch-ua-mobile: ?0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+sec-ch-ua-platform: "macOS"
+Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+Referer: http://localhost:8378/alt/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+ (bytes recieved: 606)
+Path test is Content/error_pages/404.html
+
+🤠[1;35m Ranchero has been shut down.[0m
