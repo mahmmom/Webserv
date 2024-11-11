@@ -35,7 +35,7 @@ LOGGERSRCS = $(addprefix $(LOGGERDIR)/,Logger.cpp)
 LOGGEROBJS = $(addprefix $(OBJDIR)/, $(LOGGERSRCS:$(LOGGERDIR)/%.cpp=%.o))
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 all: $(NAME1) $(NAME2)
 

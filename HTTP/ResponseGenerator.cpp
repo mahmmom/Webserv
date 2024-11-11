@@ -132,7 +132,8 @@ bool ResponseGenerator::isFile(const std::string& requestURI)
 {
 	struct stat pathStat;
 
-	stat(requestURI.c_str(), &pathStat);
+	if (stat(requestURI.c_str(), &pathStat) != 0)
+		return false;
 	return (S_ISREG(pathStat.st_mode));
 }
 
@@ -140,7 +141,8 @@ bool ResponseGenerator::isDirectory(const std::string& requestURI)
 {
 	struct stat pathStat;
 
-	stat(requestURI.c_str(), &pathStat);
+	if (stat(requestURI.c_str(), &pathStat) != 0)
+		return false;
 	return (S_ISDIR(pathStat.st_mode));
 }
 
@@ -219,15 +221,22 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 		testPath = settings->getRoot() + path;
 	else {
 		LocationSettings* derivedPtr = dynamic_cast<LocationSettings*>(settings);
-		if (derivedPtr != NULL && level == "location")
+		if (derivedPtr != NULL && level == "location") {
 			testPath = settings->getRoot() + derivedPtr->getPath() + "/" + path;
+		}
 		else
 			testPath = settings->getRoot() + "/" + path;
 	}
+
+    std::cout << "\033[31m" // Start red color
+              << "This is test path -> " << testPath 
+              << "\033[0m"  // Reset to default color
+              << std::endl;
+
 	std::ifstream file((testPath).c_str());
 	if (!file.is_open()) { // If the error_page does not exist, return a standard 404 (or 403 in rare cases where the file does not have the right permissions)
 		int statusCode = 0;
-		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
+		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveErrorPage");
 		if (errno == EACCES)
 			statusCode = 403;
 		else
@@ -370,16 +379,21 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		else
 			indexPath = path + (*it);
 
-		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/'))
+    // std::cout << "\033[31m" // Start red color
+    //           << "This is index path -> " << indexPath 
+    //           << "\033[0m"  // Reset to default color
+    //           << std::endl;
+
+		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/')) // if it's the last entry in the index directive and it's an absolute path
 			return (handleSubRequest(request, (*it).substr(1)));
-		if (isFile(indexPath))
+		if (isFile(indexPath)) // if the entry in the index directive is an actual valid file
 			return (serveFile(request, settings, indexPath));
-		if (indexPath[indexPath.size() - 1] == '/')
+		if (indexPath[indexPath.size() - 1] == '/') // if the entry in the index directive is a directory and has been entered with a trailing slash
 		{
-			if (isDirectory(indexPath.substr(0, indexPath.size() - 1)))
+			if (isDirectory(indexPath.substr(0, indexPath.size() - 1))) // if the directory is actually valid
 				return (handleSubRequest(request, "/" + (*it)));
 		}
-		if (isDirectory(indexPath))
+		if (isDirectory(indexPath)) // if the entry in the index directive is a valid directory but has NOT been entered with a trailing slash
 			return (redirector(request, request.getURI() + (*it) + "/")); // redirect to that path + "/"
 	}
 	return (handleAutoIndex(request, settings));

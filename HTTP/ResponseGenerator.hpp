@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <dirent.h> // For directory operations
 #include <sys/stat.h> // For file status (to differentiate files from directories)
-
+#include <cstring>
 
 #define COMPACT_RESPONSE_LIMIT 1048576 // 1 MB
 // #define COMPACT_RESPONSE_LIMIT 2097152 // 2 MB
