@@ -8,8 +8,8 @@ EpollManager::EpollManager() : events(DEFAULT_NUM_OF_EVENTS)
     epfd = epoll_create(DEFAULT_NUM_OF_EVENTS);
 
     if (epfd == -1) {
-        log("ERROR", "Failed to create epoll instance");
-        std::exit(EXIT_FAILURE);
+        perror("Epoll: ");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -46,9 +46,12 @@ void EpollManager::registerEvent(int fd, EventType event)
     epollEvent.events = registeredEvents[fd];
 
     if (epoll_ctl(epfd, op, fd, &epollEvent) < 0) {
-        log("ERROR", "Failed to register " + eventType + " event for fd " + intToString(fd));
+        Logger::log(Logger::ERROR, "Failed to register " + eventType + " event for fd " + 
+			Logger::intToString(fd) + ": " + strerror(errno), "EpollManager::registerEvent");
+
     } else {
-        log("DEBUG", "Registered " + eventType + " event for fd " + intToString(fd));
+        Logger::log(Logger::DEBUG, "Registered new " + eventType + " event for fd " + 
+			Logger::intToString(fd), "EpollManager::registerEvent");
     }
 }
 
@@ -57,8 +60,9 @@ void EpollManager::deregisterEvent(int fd, EventType event)
     std::map<int, int>::iterator it = registeredEvents.find(fd);
 
     if (it == registeredEvents.end()) {
-        log("WARNING", "Attempted to deregister event for non-registered fd " + intToString(fd));
-        return;
+        Logger::log(Logger::WARN, "Attempted to deregister event for non-registered fd " + 
+            Logger::intToString(fd), "EpollManager::deregisterEvent");
+        return ;
     }
 
     std::string eventType = (event == READ) ? "READ" : "WRITE";
@@ -72,17 +76,20 @@ void EpollManager::deregisterEvent(int fd, EventType event)
     if (it->second == 0) {
         epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
         registeredEvents.erase(it);
-        log("DEBUG", "Removed all events for fd " + intToString(fd));
+        Logger::log(Logger::DEBUG, "Removed all events events for fd " +
+            Logger::intToString(fd), "EpollManager::deregisterEvent");
     } 
     else {
         struct epoll_event epollEvent;
         epollEvent.data.fd = fd;
         epollEvent.events = it->second;
         if (epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &epollEvent) < 0) {
-            log("ERROR", "Failed to deregister " + eventType + " event for fd " + intToString(fd));
+            Logger::log(Logger::ERROR, "Failed to deregister " + eventType + " event for fd " + 
+			    Logger::intToString(fd) + ": " + strerror(errno), "EpollManager::deregisterEvent");
         }
         else {
-            log("DEBUG", "Deregistered " + eventType + " event for fd " + intToString(fd));
+            Logger::log(Logger::DEBUG, "Deregistered " + eventType + " event for fd " + 
+                Logger::intToString(fd), "EpollManager::deregisterEvent");
         }
     }
 }
@@ -92,11 +99,11 @@ int EpollManager::eventListener()
     int nev = epoll_wait(epfd, &events[0], static_cast<int>(events.size()), EPOLL_TIMEOUT_INTERVAL);
 
     if (nev < 0) {
-        log("ERROR", "epoll_wait failed");
+        Logger::log(Logger::ERROR, "function epoll_wait failed", "EpollManager::eventListener");
     }
     else if (nev == static_cast<int>(events.size())) {
+        Logger::log(Logger::INFO, "Resizing the eventlist due to increased demand on server", "EpollManager::eventListener");
         events.resize(events.size() * 2);
-        log("DEBUG", "Increased event buffer size to " + intToString(events.size()));
     }
 
     return nev;
@@ -112,18 +119,6 @@ EventBlock EpollManager::getEvent(const int& index)
     eventBlock.isEOF = (events[index].events & (EPOLLHUP | EPOLLRDHUP)) != 0;
 
     return eventBlock;
-}
-
-void EpollManager::log(const std::string& level, const std::string& message) const
-{
-    std::cout << "[" << level << "] EpollManager: " << message << std::endl;
-}
-
-std::string EpollManager::intToString(int number) const
-{
-    std::ostringstream oss;
-    oss << number;
-    return oss.str();
 }
 
 #endif

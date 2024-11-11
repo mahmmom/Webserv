@@ -97,7 +97,7 @@ int	KqueueManager::eventListener()
 	int nev = kevent(kq, NULL, 0, eventlist.data(), eventlist.size(), &timeout);
 
 	if ((size_t) nev == eventlist.size()) {
-		Logger::log(Logger::INFO, "Resizing the eventlist due to increased demand on server", "Kqueue::eventListener");
+		Logger::log(Logger::INFO, "Resizing the eventlist due to increased demand on server", "KqueueManager::eventListener");
 		eventlist.resize(eventlist.size() * 2);  // Double the size if full
 	}
 	return (nev);
