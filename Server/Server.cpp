@@ -462,11 +462,14 @@ void    Server::checkTimeouts()
         if (it->second->isTimedout(timeoutValue)) {
             Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(it->second->getSocket()) + 
                 " has timed out, proceeding to disconnect", "Server::checkTimeouts");
-            eventManager->deregisterEvent(it->second->getSocket(), READ);
-            close(it->second->getSocket());
+            int clientSocketFD = it->first;
+            // eventManager->deregisterEvent(it->second->getSocket(), READ);
+            eventManager->deregisterEvent(clientSocketFD, READ);
             std::map<int, ClientManager* >::iterator toErase = it; // Note 1
             it++;
+            delete (toErase->second);
             clients.erase(toErase);  // Erase using the saved iterator
+            close(clientSocketFD);
         }
         else
             it++;
