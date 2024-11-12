@@ -22,7 +22,7 @@ class EpollManager : public EventManager {
     private:
         int epfd;
         std::vector<struct epoll_event> events;
-        std::map<int, int> registeredEvents; // fd -> event types (bit flags)
+        std::map<int, int> registeredEvents; // map of <fd, event types (bit flags)>
     public:
         EpollManager();
         ~EpollManager();

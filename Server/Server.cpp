@@ -322,6 +322,7 @@ void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseMa
         responses.erase(clientSocketFD);
         delete (responseManager);
         removeBadClients(clientSocketFD);
+        close(clientSocketFD);
         return ;
     }
 
@@ -355,6 +356,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
         responses.erase(clientSocketFD);
         delete (responseManager);
         removeBadClients(clientSocketFD);
+        close(clientSocketFD);
         return ;
     }
 
@@ -380,6 +382,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
             responses.erase(clientSocketFD);
             delete (responseManager);
             removeBadClients(clientSocketFD);
+            close(clientSocketFD);
             return ;
         }
         Logger::log(Logger::DEBUG, "All chunked responses have been fully sent to client with socket fd " + 
@@ -414,6 +417,7 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
         responses.erase(clientSocketFD);
         delete (responseManager);
         removeBadClients(clientSocketFD);
+        close(clientSocketFD);
         return ;
     }
 
