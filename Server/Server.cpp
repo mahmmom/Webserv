@@ -307,6 +307,22 @@ void Server::handleClientWrite(int& clientSocketFD)
     }
 }
 
+/*
+    NOTES
+
+        Note 1: When testing on Linux, opening multiple tabs and requesting chunked resources 
+                can actually cause the buffer to get full. All of the tabs will be on the same 
+                fd, they are all the same client. It's not like on MacOS where each tab is a 
+                separate client. Thus, if all are on the same socket and all are requesting 
+                a large file sent in chunks, the buffer can easily get full. In that case, I 
+                don't want to disconnect the client, instead, let him wait till the buffer is 
+                full and request again. If you're worried about what if the client disconnected 
+                (not that the buffer is full), then who cares what happens to him haha? Chances 
+                are he'll trigger an EOF masked READ event which will gracefully terminate him on 
+                the next run of the eventListener in ServerArena; or he will just time out if for 
+                God knows whatever reason they did not trigger an EOF (like they terminated the session 
+                in a non-graceful manner). 
+*/
 void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseManager)
 {
     std::string headers = responseManager->getHeaders();
@@ -321,8 +337,8 @@ void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseMa
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         delete (responseManager);
-        removeBadClients(clientSocketFD);
-        close(clientSocketFD);
+        // removeBadClients(clientSocketFD);    // Note 1
+        // close(clientSocketFD);
         return ;
     }
 
@@ -355,8 +371,8 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         delete (responseManager);
-        removeBadClients(clientSocketFD);
-        close(clientSocketFD);
+        // removeBadClients(clientSocketFD);
+        // close(clientSocketFD);
         return ;
     }
 
@@ -381,8 +397,8 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
             eventManager->deregisterEvent(clientSocketFD, WRITE);
             responses.erase(clientSocketFD);
             delete (responseManager);
-            removeBadClients(clientSocketFD);
-            close(clientSocketFD);
+            // removeBadClients(clientSocketFD);
+            // close(clientSocketFD);
             return ;
         }
         Logger::log(Logger::DEBUG, "All chunked responses have been fully sent to client with socket fd " + 
@@ -416,8 +432,8 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         delete (responseManager);
-        removeBadClients(clientSocketFD);
-        close(clientSocketFD);
+        // removeBadClients(clientSocketFD);
+        // close(clientSocketFD);
         return ;
     }
 
@@ -425,7 +441,8 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
     if (responseManager->isFinished())
     {
         Logger::log(Logger::DEBUG, "A compact response has been fully sent to client with socket fd " + 
-            Logger::intToString(clientSocketFD), "Server::sendCompactFile");
+            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI(), 
+            "Server::sendCompactFile");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         if (responseManager->getCloseConnection()) {
@@ -437,7 +454,8 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
     }
     else
         Logger::log(Logger::DEBUG, "A compact response has been sent partially to client with socket fd " + 
-            Logger::intToString(clientSocketFD), "Server::sendCompactFile");
+            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI(), 
+            "Server::sendCompactFile");
 }
 
 /*
@@ -482,14 +500,13 @@ void    Server::checkTimeouts()
 
 void Server::removeBadClients(int& clientSocketFD)
 {  
-    clients.erase(clientSocketFD);
-    Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
-            " has exhibited abnormal activity and has been removed", "Server::removeBadClients");
-
     ClientManager* clientManager = clients[clientSocketFD];
     eventManager->deregisterEvent(clientSocketFD, READ);
     clients.erase(clientSocketFD);
     delete clientManager;
+
+    Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
+            " has exhibited abnormal activity and has been removed", "Server::removeBadClients");
 }
 
 /*
@@ -507,6 +524,14 @@ void Server::removeBadClients(int& clientSocketFD)
             and thus, the erase method (its version of the override) requires an iterator.
 
         Note 3:
+            If a client disconnects while in the midst of recieving chunked responses (so they basically close the 
+            tab or something while listening to an mp3 file), then the ResponseManager object that was allocated 
+            to oversee that process never had the chance to get deleted the normal way, in the send related member 
+            functions where if (responseManager->isFinished()) condition is satisified. Hence, to not leak in the 
+            aforementioned scenario, we have to delete it here as well, in case there was a "hanging" responseManager 
+            object.
+
+        Note 4:
             Ok so EV_DELETE used in the deregistering of an event is a bit weird because of how 
             the manual explains it. But I guarantee you that my explanation is in fact how it behaves, 
             I've spent hours and hours trying to experiment till I figured it out. So the manual says 
@@ -545,7 +570,14 @@ void Server::removeDisconnectedClients(int& clientSocketFD)
     Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(clientSocketFD) + 
             " has disconnected", "Server::removeDisconnectedClients");
     delete(ClientManager);
-    close(clientSocketFD); // Note 3
+
+    std::map<int, ResponseManager* >::iterator it = responses.find(clientSocketFD); // Note 3
+    if (it != responses.end()) {
+        delete it->second;
+        responses.erase(clientSocketFD);
+    }
+
+    close(clientSocketFD); // Note 4
 }
 
 /*
