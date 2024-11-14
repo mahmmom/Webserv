@@ -17,12 +17,20 @@ void ServerArena::pseudoDestructor()
 	servers.clear();
 }
 
+/*
+	NOTES
+
+		Note 1:	One scenario in which this might be executed is if you try to launch multiple servers on 
+				the same port, what happens is that binding the socket fails. Thus, a value of -1 is returned 
+				by the Server::getServerSocket() and that server is deleted. So only the first instance of a 
+				server bound to that port would run. 
+*/
 void ServerArena::initializeServers(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes)
 {
 	for (size_t i = 0; i < serverSettings.size(); i++) {
 		Server *server = new Server(serverSettings[i], mimeTypes, eventManager);
 		server->launch();
-		if (server->getServerSocket() == -1) {
+		if (server->getServerSocket() == -1) { // Note 1
 			Logger::log(Logger::ERROR, "Failed to create server", "ServerArena::initializeServers");
 			delete server;
 			continue ;
@@ -53,6 +61,12 @@ void ServerArena::displayServersRegistry()
 	NOTES:
 
 		Note 1:
+			The purpose of this boolean is two-fold. First, it helps relate the read Event to the right 
+			server where that client is stored if we have multiple servers set-up in our Nginx 
+			configuration file. Second, it separates cgi read events from all the other non-cgi read 
+			events on a server.
+
+		Note 2:
 			Why do we need this check? Well the reason behind it mainly happens when a client requests 
 			a file that we will be sending back in chunked encoding. When a client requests such a file, 
 			we respond with a "Transfer-Encoding: chunked" header field. The behavior of Google Chrome when 
@@ -81,10 +95,10 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 {
 	for (size_t i = 0; i < servers.size(); i++)
 	{
-		bool isClientFD = servers[i]->getClients().count(eventBlock.fd) > 0;
+		bool isClientFD = servers[i]->getClients().count(eventBlock.fd) > 0; // Note 1
 
 		if (isClientFD && eventBlock.isEOF && (eventBlock.fd != servers[i]->getServerSocket())) {
-			if (!servers[i]->checkClientInServer(eventBlock.fd)) // Note 1
+			if (!servers[i]->checkClientInServer(eventBlock.fd)) // Note 2
 			{
 				Logger::log(Logger::DEBUG, "Client with socket fd: " + Logger::intToString(eventBlock.fd) + 
 					" has triggered EV_EOF " + servers[i]->getServerInterface(), "ServerArena::manageReadEvent");
@@ -108,39 +122,33 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 	}
 }
 
-// void ServerArena::manageReadEvent(EventBlock& eventBlock)
-// {
-// 	for (size_t i = 0; i < servers.size(); i++) {
-// 		if (eventBlock.isEOF && (eventBlock.fd != servers[i]->getServerSocket())) {
-// 				std::string type;
-// 				if (eventBlock.isRead)
-// 					type = "READ";
-// 				else if (eventBlock.isWrite)
-// 					type = "WRITE";
+/*
+	NOTES:
 
-// 				Logger::log(Logger::DEBUG, "Client with socket fd: " + Logger::intToString(eventBlock.fd) + 
-// 					" has triggered EV_EOF " + servers[i]->getServerInterface() +
-// 					" for event " + type, "ServerArena::manageReadEvent");
-// 				servers[i]->removeDisconnectedClients(eventBlock.fd);
-// 				break ;
-// 		}
-// 		else if (eventBlock.isRead && (eventBlock.fd == servers[i]->getServerSocket())) {
-// 			servers[i]->acceptNewClient();
-// 			break ;
-// 		}
-// 		else if (eventBlock.isRead && (eventBlock.fd != servers[i]->getServerSocket())) {
-// 			servers[i]->handleClientRead(eventBlock.fd);
-// 			break ;
-// 		}
-// 	}
-// }
-
+		Note 1:	In here, we are checking if the write eventBlock.fd belongs to that 
+				particular server but through the responses map (which maps an fd to 
+				a server) instead of checking the clients map. That is because the 
+				error handling responses defined in the server class, like 
+				server::handleInvalidRequest or server::handleExcessHeaders actually 
+				remove that client through the removedBadClients function but keep 
+				the fd unclosed and send one final response to that client by setting 
+				closeConnection to true in the responseManager constructor. So if we 
+				try to map a read event to the right server by correlating the 
+				eventBlock.fd to the clients map, it would SEGFAULT in those cases 
+				were a server error-handling function is triggered, because that 
+				client has been erased from the clients map by the time the write 
+				event is managed.
+*/
 void ServerArena::manageWriteEvent(EventBlock& eventBlock)
 {
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (eventBlock.isWrite) {
-			servers[i]->handleClientWrite(eventBlock.fd);
-			break ;
+			bool forCurrentServer = servers[i]->getResponses().count(eventBlock.fd) > 0;
+
+			if (forCurrentServer && eventBlock.isWrite) {
+				servers[i]->handleClientWrite(eventBlock.fd);
+				break ;
+			}
 		}
 	}
 }

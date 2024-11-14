@@ -45,11 +45,11 @@ class Server
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 		~Server();
 
-		bool checkClientInServer(int& clientSocketFD);
+		bool checkClientInServer(int clientSocketFD);
 		void setSocketOptions();
 		void setupServerSocket();
 		void bindAndListenServerSocket();
-		void setNonBlocking(int& sockFD);
+		void setNonBlocking(int sockFD);
 
 		void launch();
 
@@ -61,29 +61,30 @@ class Server
 
 		void acceptNewClient();
 
-		void handleClientRead(int& clientSocketFD);
-		void handleClientWrite(int& clientSocketFD);
+		void handleClientRead(int clientSocketFD);
+		void handleClientWrite(int clientSocketFD);
 
-		void processGetRequest(int& clientSocketFD, HTTPRequest& request);
-		void processHeadRequest(int& clientSocketFD, HTTPRequest& request);
-		void processPostRequest(int& clientSocketFD, HTTPRequest& request);
-		void processDeleteRequest(int& clientSocketFD, HTTPRequest& request);
+		void processGetRequest(int clientSocketFD, HTTPRequest& request);
+		void processHeadRequest(int clientSocketFD, HTTPRequest& request);
+		void processPostRequest(int clientSocketFD, HTTPRequest& request);
+		void processDeleteRequest(int clientSocketFD, HTTPRequest& request);
 
-		void sendChunkedBody(int& clientSocketFD, ResponseManager* responseManager);
-		void sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseManager);
-		void sendChunkedResponse(int& clientSocketFD, ResponseManager* responseManager);
-		void sendCompactFile(int& clientSocketFD, ResponseManager* responseManager);
+		void sendChunkedBody(int clientSocketFD, ResponseManager* responseManager);
+		void sendChunkedHeaders(int clientSocketFD, ResponseManager* responseManager);
+		void sendChunkedResponse(int clientSocketFD, ResponseManager* responseManager);
+		void sendCompactFile(int clientSocketFD, ResponseManager* responseManager);
 
-		void handleExcessHeaders(int& clientSocketFD);
-		void handleExcessURI(int& clientSocketFD);
-		void handleInvalidRequest(int& clientSocketFD, std::string statusCode, std::string reasonPhrase);
-		void handleInvalidGetRequest(int& clientSocketFD);
+		void handleExcessHeaders(int clientSocketFD);
+		void handleExcessURI(int clientSocketFD);
+		void handleInvalidRequest(int clientSocketFD, std::string statusCode, std::string reasonPhrase);
+		void handleInvalidGetRequest(int clientSocketFD);
 
-		void removeBadClients(int& clientSocketFD);
-		void removeDisconnectedClients(int& clientSocketFD);
+		void removeBadClients(int clientSocketFD);
+		void removeDisconnectedClients(int clientSocketFD);
 
-		ServerSettings&					getServerSettings();
-		std::map<int, ClientManager* >&	getClients();
+		ServerSettings&						getServerSettings();
+		std::map<int, ClientManager* >&		getClients();
+		std::map<int, ResponseManager* >&	getResponses();
 };
 
 #endif

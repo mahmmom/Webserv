@@ -65,7 +65,7 @@ Server::~Server()
     }
 }
 
-bool Server::checkClientInServer(int& clientSocketFD)
+bool Server::checkClientInServer(int clientSocketFD)
 {
     if (clients.count(clientSocketFD) > 0)
         return (false);
@@ -117,7 +117,7 @@ void Server::bindAndListenServerSocket()
     }
 }
 
-void Server::setNonBlocking(int& sockFD)
+void Server::setNonBlocking(int sockFD)
 {
     if (serverSocket == -1) {
         return ;
@@ -195,7 +195,7 @@ void Server::acceptNewClient()
                 ClientManager::resetClientState(). By doing so, the data for the current request will not get 
                 jumbled up with data for the upcoming request made by the client.
 */
-void Server::processGetRequest(int& clientSocketFD, HTTPRequest& request)
+void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
@@ -213,7 +213,7 @@ void Server::processGetRequest(int& clientSocketFD, HTTPRequest& request)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::processPostRequest(int& clientSocketFD, HTTPRequest& request)
+void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
@@ -227,7 +227,7 @@ void Server::processPostRequest(int& clientSocketFD, HTTPRequest& request)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::processHeadRequest(int& clientSocketFD, HTTPRequest& request)
+void Server::processHeadRequest(int clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
@@ -241,7 +241,7 @@ void Server::processHeadRequest(int& clientSocketFD, HTTPRequest& request)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::processDeleteRequest(int& clientSocketFD, HTTPRequest& request)
+void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
@@ -255,7 +255,7 @@ void Server::processDeleteRequest(int& clientSocketFD, HTTPRequest& request)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::handleClientRead(int& clientSocketFD)
+void Server::handleClientRead(int clientSocketFD)
 {
 	char buffer[BUFFER_SIZE + 1] = {0};
     int bytesRead = recv(clientSocketFD, buffer, sizeof(buffer), 0);
@@ -289,7 +289,7 @@ void Server::handleClientRead(int& clientSocketFD)
     }
 }
 
-void Server::handleClientWrite(int& clientSocketFD)
+void Server::handleClientWrite(int clientSocketFD)
 {
     std::map<int, ResponseManager* >::iterator it = responses.find(clientSocketFD);
     if (it != responses.end()) {
@@ -301,7 +301,7 @@ void Server::handleClientWrite(int& clientSocketFD)
     }
     else {
         Logger::log(Logger::WARN, "Rogue WRITE event not attributed to any response has been detected,"
-            " on client with socket FD: " + Logger::intToString(clientSocketFD) + "proceeding to"
+            " on client with socket FD: " + Logger::intToString(clientSocketFD) + " proceeding to"
             " deregister it","Server::handleClientWrite");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
     }
@@ -323,7 +323,7 @@ void Server::handleClientWrite(int& clientSocketFD)
                 God knows whatever reason they did not trigger an EOF (like they terminated the session 
                 in a non-graceful manner). 
 */
-void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseManager)
+void Server::sendChunkedHeaders(int clientSocketFD, ResponseManager* responseManager)
 {
     std::string headers = responseManager->getHeaders();
     const char* response = headers.c_str() + responseManager->getBytesSent();
@@ -355,7 +355,7 @@ void Server::sendChunkedHeaders(int& clientSocketFD, ResponseManager* responseMa
             "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
 }
 
-void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManager)
+void Server::sendChunkedBody(int clientSocketFD, ResponseManager* responseManager)
 {
     std::string chunk = responseManager->obtainChunk();
 
@@ -409,7 +409,7 @@ void Server::sendChunkedBody(int& clientSocketFD, ResponseManager* responseManag
     }
 }
 
-void Server::sendChunkedResponse(int& clientSocketFD, ResponseManager* responseManager)
+void Server::sendChunkedResponse(int clientSocketFD, ResponseManager* responseManager)
 {
     if (!responseManager->getHeadersFullySent())
         sendChunkedHeaders(clientSocketFD, responseManager);
@@ -417,7 +417,7 @@ void Server::sendChunkedResponse(int& clientSocketFD, ResponseManager* responseM
         sendChunkedBody(clientSocketFD, responseManager);
 }
 
-void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseManager)
+void    Server::sendCompactFile(int clientSocketFD, ResponseManager* responseManager)
 {
     std::string compactResponse = responseManager->getCompactResponse();
     const char* response = compactResponse.c_str() + responseManager->getBytesSent();
@@ -441,8 +441,7 @@ void    Server::sendCompactFile(int& clientSocketFD, ResponseManager* responseMa
     if (responseManager->isFinished())
     {
         Logger::log(Logger::DEBUG, "A compact response has been fully sent to client with socket fd " + 
-            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI(), 
-            "Server::sendCompactFile");
+            Logger::intToString(clientSocketFD), "Server::sendCompactFile");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         if (responseManager->getCloseConnection()) {
@@ -498,7 +497,7 @@ void    Server::checkTimeouts()
     }
 }
 
-void Server::removeBadClients(int& clientSocketFD)
+void Server::removeBadClients(int clientSocketFD)
 {  
     ClientManager* clientManager = clients[clientSocketFD];
     eventManager->deregisterEvent(clientSocketFD, READ);
@@ -558,7 +557,7 @@ void Server::removeBadClients(int& clientSocketFD)
             I disconnect a client, who cares, we have to close the socket's fd anyways and that automatically deletes 
             all events.
 */
-void Server::removeDisconnectedClients(int& clientSocketFD)
+void Server::removeDisconnectedClients(int clientSocketFD)
 {
     if (clients.find(clientSocketFD) == clients.end()) {
         Logger::log(Logger::WARN, "Already handled this EOF", "Server::removeDisconnectedClients");
@@ -593,7 +592,7 @@ void Server::removeDisconnectedClients(int& clientSocketFD)
         HTTPResponse response;
         response.buildDefaultErrorResponse("414", "URI Too Long");
 */
-void Server::handleExcessHeaders(int& clientSocketFD)
+void Server::handleExcessHeaders(int clientSocketFD)
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                     + " sent a header that exceed the permissible limit -> " 
@@ -610,7 +609,7 @@ void Server::handleExcessHeaders(int& clientSocketFD)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::handleExcessURI(int& clientSocketFD)
+void Server::handleExcessURI(int clientSocketFD)
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                     + " sent a URI that exceeded the permissible limit -> " 
@@ -627,7 +626,7 @@ void Server::handleExcessURI(int& clientSocketFD)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::handleInvalidGetRequest(int& clientSocketFD)
+void Server::handleInvalidGetRequest(int clientSocketFD)
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                 + " made a GET request that includes a body", 
@@ -643,7 +642,7 @@ void Server::handleInvalidGetRequest(int& clientSocketFD)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
-void Server::handleInvalidRequest(int& clientSocketFD, std::string statusCode, std::string reasonPhrase)
+void Server::handleInvalidRequest(int clientSocketFD, std::string statusCode, std::string reasonPhrase)
 {
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                 + " made an invalid request", 
@@ -667,4 +666,9 @@ ServerSettings&	Server::getServerSettings()
 std::map<int, ClientManager* >&	Server::getClients()
 {
     return (clients);
+}
+
+std::map<int, ResponseManager* >& Server::getResponses()
+{
+    return (responses);
 }

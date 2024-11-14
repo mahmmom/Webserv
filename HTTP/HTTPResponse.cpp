@@ -46,7 +46,7 @@ void HTTPResponse::buildDefaultErrorResponse(std::string statusCode, std::string
 	std::string body =	"<html>"
 						"<head><title>" + statusCode + " " + reasonPhrase + "</title></head>"
 						"<body>"
-						"<center><h1>404 Not Found</h1></center>"
+						"<center><h1>" + statusCode + " " + reasonPhrase + "</h1></center>"
 						"<hr><center>nginx/1.27.1</center>"
 						"</body>"
 						"</html>";
