@@ -185,7 +185,6 @@ void	ClientManager::handlePostRequest(Server &server)
 	{
 		Logger::log(Logger::WARN, "Body size of POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
 		server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
-		request.setStatus(413);
 		return ;
 	}
 	initializeBodyStorage(server);

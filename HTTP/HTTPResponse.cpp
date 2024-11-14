@@ -47,7 +47,7 @@ void HTTPResponse::buildDefaultErrorResponse(std::string statusCode, std::string
 						"<head><title>" + statusCode + " " + reasonPhrase + "</title></head>"
 						"<body>"
 						"<center><h1>" + statusCode + " " + reasonPhrase + "</h1></center>"
-						"<hr><center>nginx/1.27.1</center>"
+						"<hr><center>Ranchero</center>"
 						"</body>"
 						"</html>";
 	this->body = body;
