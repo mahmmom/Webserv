@@ -31,13 +31,12 @@ CONFIGSRCS = $(addprefix $(CONFIGDIR)/, BaseSettings.cpp LocationSettings.cpp Re
 CONFIGOBJS = $(addprefix $(OBJDIR)/, $(CONFIGSRCS:$(CONFIGDIR)/%.cpp=%.o))
 
 LOGGERDIR = Logger
-LOGGERSRCS = $(addprefix $(LOGGERDIR)/,Logger.cpp)
+LOGGERSRCS = $(addprefix $(LOGGERDIR)/, Logger.cpp)
 LOGGEROBJS = $(addprefix $(OBJDIR)/, $(LOGGERSRCS:$(LOGGERDIR)/%.cpp=%.o))
 
 CGIDIR = CGI
-CGISRCS = $(addprefix $(CGIDIR)/, .cpp)
+CGISRCS = $(addprefix $(CGIDIR)/, CGIManager.cpp)
 CGIOBJS = $(addprefix $(OBJDIR)/, $(CGISRCS:$(CGIDIR)/%.cpp=%.o))
-
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
@@ -75,7 +74,7 @@ $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f $(SERVEROBJS1) $(SERVEROBJS2) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS) $(LOGGEROBJS) $(CGIOBS)
+	rm -f $(SERVEROBJS1) $(SERVEROBJS2) $(HTTPOBJS) $(EVENTOBJS) $(PARSEROBJS) $(CONFIGOBJS) $(LOGGEROBJS) $(CGIOBJS)
 
 fclean: clean
 	rm -f $(NAME1) $(NAME2)

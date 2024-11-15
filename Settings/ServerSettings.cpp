@@ -31,6 +31,8 @@ ServerSettings& ServerSettings::operator=(const ServerSettings& other)
 
 		for (size_t i = 0; i < other.locations.size(); i++)
 			this->locations.push_back(new LocationSettings(*(other.locations[i])));
+		
+		this->cgi = other.cgi;
 	}
 	return (*this);
 }

@@ -80,9 +80,9 @@ class ServerSettings : public BaseSettings
 		void				addLocation(LocationSettings& locationSettings);
 		LocationSettings*	findLocation(const std::string& uri);
 
-		void			setListenValues(const std::string& listenValue);
-		void	 		setDefaultValues();
-		void			setCgiDirective(const std::vector<std::string>& extensions);
+		void				setListenValues(const std::string& listenValue);
+		void	 			setDefaultValues();
+		void				setCgiDirective(const std::vector<std::string>& extensions);
 
 		int&				getPort();
 		std::string&		getIP();

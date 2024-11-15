@@ -12,6 +12,9 @@ class CGIDirective
 		bool						enabled;
 	public:
 		CGIDirective();
+		CGIDirective(const CGIDirective& other);
+		~CGIDirective();
+		CGIDirective& operator=(const CGIDirective& other);
 		void	setExtensions(const std::string& extension);
 		bool	isEnabled() const;
 

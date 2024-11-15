@@ -96,6 +96,7 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 	for (size_t i = 0; i < servers.size(); i++)
 	{
 		bool isClientFD = servers[i]->getClients().count(eventBlock.fd) > 0; // Note 1
+		bool isCgiFD = servers[i]->getCgiMap().count(eventBlock.fd) > 0; // Note 1
 
 		if (isClientFD && eventBlock.isEOF && (eventBlock.fd != servers[i]->getServerSocket())) {
 			if (!servers[i]->checkClientInServer(eventBlock.fd)) // Note 2
@@ -118,6 +119,11 @@ void ServerArena::manageReadEvent(EventBlock& eventBlock)
 				servers[i]->handleClientRead(eventBlock.fd);
 				break ;
 			}
+		}
+		else if (isCgiFD /* && eventBlock.isRead && (eventBlock.fd != servers[i]->getServerSocket())*/) {
+			Logger::log(Logger::DEBUG, "processing a cgi read event", "ServerArena::manageReadEvent");
+			servers[i]->handleCgiOutput(eventBlock.fd);
+			break ;
 		}
 	}
 }

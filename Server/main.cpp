@@ -38,6 +38,12 @@ void    signalHandler(int SIGNUM)
 {
     if (SIGNUM == SIGINT ||  SIGNUM == SIGTERM)
         running = 0;
+    else if (SIGNUM == SIGCHLD)
+	{
+		int status;
+		pid_t pid;
+		while ((pid = waitpid(-1, &status, WNOHANG)) > 0) { }
+	}
 }
 
 /*
@@ -78,7 +84,7 @@ void    configureSignalHanlding()
 
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
-    // sigaction(SIGCHLD, &sa, NULL);
+    sigaction(SIGCHLD, &sa, NULL);
 }
 
 int main(int argc, char *argv[])

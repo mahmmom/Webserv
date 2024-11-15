@@ -15,16 +15,19 @@
 #include <cstring>
 #include <cerrno>
 #include <cstdio>
+#include <signal.h>
 
 #include "../Events/EventManager.hpp"
 #include "../HTTP/HTTPRequest.hpp"
 #include "../HTTP/ResponseGenerator.hpp"
 #include "../HTTP/ResponseManager.hpp"
+#include "../CGI/CGIManager.hpp"
 
 #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
 
 #define MAX_HEADER_SIZE 8192 // 8 KB
 #define MAX_URI_SIZE 2048 // 2 KB
+#define MAX_CGI_OUTPUT_SIZE 2097152 // 2 MB
 
 #define TEMP_FILE_DIRECTORY "Server/uploads/"
 
@@ -41,6 +44,8 @@ class Server
 		struct sockaddr_in 					serverAddr;
 		std::map<int, ResponseManager* > 	responses; // change to responseState* later
 		std::map<int, ClientManager* >		clients;
+		std::map<int, CGIManager* >			cgi;
+
 	public:
 		Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 		~Server();
@@ -60,6 +65,8 @@ class Server
 		std::string& getServerInterface();
 
 		void acceptNewClient();
+
+		void handleCgiOutput(int cgiReadFD);
 
 		void handleClientRead(int clientSocketFD);
 		void handleClientWrite(int clientSocketFD);
@@ -85,6 +92,7 @@ class Server
 		ServerSettings&						getServerSettings();
 		std::map<int, ClientManager* >&		getClients();
 		std::map<int, ResponseManager* >&	getResponses();
+		std::map<int, CGIManager* >&		getCgiMap();
 };
 
 #endif

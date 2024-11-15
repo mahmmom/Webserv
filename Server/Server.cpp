@@ -29,6 +29,11 @@ size_t simulatedSend(int socket, const void* buffer, size_t length, int flags)
     return result; // Return the actual number of bytes sent
 }
 
+/*
+=====================================================================================
+                                SERVER SETUP
+=====================================================================================
+*/
 Server::Server(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager) :
 	 serverSettings(serverSettings), mimeTypes(mimeTypes), eventManager(eventManager)
 {
@@ -59,6 +64,12 @@ Server::~Server()
         delete clientsIt->second;
     }
     clients.clear();
+
+    std::map<int, CGIManager* >::iterator cgiIt;
+    for (cgiIt = cgi.begin(); cgiIt != cgi.end(); cgiIt++) {
+        delete cgiIt->second;
+    }
+    cgi.clear();
 
     if (serverSocket != -1) {
        close(serverSocket);
@@ -141,21 +152,6 @@ void Server::launch()
 	bindAndListenServerSocket();
 }
 
-int& Server::getServerSocket()
-{
-	return (serverSocket);
-}
-
-int& Server::getServerPort()
-{
-    return (serverPort);
-}
-
-std::string& Server::getServerInterface()
-{
-    return (serverInterface);
-}
-
 void Server::acceptNewClient()
 {
     struct sockaddr_in  clientAddr;
@@ -187,6 +183,11 @@ void Server::acceptNewClient()
 }
 
 /*
+=====================================================================================
+                                  METHOD PROCESSORS
+=====================================================================================
+*/
+/*
     NOTES
 
         Note 1: Everytime we write to a client, that means that we have recieved their request completely and 
@@ -215,16 +216,30 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 
 void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 {
-    ResponseGenerator responseGenerator(serverSettings, mimeTypes);
+    if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings))
+    {
+        CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
+                                                    clientSocketFD, clients[clientSocketFD]->getPostRequestFileName());
+        if (!(cgiManager->getErrorDetected()))
+            cgi[cgiManager->getCgiFD()] = cgiManager;
+        else {
+            delete cgiManager;
+            handleInvalidRequest(clientSocketFD, "500", "Internal Server Error");
+        }
+    }
+    else
+    {
+        ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
-    HTTPResponse response = responseGenerator.handleRequest(request);
+        HTTPResponse response = responseGenerator.handleRequest(request);
 
-    ResponseManager* responseManager = NULL;
-    responseManager = new ResponseManager(response.generateResponse(), false);
-    if (clients.count(clientSocketFD) > 0)
-        clients[clientSocketFD]->resetClientManager();
-    responses[clientSocketFD] =  responseManager;
-    eventManager->registerEvent(clientSocketFD, WRITE);
+        ResponseManager* responseManager = NULL;
+        responseManager = new ResponseManager(response.generateResponse(), false);
+        if (clients.count(clientSocketFD) > 0)
+            clients[clientSocketFD]->resetClientManager();
+        responses[clientSocketFD] =  responseManager;
+        eventManager->registerEvent(clientSocketFD, WRITE);
+    }
 }
 
 void Server::processHeadRequest(int clientSocketFD, HTTPRequest& request)
@@ -255,6 +270,11 @@ void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
+/*
+=====================================================================================
+                                OPERATION HANDLERS
+=====================================================================================
+*/
 void Server::handleClientRead(int clientSocketFD)
 {
 	char buffer[BUFFER_SIZE + 1] = {0};
@@ -307,6 +327,66 @@ void Server::handleClientWrite(int clientSocketFD)
     }
 }
 
+/*
+=====================================================================================
+                                CGI HANDLER
+=====================================================================================
+*/
+void Server::handleCgiOutput(int cgiReadFD)
+{
+    Logger::log(Logger::DEBUG, "Handling CGI output from pipe with fd " + Logger::intToString(cgiReadFD), "Server::handleCgiOutput");
+
+    char   buffer[BUFFER_SIZE + 1];
+    size_t bytesRead = read(cgiReadFD, buffer, BUFFER_SIZE);
+    CGIManager* cgiManager = cgi[cgiReadFD];
+
+    if (bytesRead < 0) {
+        kill(cgiManager->getChildPid(), SIGKILL);
+        eventManager->deregisterEvent(cgiReadFD, READ);
+        handleInvalidRequest(cgiManager->getCgiClientSocketFD(), "500", "Internal Server Error");
+        cgi.erase(cgiReadFD);
+        delete cgiManager;
+    }
+    else if (bytesRead == 0) {
+        if (clients.count(cgiManager->getCgiClientSocketFD()) == 0)
+        {
+            Logger::log(Logger::ERROR, "CGI request was operating on socket fd " 
+                + Logger::intToString(cgiManager->getCgiClientSocketFD()) + " but no "
+                "client was found with such an fd", "Server::handleCgiOutput");
+			eventManager->deregisterEvent(cgiReadFD, READ);
+			cgi.erase(cgiReadFD);
+			delete cgiManager;
+			return;
+        }
+        ResponseManager *responseManager = new ResponseManager(cgiManager->generateCgiResponse(), false);
+        if (clients.count(cgiManager->getCgiClientSocketFD()) > 0)
+			clients[cgiManager->getCgiClientSocketFD()]->resetClientManager();
+        responses[cgiManager->getCgiClientSocketFD()] = responseManager;
+		eventManager->registerEvent(cgiManager->getCgiClientSocketFD(), WRITE);
+		eventManager->deregisterEvent(cgiReadFD, READ);
+		cgi.erase(cgiReadFD);
+		delete cgiManager;
+    }
+    else {
+        buffer[bytesRead] = '\0';
+        std::string cgiResponseSnippet(buffer, bytesRead);
+        cgiManager->appendCgiResponse(cgiResponseSnippet);
+        if (cgiManager->getCgiResponse().length() >= MAX_CGI_OUTPUT_SIZE)
+		{
+			kill(cgiManager->getChildPid(), SIGKILL);
+			eventManager->deregisterEvent(cgiReadFD, READ);
+			handleInvalidRequest(cgiManager->getCgiClientSocketFD(), "500", "Internal Server Error");
+			cgi.erase(cgiReadFD);
+			delete cgiManager;
+		}
+    }
+}
+
+/*
+=====================================================================================
+                                    SENDERS
+=====================================================================================
+*/
 /*
     NOTES
 
@@ -458,6 +538,10 @@ void    Server::sendCompactFile(int clientSocketFD, ResponseManager* responseMan
 }
 
 /*
+=====================================================================================
+                                TIMEOUT CHECKERS
+=====================================================================================
+
     NOTES:
 
         Note 1: Iterator Invalidation: When you call clients.erase(it);, the iterator it becomes invalid. 
@@ -497,6 +581,11 @@ void    Server::checkTimeouts()
     }
 }
 
+/*
+=====================================================================================
+                                CLIENT REMOVAL
+=====================================================================================
+*/
 void Server::removeBadClients(int clientSocketFD)
 {  
     ClientManager* clientManager = clients[clientSocketFD];
@@ -580,6 +669,10 @@ void Server::removeDisconnectedClients(int clientSocketFD)
 }
 
 /*
+=====================================================================================
+                                ERROR HANDLING
+=====================================================================================
+
     ALL THE ERROR HANDLING FUNCTIONS BELOW DO NOT GET SENT TO ANY OF THE FOLLOWING:
         * processGetRequest
         * processPostRequest
@@ -658,6 +751,26 @@ void Server::handleInvalidRequest(int clientSocketFD, std::string statusCode, st
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
+/*
+=====================================================================================
+                                     GETTERS
+=====================================================================================
+*/
+int& Server::getServerSocket()
+{
+	return (serverSocket);
+}
+
+int& Server::getServerPort()
+{
+    return (serverPort);
+}
+
+std::string& Server::getServerInterface()
+{
+    return (serverInterface);
+}
+
 ServerSettings&	Server::getServerSettings()
 {
     return (serverSettings);
@@ -671,4 +784,9 @@ std::map<int, ClientManager* >&	Server::getClients()
 std::map<int, ResponseManager* >& Server::getResponses()
 {
     return (responses);
+}
+
+std::map<int, CGIManager* >& Server::getCgiMap()
+{
+    return (cgi);
 }
