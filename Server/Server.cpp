@@ -124,7 +124,7 @@ void Server::setNonBlocking(int sockFD)
     }
 	int flags = fcntl(sockFD, F_GETFL, 0);
     if (flags < 0) {
-        Logger::log(Logger::ERROR, "Failed to set socket to nonblocking: " + std::string(strerror(errno)), "Server::setNonBlocking");
+        Logger::log(Logger::ERROR, "Failed to obtain server socket flags: " + std::string(strerror(errno)), "Server::setNonBlocking");
         serverSocket = -1;
     }
     if (fcntl(sockFD, F_SETFL, flags | O_NONBLOCK) < 0) {

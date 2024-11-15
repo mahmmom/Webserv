@@ -62,7 +62,7 @@ class ServerSettings : public BaseSettings
 		int								port;
 		std::string						ip;
 		std::vector<LocationSettings* > locations; // Note 2
-		CGIDirective					cgiExtensions;
+		CGIDirective					cgi;
 		
 		void setPort(const std::string& portStr, const std::string& listenValue);
 		void setIP(const std::string& IPv4, const std::string& listenValue);
@@ -82,10 +82,11 @@ class ServerSettings : public BaseSettings
 
 		void			setListenValues(const std::string& listenValue);
 		void	 		setDefaultValues();
-		void			setCgiExtensions(const std::vector<std::string>& extensions);
+		void			setCgiDirective(const std::vector<std::string>& extensions);
 
-		int&			getPort();
-		std::string&	getIP();
+		int&				getPort();
+		std::string&		getIP();
+		CGIDirective& 		getCgiDirective();
 
 		void debugger() const;
 };

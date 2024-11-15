@@ -160,14 +160,14 @@ void	ServerSettings::setListenValues(const std::string &listenValue)
 		setIP(IPv4, listenValue);
 }
 
-void	ServerSettings::setCgiExtensions(const std::vector<std::string>& extensions)
+void	ServerSettings::setCgiDirective(const std::vector<std::string>& extensions)
 {
 	std::vector<std::string>::const_iterator it;
 
 	for (it = extensions.begin(); it != extensions.end(); it++) {
 		if (it->size() <= 2 || it->substr(0,2) != "*.")
 			throw (std::runtime_error("invalid entry in directive \"cgi_extension\""));
-		cgiExtensions.setExtensions(*it);
+		cgi.setExtensions(*it);
 	}
 }
 
@@ -271,6 +271,11 @@ std::string&	ServerSettings::getIP()
 	return (ip);
 }
 
+CGIDirective& ServerSettings::getCgiDirective()
+{
+	return (cgi);
+}
+
 void ServerSettings::debugger() const 
 {
 	// Call debugger for BaseSettings members
@@ -302,16 +307,16 @@ void ServerSettings::debugger() const
 	std::cout << "    statusCode: " << returnDirective.getStatusCode() << std::endl;
 	std::cout << "    textOrURL : " << returnDirective.getTextOrURL() << std::endl;
 
-	// Print cgiExtensions
-	std::cout << "cgiExtensions:" << std::endl;
+	// Print cgi
+	std::cout << "cgi:" << std::endl;
 	std::cout << "    extensions: " << std::endl;
 	std::cout << "	";
-	for (std::vector<std::string>::const_iterator it = cgiExtensions.getExtensions().begin(); it != cgiExtensions.getExtensions() .end(); ++it) {
+	for (std::vector<std::string>::const_iterator it = cgi.getExtensions().begin(); it != cgi.getExtensions() .end(); ++it) {
 		std::cout << *it << ", ";
 	}
 	std::cout << std::endl;
 
-	std::cout << "    enabled : " << cgiExtensions.isEnabled() << std::endl;
+	std::cout << "    enabled : " << cgi.isEnabled() << std::endl;
 
 	// Print ServerSettings members
 	std::cout << "port: " << port << std::endl;

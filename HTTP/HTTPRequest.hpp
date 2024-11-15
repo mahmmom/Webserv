@@ -37,10 +37,12 @@ class HTTPRequest
 
 		HTTPRequest();
 
-		std::string			getHeader(const std::string& headerName);
-		const std::string&	getMethod() const;
-		const int& 			getStatus();
-		const std::string& 	getURI() const;
+		std::string							getHeader(const std::string& headerName);
+		const std::string&					getMethod() const;
+		const int& 							getStatus();
+		const std::string& 					getURI() const;
+		const std::vector<std::string>& 	getQueries() const;
+		const std::string& 					getVersion() const;
 
 		void	setStatus(const int& status);
 		void 	setURI(const std::string& uri);

@@ -404,6 +404,16 @@ const int& HTTPRequest::getStatus()
 	return (status);
 }
 
+const std::vector<std::string>& HTTPRequest::getQueries() const
+{
+	return (queries);
+}
+
+const std::string& HTTPRequest::getVersion() const
+{
+	return (version);
+}
+
 void HTTPRequest::setURI(const std::string& uri)
 {
 	this->uri = uri;
