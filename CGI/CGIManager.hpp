@@ -11,6 +11,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include <cstring>
+#include <cerrno>
 #include <sys/fcntl.h>
 
 class CGIManager

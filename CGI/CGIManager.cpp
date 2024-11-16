@@ -86,7 +86,7 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 	}
 
 	if ((childPid = fork()) < 0) {
-		Logger::log(Logger::ERROR,"Forking child process failed", "CGIManager::handleCgiDirective");
+		Logger::log(Logger::ERROR,"Forking child process failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
 		errorDetected = true;
 		return (delete2DArray(envp), delete2DArray(argv), void());
 	}
@@ -102,7 +102,7 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 		}
 
 		if (execve(argv[0], argv, envp) < 0) {
-			Logger::log(Logger::ERROR,"Forking child process failed", "CGIManager::handleCgiDirective");
+			Logger::log(Logger::ERROR,"Execve failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
 			delete2DArray(envp), delete2DArray(argv);
 			exit(EXIT_FAILURE);
 		}
@@ -115,7 +115,7 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			return (errorDetected = true, void());
 		}
 		if (fcntl(pipeFD[0], F_SETFL, flags | O_NONBLOCK) < 0) {
-			Logger::log(Logger::ERROR, "Failed to obtain pipe read end flags", "CGIManager::handleCgiDirective");
+			Logger::log(Logger::ERROR, "Failed to set pipe read end to nonblocking", "CGIManager::handleCgiDirective");
 			return (errorDetected = true, void());
 		}
 	}
