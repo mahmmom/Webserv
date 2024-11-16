@@ -74,6 +74,7 @@
 		"mutex": "cpp",
 		"optional": "cpp",
 		"ratio": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"filesystem": "cpp"
 	}
 }

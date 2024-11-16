@@ -295,12 +295,13 @@ void Server::handleClientRead(int clientSocketFD)
         {
 
             buffer[bytesRead] = '\0';
+            // std::cout << "============================================================" << std::endl;
             // std::cout << "Recieved from "
 			// 		<< "(" << it->second->getSocket() << ")"
 			// 		<< " the following -> " << buffer
 			// 		<< " (bytes recieved: " << bytesRead << ")"
 			// 		<< std::endl;
-
+            // std::cout << "============================================================" << std::endl;
             it->second->updateLastRequestTime();
             // it->second->incrementRequestsNumber();
             it->second->processIncomingData(*this, buffer, bytesRead);
