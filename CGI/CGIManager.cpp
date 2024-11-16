@@ -1,6 +1,5 @@
 
 #include "CGIManager.hpp"
-#include <sys/fcntl.h>
 
 CGIManager::CGIManager(HTTPRequest& request, ServerSettings& serverSettings,
 				EventManager *eventManager, int clientSocketFD,  const std::string &postPath)
@@ -170,7 +169,7 @@ bool	CGIManager::checkFileExtension(HTTPRequest& request, ServerSettings& server
 
 	const::std::vector<std::string>	extensions = serverSettings.getCgiDirective().getExtensions();
 	for (size_t i = 0; i < extensions.size(); i++) {
-		std::cout << "extend: " << fileExtension << " comapared with " << extensions[i] << std::endl;
+		// std::cout << "extend: " << fileExtension << " comapared with " << extensions[i] << std::endl;
 		if (("*" + fileExtension) == extensions[i])
 			return (true);
 	}
@@ -198,8 +197,8 @@ void CGIManager::delete2DArray(char **arr)
 	int	i = 0;
 
 	while (arr[i])
-		delete (arr[i++]);
-	delete(arr);
+		delete[] (arr[i++]);
+	delete[] (arr);
 }
 
 int	CGIManager::getChildPid()

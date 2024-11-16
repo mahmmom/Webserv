@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <vector>
 #include <sys/stat.h>
+#include <cstring>
+#include <sys/fcntl.h>
 
 class CGIManager
 {

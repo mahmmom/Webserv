@@ -337,7 +337,7 @@ void Server::handleCgiOutput(int cgiReadFD)
     Logger::log(Logger::DEBUG, "Handling CGI output from pipe with fd " + Logger::intToString(cgiReadFD), "Server::handleCgiOutput");
 
     char   buffer[BUFFER_SIZE + 1];
-    size_t bytesRead = read(cgiReadFD, buffer, BUFFER_SIZE);
+    ssize_t bytesRead = read(cgiReadFD, buffer, BUFFER_SIZE);
     CGIManager* cgiManager = cgi[cgiReadFD];
 
     if (bytesRead < 0) {

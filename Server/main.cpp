@@ -8,6 +8,7 @@
 #include "ServerArena.hpp"
 #include "../Logger/Logger.hpp"
 #include <signal.h>
+#include <sys/wait.h>
 
 /*
     NOTES
