@@ -70,7 +70,7 @@ void	ClientManager::parseHeaders(Server &server)
 		return;
 	}
 
-	this->request = HTTPRequest(requestHeaders,fd);
+	this->request = HTTPRequest(requestHeaders, fd);
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
 		server.handleExcessURI(fd);
@@ -197,20 +197,8 @@ void	ClientManager::handlePostRequest(Server &server)
 	initializeBodyStorage(server);
 }
 
-
 void	ClientManager::initializeBodyStorage(Server &server)
 {
-	// std::string filename = "post_body_" + Logger::intToString(std::chrono::system_clock::now().time_since_epoch().count()) + "_" + Logger::intToString(fd) + ".tmp";
-	// requestBodyFilePath = TEMP_FILE_DIRECTORY + filename;
-
-	// requestBodyFile.open(requestBodyFilePath.c_str(), std::ios::out | std::ios::binary);
-	// if (!requestBodyFile.is_open())
-	// {
-	// 	Logger::log(Logger::ERROR, "Failed to open temporary file for storing POST body for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-	// 	server.handleInvalidRequest(fd, "500", "Internal Server Error");
-	// 	return;
-	// }
-
 	std::string filename;
 	{
 		std::ostringstream oss;

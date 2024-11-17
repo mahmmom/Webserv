@@ -18,6 +18,17 @@
         p {
             color: #555;
         }
+        .btn-link {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-link:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -25,6 +36,65 @@
     <p>Thank you for visiting. Explore and enjoy your stay!</p>
     
     <!-- Simple POST Form -->
+    <form action="../cgi-bin/submit.py" method="POST">
+        <label for="name">Your Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <form action="../cgi-bin/upload_manager.py" method="POST" enctype="multipart/form-data">
+        <input
+            type="file"
+            name="file"
+            class="btn btn-outline-danger btn-lg"
+            style="
+            width: 100%;
+            margin: 12rem 0 3rem;
+            border-color: #f01965;
+            "
+        />
+        <input
+            type="submit"
+            class="btn btn-danger btn-lg"
+            style="background-color: #f01965"
+        />
+    </form>
+
+    <!-- Button linking to the CGI script -->
+
+    <a href="../cgi-bin/hello_boo.cgi" target="_blank" class="btn-link">Go to hello_boo Page</a>
+    <a href="../cgi-bin/timeout_tester.cgi" target="_blank" class="btn-link">Go to timeout_tester Page</a>
+    <a href="../cgi-bin/timeout_tester.cgi" target="_blank" class="btn-link">Double up the timeout_tester?</a>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Website!</h1>
+    <p>Thank you for visiting. Explore and enjoy your stay!</p>
+    
+
     <form action="../cgi-bin/submit.py" method="POST">
         <label for="name">Your Name:</label><br>
         <input type="text" id="name" name="name" required><br><br>
@@ -52,7 +122,7 @@
 </body>
 </html>
 
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,4 +154,4 @@
     </form>
 
 </body>
-</html> -->
+</html>

@@ -40,6 +40,5 @@ html = """<!DOCTYPE html>
 </body>
 </html>""".format(name)
 
-
 # Now that the headers are written, we write the actual HTML content
 sys.stdout.write(html.encode('utf-8'))

@@ -198,26 +198,37 @@ void Server::acceptNewClient()
 */
 void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 {
-    ResponseGenerator responseGenerator(serverSettings, mimeTypes);
+    if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings)) {
+        CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
+                                                    clientSocketFD);
+        if (!(cgiManager->getErrorDetected()))
+            cgi[cgiManager->getCgiFD()] = cgiManager;
+        else {
+            delete cgiManager;
+            handleInvalidRequest(clientSocketFD, "500", "Internal Server Error");
+        }
+    }
+    else {
+        ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
-    HTTPResponse response = responseGenerator.handleRequest(request);
+        HTTPResponse response = responseGenerator.handleRequest(request);
 
-    ResponseManager* responseManager = NULL;
-    if (response.getType() == CompactResponse)
-        responseManager = new ResponseManager(response.generateResponse(), false);
-    else
-        responseManager = new ResponseManager(response.generateResponse(), response.getFilePath(), response.getFileSize());
-    if (clients.count(clientSocketFD) > 0) // Note 1
-        clients[clientSocketFD]->resetClientManager();
+        ResponseManager* responseManager = NULL;
+        if (response.getType() == CompactResponse)
+            responseManager = new ResponseManager(response.generateResponse(), false);
+        else
+            responseManager = new ResponseManager(response.generateResponse(), response.getFilePath(), response.getFileSize());
+        if (clients.count(clientSocketFD) > 0) // Note 1
+            clients[clientSocketFD]->resetClientManager();
 
-    responses[clientSocketFD] =  responseManager;
-    eventManager->registerEvent(clientSocketFD, WRITE);
+        responses[clientSocketFD] =  responseManager;
+        eventManager->registerEvent(clientSocketFD, WRITE);
+    }
 }
 
 void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 {
-    if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings))
-    {
+    if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings)) {
         CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
                                                     clientSocketFD, clients[clientSocketFD]->getPostRequestFileName());
         if (!(cgiManager->getErrorDetected()))
@@ -227,8 +238,7 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
             handleInvalidRequest(clientSocketFD, "500", "Internal Server Error");
         }
     }
-    else
-    {
+    else {
         ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
         HTTPResponse response = responseGenerator.handleRequest(request);
@@ -295,6 +305,7 @@ void Server::handleClientRead(int clientSocketFD)
         {
 
             buffer[bytesRead] = '\0';
+
             // std::cout << "============================================================" << std::endl;
             // std::cout << "Recieved from "
 			// 		<< "(" << it->second->getSocket() << ")"
@@ -302,6 +313,7 @@ void Server::handleClientRead(int clientSocketFD)
 			// 		<< " (bytes recieved: " << bytesRead << ")"
 			// 		<< std::endl;
             // std::cout << "============================================================" << std::endl;
+
             it->second->updateLastRequestTime();
             // it->second->incrementRequestsNumber();
             it->second->processIncomingData(*this, buffer, bytesRead);
@@ -569,13 +581,36 @@ void    Server::checkTimeouts()
             Logger::log(Logger::INFO, "Client with fd " + Logger::intToString(it->second->getSocket()) + 
                 " has timed out, proceeding to disconnect", "Server::checkTimeouts");
             int clientSocketFD = it->first;
-            // eventManager->deregisterEvent(it->second->getSocket(), READ);
             eventManager->deregisterEvent(clientSocketFD, READ);
             std::map<int, ClientManager* >::iterator toErase = it; // Note 1
             it++;
             delete (toErase->second);
             clients.erase(toErase);  // Erase using the saved iterator
             close(clientSocketFD);
+        }
+        else
+            it++;
+    }
+}
+
+void Server::checkCgiTimeouts()
+{
+    std::map<int, CGIManager* >::iterator it = cgi.begin();
+
+    while (it != cgi.end()) {
+
+        int cgiPipeFD = it->first;
+        if (it->second->isCgiTimedOut(CGI_TIMEOUT)) {
+            Logger::log(Logger::INFO, "cgi process with fd " + Logger::intToString(cgiPipeFD) + 
+                " has timed out, proceeding to disconnect", "Server::checkCgiTimeouts");
+            kill(it->second->getChildPid(), SIGKILL);
+            eventManager->deregisterEvent(cgiPipeFD, READ);
+            handleInvalidRequest(it->second->getCgiClientSocketFD(), "504", "Gateway Timeout");
+            std::map<int, CGIManager* >::iterator toErase = it;
+            it++;
+            delete toErase->second;
+            cgi.erase(cgiPipeFD);
+            close(cgiPipeFD);
         }
         else
             it++;
@@ -736,8 +771,21 @@ void Server::handleInvalidGetRequest(int clientSocketFD)
     eventManager->registerEvent(clientSocketFD, WRITE);
 }
 
+/*
+    NOTES:
+
+        Note 1: This gets triggered when a client has requested a cgi script and the client timesout 
+                while the script is still running, AND then, the script itself then times out (NOT 
+                because the client timed-out, it's just a script that takes a long time). In that 
+                case, since the client timedout, we wont be able to send them the 504 error_page.
+*/
 void Server::handleInvalidRequest(int clientSocketFD, std::string statusCode, std::string reasonPhrase)
 {
+    if (clients.find(clientSocketFD) == clients.end()) {
+        Logger::log(Logger::WARN, "Client has already disconnected, unable to send error page", "Server::handleInvalidGetRequest");
+        return ;  // Note 1
+    }
+
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
                 + " made an invalid request", 
                 "Server::handleInvalidRequest");

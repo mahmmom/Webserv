@@ -26,6 +26,7 @@ class ServerArena
 		std::vector<Server* > 		servers;
 		EventManager* 				eventManager;
 		std::time_t					lastTimeoutCheck;
+		std::time_t					lastCgiTimeoutCheck;
 	public:
 		ServerArena(std::vector<ServerSettings>& serverSettings, MimeTypesSettings& mimeTypes, EventManager* eventManager);
 		void displayServersRegistry();

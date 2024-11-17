@@ -7,6 +7,7 @@ CGIManager::CGIManager(HTTPRequest& request, ServerSettings& serverSettings,
 {
 	pipeFD[0] = -1;
 	pipeFD[1] = -1;
+	cgiRequestTime = std::time(0);
 	handleCgiDirective(request, serverSettings, eventManager, postPath);
 }
 
@@ -169,7 +170,7 @@ bool	CGIManager::checkFileExtension(HTTPRequest& request, ServerSettings& server
 
 	const::std::vector<std::string>	extensions = serverSettings.getCgiDirective().getExtensions();
 	for (size_t i = 0; i < extensions.size(); i++) {
-		// std::cout << "extend: " << fileExtension << " comapared with " << extensions[i] << std::endl;
+		std::cout << "extend: " << fileExtension << " comapared with " << extensions[i] << std::endl;
 		if (("*" + fileExtension) == extensions[i])
 			return (true);
 	}
@@ -231,4 +232,14 @@ std::string CGIManager::sizeTToString(size_t value)
     std::ostringstream oss;
     oss << value;
     return oss.str();
+}
+
+bool CGIManager::isCgiTimedOut(size_t timeoutValue)
+{
+	std::time_t now = std::time(0);
+    std::time_t elapsedTime = now - cgiRequestTime;
+
+	bool timedOut = elapsedTime > static_cast<std::time_t>(timeoutValue);
+	std::cout << "timeout is " << timeoutValue << " and elapsed is " << elapsedTime << std::endl;
+	return timedOut;
 }

@@ -28,6 +28,7 @@
 #define MAX_HEADER_SIZE 8192 // 8 KB
 #define MAX_URI_SIZE 2048 // 2 KB
 #define MAX_CGI_OUTPUT_SIZE 2097152 // 2 MB
+#define CGI_TIMEOUT 20
 
 #define TEMP_FILE_DIRECTORY "Server/uploads/"
 
@@ -59,6 +60,7 @@ class Server
 		void launch();
 
 		void checkTimeouts();
+		void checkCgiTimeouts();
 
 		int& getServerSocket();
 		int& getServerPort();

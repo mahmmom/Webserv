@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <cerrno>
+#include <ctime>
 #include <sys/fcntl.h>
 
 class CGIManager
@@ -23,6 +24,7 @@ class CGIManager
 		int			postPathFD;
 		bool		errorDetected;
 		std::string	cgiResponse;
+		std::time_t	cgiRequestTime;
 
 		std::string sizeTToString(size_t value);
 		char**		setupEnvVars(HTTPRequest& request, ServerSettings& serverSettings);
@@ -43,7 +45,7 @@ class CGIManager
 		int			getCgiClientSocketFD();
 		std::string	getCgiResponse();
 
-
+		bool		isCgiTimedOut(size_t timeoutValue);
 		static bool	isFile(const std::string& requestURI);
 		static bool	checkFileExtension(HTTPRequest& request, ServerSettings& serverSettings);
 		static bool	isValidCGI(HTTPRequest& request, ServerSettings& serverSettings);

@@ -165,11 +165,16 @@ void ServerArena::manageTimeouts()
 		servers[i]->checkTimeouts();
 	}
 	lastTimeoutCheck = std::time(0);
+	for (size_t i = 0; i < servers.size(); i++) {
+		servers[i]->checkCgiTimeouts();
+	}
+	lastCgiTimeoutCheck = std::time(0);
 }
 
 void ServerArena::run()
 {
 	lastTimeoutCheck = std::time(0);
+	lastCgiTimeoutCheck = std::time(0);
 
     while (running)
     {
