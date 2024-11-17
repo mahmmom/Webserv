@@ -192,7 +192,7 @@ long long ResponseGenerator::getFileSize(std::string& filePath)
 */
 HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path)
 {
-	std::cout << "Subpath is " << path << std::endl;
+	// std::cout << "Subpath is " << path << std::endl;
 	request.setURI(path);
 	return (handleRequest(request));
 }
@@ -236,10 +236,10 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 			testPath = settings->getRoot() + "/" + path;
 	}
 
-    std::cout << "\033[31m" // Start red color
-              << "This is test path -> " << testPath 
-              << "\033[0m"  // Reset to default color
-              << std::endl;
+    // std::cout << "\033[31m" // Start red color
+    //           << "This is test path -> " << testPath 
+    //           << "\033[0m"  // Reset to default color
+    //           << std::endl;
 
 	std::ifstream file((testPath).c_str());
 	if (!file.is_open()) { // If the error_page does not exist, return a standard 404 (or 403 in rare cases where the file does not have the right permissions)
@@ -572,7 +572,7 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 	else
 		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 
-	std::cout << "Path test is " << path << std::endl;
+	// std::cout << "Path test is " << path << std::endl;
 	if ((path[path.size() - 1] == '/') || isDirectory(path))
 		return (handleDirectory(request, settings));
 	if (isFile(path))

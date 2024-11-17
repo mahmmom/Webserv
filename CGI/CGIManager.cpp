@@ -240,6 +240,6 @@ bool CGIManager::isCgiTimedOut(size_t timeoutValue)
     std::time_t elapsedTime = now - cgiRequestTime;
 
 	bool timedOut = elapsedTime > static_cast<std::time_t>(timeoutValue);
-	std::cout << "timeout is " << timeoutValue << " and elapsed is " << elapsedTime << std::endl;
+	// std::cout << "timeout is " << timeoutValue << " and elapsed is " << elapsedTime << std::endl;
 	return timedOut;
 }

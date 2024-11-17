@@ -199,6 +199,12 @@ void Server::acceptNewClient()
 void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 {
     if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings)) {
+        std::cout << "Size is " << cgi.size() << std::endl;
+        if (cgi.size() > CGI_LOAD_LIMIT) {
+			Logger::log(Logger::WARN, "Server is overloaded at the moment and cannot process the cgi request", "Server::processGetRequest");
+			handleInvalidRequest(clientSocketFD, "503", "Service Unavailable");
+			return (void());
+		}
         CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
                                                     clientSocketFD);
         if (!(cgiManager->getErrorDetected()))
@@ -229,6 +235,11 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 {
     if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings)) {
+        if (cgi.size() > CGI_LOAD_LIMIT) {
+			Logger::log(Logger::WARN, "Server is overloaded at the moment and cannot process the cgi request", "Server::processGetRequest");
+			handleInvalidRequest(clientSocketFD, "503", "Service Unavailable");
+			return (void());
+		}
         CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
                                                     clientSocketFD, clients[clientSocketFD]->getPostRequestFileName());
         if (!(cgiManager->getErrorDetected()))
