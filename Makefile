@@ -39,7 +39,7 @@ CGISRCS = $(addprefix $(CGIDIR)/, CGIManager.cpp)
 CGIOBJS = $(addprefix $(OBJDIR)/, $(CGISRCS:$(CGIDIR)/%.cpp=%.o))
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 all: $(NAME1) $(NAME2)
 

@@ -62,6 +62,7 @@ Server::~Server()
     std::map<int, ClientManager* >::iterator clientsIt;
     for (clientsIt = clients.begin(); clientsIt != clients.end(); clientsIt++) {
         delete clientsIt->second;
+        close (clientsIt->first);
     }
     clients.clear();
 
