@@ -1,57 +1,57 @@
-2024/11/18 06:30:56 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/18 06:30:56 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 5
-2024/11/18 06:30:56 [INFO ] [Server::setupServerSocket] Server socket with fd 6 created succesfuly
-2024/11/18 06:30:56 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 6
-2024/11/18 06:30:56 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/18 06:30:56 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:00 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 7
-2024/11/18 06:31:00 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 7
-2024/11/18 06:31:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:00 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
-2024/11/18 06:31:00 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
-2024/11/18 06:31:00 [INFO ] [ClientManager::parseHeaders] Received a GET request for /index/ from client with IP 127.0.0.1, with fd: 7
-2024/11/18 06:31:00 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 7
-2024/11/18 06:31:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:00 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
-2024/11/18 06:31:00 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 7
-2024/11/18 06:31:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:00 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
-2024/11/18 06:31:00 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
-2024/11/18 06:31:00 [INFO ] [ClientManager::parseHeaders] Received a GET request for /favicon.ico from client with IP 127.0.0.1, with fd: 7
-2024/11/18 06:31:00 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 7
-2024/11/18 06:31:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:00 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
-2024/11/18 06:31:00 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 7
-2024/11/18 06:31:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:10 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:15 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:20 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:25 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:30 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:35 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:45 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:50 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:31:55 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:10 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:15 [INFO ] [Server::checkTimeouts] Client with fd 7 has timed out, proceeding to disconnect
-2024/11/18 06:32:15 [DEBUG] [EpollManager::deregisterEvent] Deregistered READ event for fd 7
-2024/11/18 06:32:15 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:20 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:25 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:30 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:35 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:45 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:50 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:32:55 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:00 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:05 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:10 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:15 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:20 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:25 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/18 06:33:28 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.
+2024/11/19 21:45:07 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/19 21:45:07 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 5
+2024/11/19 21:45:07 [INFO ] [Server::setupServerSocket] Server socket with fd 6 created succesfuly
+2024/11/19 21:45:07 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 6
+2024/11/19 21:45:07 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/19 21:45:07 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:16 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 7
+2024/11/19 21:45:16 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 7
+2024/11/19 21:45:16 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:16 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
+2024/11/19 21:45:16 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
+2024/11/19 21:45:16 [INFO ] [ClientManager::parseHeaders] Received a GET request for /index/ from client with IP 127.0.0.1, with fd: 7
+2024/11/19 21:45:16 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 7
+2024/11/19 21:45:16 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:16 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
+2024/11/19 21:45:16 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 7
+2024/11/19 21:45:16 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:16 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
+2024/11/19 21:45:16 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
+2024/11/19 21:45:16 [INFO ] [ClientManager::parseHeaders] Received a GET request for /favicon.ico from client with IP 127.0.0.1, with fd: 7
+2024/11/19 21:45:16 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 7
+2024/11/19 21:45:16 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:16 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
+2024/11/19 21:45:16 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 7
+2024/11/19 21:45:16 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:21 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
+2024/11/19 21:45:24 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
+2024/11/19 21:45:24 [INFO ] [ClientManager::parseHeaders] Received a POST request for /cgi-bin/submit.py from client with IP 127.0.0.1, with fd: 7
+2024/11/19 21:45:24 [DEBUG] [ClientManager::initializeBodyStorage] Temporary file for POST body created: Server/uploads/post_body_1732038324_7.tmp
+2024/11/19 21:45:24 [DEBUG] [ClientManager::initializeBodyStorage] POST request body is complete from the first read for client with socket fd 7
+2024/11/19 21:45:24 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 8
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [ServerArena::manageReadEvent] processing a cgi read event
+2024/11/19 21:45:24 [DEBUG] [Server::handleCgiOutput] Handling CGI output from pipe with fd 8
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [ServerArena::manageReadEvent] processing a cgi read event
+2024/11/19 21:45:24 [DEBUG] [Server::handleCgiOutput] Handling CGI output from pipe with fd 8
+2024/11/19 21:45:24 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 7
+2024/11/19 21:45:24 [DEBUG] [EpollManager::deregisterEvent] Deregistered READ event for fd 8
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
+2024/11/19 21:45:24 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 7
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
+2024/11/19 21:45:24 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
+2024/11/19 21:45:24 [INFO ] [ClientManager::parseHeaders] Received a GET request for /favicon.ico from client with IP 127.0.0.1, with fd: 7
+2024/11/19 21:45:24 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 7
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:24 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
+2024/11/19 21:45:24 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 7
+2024/11/19 21:45:24 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:29 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:34 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/19 21:45:36 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.

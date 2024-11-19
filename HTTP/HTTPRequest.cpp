@@ -122,7 +122,7 @@ void	HTTPRequest::extractQueries(const std::string& querieString)
 			resetting these %20 back to their original form, 
 			spaces (hence the decoding). It is also important
 			to note that this decoding before the extractQueries
-			section because I the extractQueries assigns the 
+			section because the extractQueries assigns the 
 			queries vector in the HTTP class. I want the query
 			string arguments to already be decoded by the time 
 			I extract them. I don't want them to be written with

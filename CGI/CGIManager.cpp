@@ -170,7 +170,7 @@ bool	CGIManager::checkFileExtension(HTTPRequest& request, ServerSettings& server
 
 	const::std::vector<std::string>	extensions = serverSettings.getCgiDirective().getExtensions();
 	for (size_t i = 0; i < extensions.size(); i++) {
-		std::cout << "extend: " << fileExtension << " comapared with " << extensions[i] << std::endl;
+		// std::cout << "extend: " << fileExtension << " comapared with " << extensions[i] << std::endl;
 		if (("*" + fileExtension) == extensions[i])
 			return (true);
 	}

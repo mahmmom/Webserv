@@ -71,6 +71,7 @@ void	ClientManager::parseHeaders(Server &server)
 	}
 
 	this->request = HTTPRequest(requestHeaders, fd);
+
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
 		server.handleExcessURI(fd);
@@ -100,10 +101,10 @@ void	ClientManager::parseHeaders(Server &server)
 	}
 	else if (request.getMethod() == "POST")
 	{
-		std::cout << "============================================================" << std::endl;
-		std::cout << "This was it \n";
-		std::cout << requestHeaders << std::endl;
-		std::cout << "============================================================" << std::endl;
+		// std::cout << "============================================================" << std::endl;
+		// std::cout << "This was it \n";
+		// std::cout << requestHeaders << std::endl;
+		// std::cout << "============================================================" << std::endl;
 
 
 		Logger::log(Logger::INFO, "Received a POST request for " + request.getURI() + 

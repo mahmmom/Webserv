@@ -6,155 +6,130 @@
     <title>Welcome</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 50px;
-        }
-        h1 {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f9fc;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
+
+        header {
+            background-color: #4caf50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        main {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
         p {
+            font-size: 1.1em;
+            line-height: 1.6;
             color: #555;
         }
-        .btn-link {
+
+        form {
+            margin: 20px 0;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
             border: none;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-link {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: background-color 0.3s ease;
+        }
+
         .btn-link:hover {
             background-color: #0056b3;
         }
-    </style>
-</head>
-<body>
-    <h1>Welcome to My Website!</h1>
-    <p>Thank you for visiting. Explore and enjoy your stay!</p>
-    
-    <!-- Simple POST Form -->
-    <form action="../cgi-bin/submit.py" method="POST">
-        <label for="name">Your Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
-        <input type="submit" value="Submit">
-    </form>
 
-    <form action="../cgi-bin/upload_manager.py" method="POST" enctype="multipart/form-data">
-        <input
-            type="file"
-            name="file"
-            class="btn btn-outline-danger btn-lg"
-            style="
-            width: 100%;
-            margin: 12rem 0 3rem;
-            border-color: #f01965;
-            "
-        />
-        <input
-            type="submit"
-            class="btn btn-danger btn-lg"
-            style="background-color: #f01965"
-        />
-    </form>
-
-    <!-- Button linking to the CGI script -->
-
-    <a href="../cgi-bin/hello_boo.cgi" target="_blank" class="btn-link">Go to hello_boo Page</a>
-    <a href="../cgi-bin/timeout_tester.cgi" target="_blank" class="btn-link">Go to timeout_tester Page</a>
-    <a href="../cgi-bin/timeout_tester2.cgi" target="_blank" class="btn-link">Double up the timeout_tester?</a>
-    <a href="../cgi-bin/timeout_tester3.cgi" target="_blank" class="btn-link">Double up the timeout_tester?</a>
-    <a href="../cgi-bin/timeout_tester4.cgi" target="_blank" class="btn-link">Double up the timeout_tester?</a>
-    <a href="../cgi-bin/timeout_tester5.cgi" target="_blank" class="btn-link">Double up the timeout_tester?</a>
-</body>
-</html>
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
+        footer {
             text-align: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 50px;
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #555;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to My Website!</h1>
-    <p>Thank you for visiting. Explore and enjoy your stay!</p>
-    
+    <header>
+        <h1>Welcome to My Website!</h1>
+    </header>
+    <main>
+        <p>Thank you for visiting. Explore and enjoy your stay!</p>
 
-    <form action="../cgi-bin/submit.py" method="POST">
-        <label for="name">Your Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
-        <input type="submit" value="Submit">
-    </form>
+        <!-- Simple POST Form -->
+        <form action="../cgi-bin/submit.py" method="POST">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" required>
+            <input type="submit" value="Submit">
+        </form>
 
+        <!-- File Upload Form -->
+        <form action="../cgi-bin/upload_manager.py" method="POST" enctype="multipart/form-data">
+            <label for="file">Upload a File:</label>
+            <input type="file" id="file" name="file" required>
+            <input type="submit" value="Upload">
+        </form>
 
-    <form action="../cgi-bin/upload_manager.py" method="POST" enctype="multipart/form-data">
-    <input
-        type="file"
-        name="file"
-        class="btn btn-outline-danger btn-lg"
-        style="
-        width: 100%;
-        margin: 12rem 0 3rem;
-        border-color: #f01965;
-        "
-    />
-    <input
-        type="submit"
-        class="btn btn-danger btn-lg"
-        style="background-color: #f01965"
-    />
-    </form>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 50px;
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #555;
-        }
-    </style>
-</head>
-<body>
-    <h1>Welcome to My Website!</h1>
-    <p>Thank you for visiting. Explore and enjoy your stay!</p>
-    <form action="/submit" method="POST">
-        <label for="name">Your Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
-        <input type="submit" value="Submit">
-    </form>
-
+        <!-- Button linking to CGI scripts -->
+        <div>
+            <a href="../cgi-bin/hello_boo.cgi" target="_blank" class="btn-link">hello_boo Page</a>
+            <a href="../cgi-bin/timeout_tester.cgi" target="_blank" class="btn-link">timeout_tester Page</a>
+            <a href="../cgi-bin/timeout_tester2.cgi" target="_blank" class="btn-link">timeout_tester2 Page</a>
+            <a href="../cgi-bin/timeout_tester3.cgi" target="_blank" class="btn-link">timeout_tester3 Page</a>
+            <a href="../cgi-bin/timeout_tester4.cgi" target="_blank" class="btn-link">timeout_tester4 Page</a>
+            <a href="../cgi-bin/timeout_tester5.cgi" target="_blank" class="btn-link">timeout_tester5 Page</a>
+        </div>
+    </main>
+    <footer>
+        &copy; 2024 Your Website. All rights reserved.
+    </footer>
 </body>
 </html>
