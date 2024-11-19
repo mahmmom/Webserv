@@ -179,17 +179,17 @@ bool	CGIManager::checkFileExtension(HTTPRequest& request, ServerSettings& server
 
 bool CGIManager::isValidCGI(HTTPRequest& request, ServerSettings& serverSettings)
 {
-	std::cout << "here1" << std::endl;
+	// std::cout << "here1" << std::endl;
 	if (serverSettings.getRoot().find("cgi-bin/") == std::string::npos 
 			&& (serverSettings.getRoot() + request.getURI()).find("cgi-bin/") == std::string::npos)
 		return (false);
-	std::cout << "here2" << std::endl;
+	// std::cout << "here2" << std::endl;
 	if (!isFile(serverSettings.getRoot() + request.getURI()))
 		return (false);
-	std::cout << "here3" << std::endl;
+	// std::cout << "here3" << std::endl;
 	if (!checkFileExtension(request, serverSettings))
 		return (false);
-	std::cout << "here4" << std::endl;
+	// std::cout << "here4" << std::endl;
 	return (true);
 }
 
