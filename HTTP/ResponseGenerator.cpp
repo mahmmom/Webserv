@@ -444,12 +444,6 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSettings** settingsFull, std::string& path)
 {
 	HTTPResponse response;
-	BaseSettings*	settings;
-
-	if (settingsFull[LOCATION])
-		settings = settingsFull[LOCATION];
-	else
-		settings = settingsFull[SERVER];
 
 	response.setVersion("HTTP/1.1");
 	response.setStatusCode("200");
