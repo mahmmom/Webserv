@@ -111,6 +111,23 @@
             <input type="submit" value="Submit">
         </form>
 
+        <!-- Mad Libs Game Query Form -->
+        <form action="../cgi-bin/madlibs.py" method="GET">
+            <label for="name">Enter a name:</label>
+            <input type="text" id="name" name="name" placeholder="e.g., John" required>
+        
+            <label for="place">Enter a place:</label>
+            <input type="text" id="place" name="place" placeholder="e.g., Paris" required>
+        
+            <label for="object">Enter an object:</label>
+            <input type="text" id="object" name="object" placeholder="e.g., phone" required>
+        
+            <label for="action">Enter an action:</label>
+            <input type="text" id="action" name="action" placeholder="e.g., run" required>
+        
+            <input type="submit" value="Generate Story">
+        </form>
+
         <!-- File Upload Form -->
         <form action="../cgi-bin/upload_manager.py" method="POST" enctype="multipart/form-data">
             <label for="file">Upload a File:</label>
