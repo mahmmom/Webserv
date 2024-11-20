@@ -299,10 +299,25 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 			send an HTML file containing the status code and the reason phrase as it 
 			usually does.
 */
-HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode, BaseSettings* settings)
+HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode, BaseSettings** settingsArray)
 {
-	if (settings->getErrorPages().find(statusCode) != settings->getErrorPages().end())
-		return (serveErrorPage(request, statusCode, settings));
+	if (settingsArray[LOCATION] == NULL) {
+		if (settingsArray[SERVER]->getErrorPages().find(statusCode) != settingsArray[SERVER]->getErrorPages().end())
+			return (serveErrorPage(request, statusCode, settingsArray[SERVER]));
+	}
+	else {
+		const std::map<int, std::string> locationErrorPages = settingsArray[LOCATION]->getErrorPages();
+		std::map<int, std::string>::const_iterator it = locationErrorPages.find(statusCode);
+
+		if (it != locationErrorPages.end()) {
+			std::string level = settingsArray[LOCATION]->getErrorPagesLevel().find(statusCode)->second;
+			if (level == "location")
+				return (serveErrorPage(request, statusCode, settingsArray[LOCATION]));
+		}
+		if (settingsArray[SERVER]->getErrorPages().find(statusCode) != settingsArray[SERVER]->getErrorPages().end()) {
+			return (serveErrorPage(request, statusCode, settingsArray[SERVER]));
+		}
+	}
 
 	HTTPResponse response;
 
@@ -352,10 +367,17 @@ HTTPResponse ResponseGenerator::redirector(HTTPRequest& request, const std::stri
 	return (response);
 }
 
-HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettings* settings)
+HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettings** settingsFull)
 {
+	BaseSettings* settings;
+
+	if (settingsFull[LOCATION])
+		settings = settingsFull[LOCATION];
+	else
+		settings = settingsFull[SERVER];
+
 	if (settings->getAutoindex() == "off")
-		return (serveError(request, 403, settings));
+		return (serveError(request, 403, settingsFull));
 
 	return (serveDirectoryListing(request, settings));
 }
@@ -367,10 +389,17 @@ HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettin
 			check on the settings of that location block, because chances are, it would 
 			have a different configuration.
 */
-HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettings* settings)
+HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettings** settingsFull)
 {
 	if (request.getURI()[request.getURI().size() - 1] != '/')
 		return (redirector(request, request.getURI() + "/")); // redirect to path + "/"
+
+	BaseSettings* settings;
+
+	if (settingsFull[LOCATION])
+		settings = settingsFull[LOCATION];
+	else
+		settings = settingsFull[SERVER];
 
 	// After the if statement above, we now ensure that all URI's passed here end with a trailing slash!
 	std::string	path;
@@ -380,7 +409,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 
 	if (!isDirectory(path)) {
-		return (serveError(request, 404, settings));
+		return (serveError(request, 404, settingsFull));
 	}
 
 	std::vector<std::string>::const_iterator it;
@@ -399,7 +428,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/')) // if it's the last entry in the index directive and it's an absolute path
 			return (handleSubRequest(request, (*it).substr(1)));
 		if (isFile(indexPath)) // if the entry in the index directive is an actual valid file
-			return (serveFile(request, settings, indexPath));
+			return (serveFile(request, settingsFull, indexPath));
 		if (indexPath[indexPath.size() - 1] == '/') // if the entry in the index directive is a directory and has been entered with a trailing slash
 		{
 			if (isDirectory(indexPath.substr(0, indexPath.size() - 1))) // if the directory is actually valid
@@ -409,12 +438,18 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 			return (redirector(request, request.getURI() + (*it) + "/")); // redirect to that path + "/"
 	}
 
-	return (handleAutoIndex(request, settings));
+	return (handleAutoIndex(request, settingsFull));
 }
 
-HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSettings* settings, std::string& path)
+HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSettings** settingsFull, std::string& path)
 {
 	HTTPResponse response;
+	BaseSettings*	settings;
+
+	if (settingsFull[LOCATION])
+		settings = settingsFull[LOCATION];
+	else
+		settings = settingsFull[SERVER];
 
 	response.setVersion("HTTP/1.1");
 	response.setStatusCode("200");
@@ -428,8 +463,8 @@ HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSetting
 	if (!file.is_open()) {
 		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
 		if (errno == EACCES)
-			return (serveError(request, 403, settings));
-		return (serveError(request, 500, settings));
+			return (serveError(request, 403, settingsFull));
+		return (serveError(request, 500, settingsFull));
 	}
 
 	std::stringstream bodyBuffer;
@@ -443,7 +478,7 @@ HTTPResponse ResponseGenerator::serveSmallFile(HTTPRequest& request, BaseSetting
 	return (response);
 }
 
-HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseSettings* settings, std::string& filePath, long long& fileSize)
+HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseSettings** settingsFull, std::string& filePath, long long& fileSize)
 {
 	HTTPResponse response;
 
@@ -461,10 +496,10 @@ HTTPResponse ResponseGenerator::serveChunkedResponse(HTTPRequest& request, BaseS
 
 	std::ifstream file(filePath.c_str());
 	if (!file.is_open()) {
-		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveSmallFile");
+		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveChunkedResponse");
 		if (errno == EACCES)
-			return (serveError(request, 403, settings));
-		return (serveError(request, 500, settings));
+			return (serveError(request, 403, settingsFull));
+		return (serveError(request, 500, settingsFull));
 	}
 	return (response);
 }
@@ -512,7 +547,7 @@ bool	ResponseGenerator::parseRangedResponse(std::string& rangeHeader, long long&
 	return (true);
 }
 
-HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSettings* settings, 
+HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSettings** settingsFull, 
 														std::string& path, long long fileSize)
 {
 	HTTPResponse 	response;
@@ -522,7 +557,7 @@ HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSe
 
 	if (parseRangedResponse(rangeHeader, startByte, endByte, fileSize) == false) {
 		Logger::log(Logger::ERROR, "Invalid range header", "ResponseGenerator::serveRangedResponse");
-		return (serveError(request, 416, settings));
+		return (serveError(request, 416, settingsFull));
 	}
 
 	std::ifstream fileStream;
@@ -549,28 +584,34 @@ HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSe
 	return (response);
 }
 
-HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path)
+HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings** settingsFull, std::string& path)
 {
 	long long fileSize;
 
 	fileSize = getFileSize(path);
 	if (fileSize == -1) {
 		Logger::log(Logger::ERROR, "Failed to determine file size", "ResponseGenerator::serveFile");
-		return (serveError(request, 500, settings));
+		return (serveError(request, 500, settingsFull));
 	}
 
 	if (fileSize <= COMPACT_RESPONSE_LIMIT)
-		return (serveSmallFile(request, settings, path));
+		return (serveSmallFile(request, settingsFull, path));
 
 	if (!request.getHeader("range").empty())
-		return (serveRangedResponse(request, settings, path, fileSize));
+		return (serveRangedResponse(request, settingsFull, path, fileSize));
 	else
-		return (serveChunkedResponse(request, settings, path, fileSize));
+		return (serveChunkedResponse(request, settingsFull, path, fileSize));
 }
 
-HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings* settings)
+HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings** settingsFull)
 {
-	std::string	path;
+	BaseSettings*	settings;
+	std::string		path;
+
+	if (settingsFull[LOCATION])
+		settings = settingsFull[LOCATION];
+	else
+		settings = settingsFull[SERVER];
 
 	if (request.getURI()[0] == '/')
 		path = settings->getRoot() + request.getURI();
@@ -579,58 +620,64 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 
 	// std::cout << "Path test is " << path << std::endl;
 	if ((path[path.size() - 1] == '/') || isDirectory(path))
-		return (handleDirectory(request, settings));
+		return (handleDirectory(request, settingsFull));
 	if (isFile(path))
-		return (serveFile(request, settings, path));
-	return (serveError(request, 404, settings));
+		return (serveFile(request, settingsFull, path));
+	return (serveError(request, 404, settingsFull));
 }
 
 HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
 {
-	BaseSettings*		settings = &serverSettings;
+	BaseSettings* 		settingsFull[2];
+	
+	settingsFull[SERVER] = &serverSettings;
 	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
 
 	if (locationSettings)
-		settings = locationSettings;
+		settingsFull[LOCATION] = locationSettings;
+	else
+		settingsFull[LOCATION] = NULL;
 
 	if (request.getStatus() != 200)
-		return (serveError(request, request.getStatus(), settings));
+		return (serveError(request, request.getStatus(), settingsFull));
 
-	if (serverSettings.getReturnDirective().getEnabled())
+	if (settingsFull[SERVER]->getReturnDirective().getEnabled())
 		return (handleReturnDirective(request, &serverSettings));
 
-	if (locationSettings) {
+	if (settingsFull[LOCATION]) {
 		if (!locationSettings->isMethodAllowed(request.getMethod()))
-			return (serveError(request, 403, settings));
+			return (serveError(request, 405, settingsFull));
+		if (settingsFull[LOCATION]->getReturnDirective().getEnabled())
+			return (handleReturnDirective(request, settingsFull[LOCATION]));
 	}
-	if (settings->getReturnDirective().getEnabled())
-		return (handleReturnDirective(request, settings));
 
-	return (serveRequest(request, settings));
+	return (serveRequest(request, settingsFull));
 }
 
 HTTPResponse	ResponseGenerator::handlePostRequest(HTTPRequest& request)
 {
-	BaseSettings*		settings = &serverSettings;
+	BaseSettings* 		settingsFull[2];
+	
+	settingsFull[SERVER] = &serverSettings;
 	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
 
 	if (locationSettings)
-		settings = locationSettings;
+		settingsFull[LOCATION] = locationSettings;
+	else
+		settingsFull[LOCATION] = NULL;
 
 	if (request.getStatus() != 200)
-		return (serveError(request, request.getStatus(), settings));
+		return (serveError(request, request.getStatus(), settingsFull));
 
-	if (serverSettings.getReturnDirective().getEnabled())
+	if (settingsFull[SERVER]->getReturnDirective().getEnabled())
 		return (handleReturnDirective(request, &serverSettings));
 
-	if (locationSettings)
-	{
-		if (locationSettings->isMethodAllowed(request.getMethod()) == false)
-			return (serveError(request, 405, settings));
+	if (settingsFull[LOCATION]) {
+		if (!locationSettings->isMethodAllowed(request.getMethod()))
+			return (serveError(request, 405, settingsFull));
+		if (settingsFull[LOCATION]->getReturnDirective().getEnabled())
+			return (handleReturnDirective(request, settingsFull[LOCATION]));
 	}
-
-	if (settings->getReturnDirective().getEnabled())
-		return (handleReturnDirective(request, settings));
 
 	HTTPResponse response;
 
@@ -706,25 +753,28 @@ int ResponseGenerator::isSafeToDelete(const std::string &path)
 
 HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
 {
-
-	BaseSettings*		settings = &serverSettings;
+	BaseSettings* 		settingsFull[2];
+	
+	settingsFull[SERVER] = &serverSettings;
 	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
 
 	if (locationSettings)
-		settings = locationSettings;
+		settingsFull[LOCATION] = locationSettings;
+	else
+		settingsFull[LOCATION] = NULL;
 
 	if (request.getStatus() != 200)
-		return (serveError(request, request.getStatus(), settings));
+		return (serveError(request, request.getStatus(), settingsFull));
 
-	if (serverSettings.getReturnDirective().getEnabled())
+	if (settingsFull[SERVER]->getReturnDirective().getEnabled())
 		return (handleReturnDirective(request, &serverSettings));
 
-	if (locationSettings) {
+	if (settingsFull[LOCATION]) {
 		if (!locationSettings->isMethodAllowed(request.getMethod()))
-			return (serveError(request, 403, settings));
+			return (serveError(request, 405, settingsFull));
+		if (settingsFull[LOCATION]->getReturnDirective().getEnabled())
+			return (handleReturnDirective(request, settingsFull[LOCATION]));
 	}
-	if (settings->getReturnDirective().getEnabled())
-		return (handleReturnDirective(request, settings));
 
     HTTPResponse response;
     std::string filePath;

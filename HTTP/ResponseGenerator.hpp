@@ -22,6 +22,11 @@
 // #define COMPACT_RESPONSE_LIMIT 2097152 // 2 MB
 #define MAX_RANGE_SIZE 1048576 // 1 MB
 
+enum SettingsIndex {
+	SERVER,
+	LOCATION
+};
+
 class ResponseGenerator
 {
 	private:
@@ -46,20 +51,20 @@ class ResponseGenerator
 
 		HTTPResponse 	handleSubRequest(HTTPRequest& request, const std::string& path);
 
-		HTTPResponse	handleAutoIndex(HTTPRequest& request, BaseSettings* settings);
+		HTTPResponse	handleAutoIndex(HTTPRequest& request, BaseSettings** settingsFull);
 
 		HTTPResponse 	serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings);
-		HTTPResponse	serveError(HTTPRequest& request, int statusCode, BaseSettings* settings);
+		HTTPResponse	serveError(HTTPRequest& request, int statusCode, BaseSettings** settingsFull);
 
 		HTTPResponse	redirector(HTTPRequest& request, const std::string& URL);
 
-		HTTPResponse 	handleDirectory(HTTPRequest& request, BaseSettings* settings);
-		HTTPResponse	serveChunkedResponse(HTTPRequest& request, BaseSettings* settings, std::string& filePath, long long& fileSize);
-		HTTPResponse 	serveSmallFile(HTTPRequest& request, BaseSettings* settings, std::string& path);
-		HTTPResponse 	serveFile(HTTPRequest& request, BaseSettings* settings, std::string& path);
+		HTTPResponse 	handleDirectory(HTTPRequest& request, BaseSettings** settingsFull);
+		HTTPResponse	serveChunkedResponse(HTTPRequest& request, BaseSettings** settingsFull, std::string& filePath, long long& fileSize);
+		HTTPResponse 	serveSmallFile(HTTPRequest& request, BaseSettings** settingsFull, std::string& path);
+		HTTPResponse 	serveFile(HTTPRequest& request, BaseSettings** settingsFull, std::string& path);
 		bool			parseRangedResponse(std::string& rangeHeader, long long& startByte, long long& endByte, long long fileSize);
-		HTTPResponse	serveRangedResponse(HTTPRequest& request, BaseSettings* settings, std::string& path, long long fileSize);
-		HTTPResponse	serveRequest(HTTPRequest& request, BaseSettings* settings);
+		HTTPResponse	serveRangedResponse(HTTPRequest& request, BaseSettings** settingsFull, std::string& path, long long fileSize);
+		HTTPResponse	serveRequest(HTTPRequest& request, BaseSettings** settingsFull);
 
 		HTTPResponse	handleDeleteRequest(HTTPRequest& request);
 		HTTPResponse	handlePostRequest(HTTPRequest& request);
