@@ -23,7 +23,7 @@ def main():
     """
 
     # Output the HTML
-    print("Content-Type: text/html\n")
+    # print("Content-Type: text/html\n")
     print(f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -48,7 +48,7 @@ def main():
         <div class="story">
             {story}
         </div>
-        <a href="../index.html">Go Back</a>
+        <a href="../index/index.html">Go Back</a>
     </body>
     </html>
     """)
