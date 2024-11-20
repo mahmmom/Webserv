@@ -379,6 +379,10 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 	else
 		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 
+	if (!isDirectory(path)) {
+		return (serveError(request, 404, settings));
+	}
+
 	std::vector<std::string>::const_iterator it;
 	for (it = settings->getIndex().begin(); it != settings->getIndex().end(); it++) {
 		std::string indexPath;
@@ -404,6 +408,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		if (isDirectory(indexPath)) // if the entry in the index directive is a valid directory but has NOT been entered with a trailing slash
 			return (redirector(request, request.getURI() + (*it) + "/")); // redirect to that path + "/"
 	}
+
 	return (handleAutoIndex(request, settings));
 }
 
@@ -654,7 +659,6 @@ HTTPResponse ResponseGenerator::handleHeadRequest(HTTPRequest& request)
 	response.setType(CompactResponse);
 	response.setBody("");
 
-	std::cout << "Tis is it \n" << response.generateResponse() << std::endl;
 	return (response);
 }
 
@@ -696,12 +700,6 @@ int ResponseGenerator::isSafeToDelete(const std::string &path)
         // No write/execute permission on the containing directory
         return 403; // Forbidden
     }
-
-    // // Optional: Check ownership to ensure the current user is the owner
-    // if (pathStat.st_uid != geteuid()) {
-    //     // Current user is not the owner of the file
-    //     return 403; // Forbidden
-    // }
     
     return 200; // OK, safe to delete
 }
