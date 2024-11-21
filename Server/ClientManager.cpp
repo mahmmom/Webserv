@@ -101,12 +101,6 @@ void	ClientManager::parseHeaders(Server &server)
 	}
 	else if (request.getMethod() == "POST")
 	{
-		// std::cout << "============================================================" << std::endl;
-		// std::cout << "This was it \n";
-		// std::cout << requestHeaders << std::endl;
-		// std::cout << "============================================================" << std::endl;
-
-
 		Logger::log(Logger::INFO, "Received a POST request for " + request.getURI() + 
 		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
@@ -122,35 +116,30 @@ void	ClientManager::parseHeaders(Server &server)
 void	ClientManager::handleGetRequest(Server &server)
 {
 	if (!requestBody.empty() || !request.getHeader("content-length").empty() || request.getHeader("transfer-encoding") == "chunked") {
-		// server.handleInvalidGetRequest(fd);
 		Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(fd)
                 + " made a GET request that includes a body and/or contains body-related"
 				+ " headers", 
                 "Server::handleGetRequest");
 		request.setStatus(400);
 	}
-	// else
 	server.processGetRequest(fd, request);
 }
 
 void	ClientManager::handleHeadRequest(Server &server)
 {
 	if (!requestBody.empty() || !request.getHeader("content-length").empty() || request.getHeader("transfer-encoding") == "chunked") {
-		// server.handleInvalidGetRequest(fd);
 		Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(fd)
                 + " made a HEAD request that includes a body and/or contains body-related"
 				+ " headers", 
                 "Server::handleHeadRequest");
 		request.setStatus(400);
 	}
-	// else
 	server.processGetRequest(fd, request);
 }
 
 void	ClientManager::handleDeleteRequest(Server &server)
 {
 	if (!requestBody.empty() || !request.getHeader("content-length").empty() || request.getHeader("transfer-encoding") == "chunked") {
-		// server.handleInvalidGetRequest(fd);
 		Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(fd)
                 + " made a DELETE request that includes a body and/or contains body-related"
 				+ " headers", 
@@ -162,19 +151,6 @@ void	ClientManager::handleDeleteRequest(Server &server)
 
 void	ClientManager::handlePostRequest(Server &server)
 {
-	// if (request.getStatus() != 200)
-	// {
-	// 	Logger::log(Logger::WARN, "Invalid POST request status for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
-
-	// 	std::map<int, std::string> reasonPhraseMap;
-	// 	reasonPhraseMap[400] = "Bad Request";
-	// 	reasonPhraseMap[411] = "Length Required";
-	// 	reasonPhraseMap[501] = "Not Implemented";
-	// 	reasonPhraseMap[505] = "HTTP Version Not Supported";
-	
-	// 	server.handleInvalidRequest(fd, intToString(request.getStatus()), reasonPhraseMap[request.getStatus()]);
-	// 	return ;
-	// }
 	if (request.getHeader("transfer-encoding") == "chunked")
 	{
 		Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
@@ -230,6 +206,7 @@ void	ClientManager::initializeBodyStorage(Server &server)
 	{
 		Logger::log(Logger::WARN, "POST request body exceeds the declared content length for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
 		requestBodyFile.close();
+		remove(requestBodyFilePath.c_str());
 		server.handleInvalidRequest(fd, "400", "Bad Request");
 	}
 	else
@@ -246,7 +223,6 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
 	size_t remainingBodySize = requestBodySize - requestBodyFile.tellp();
 	if (bytesRead > remainingBodySize)
 	{
-		Logger::log(Logger::WARN, "POST request body exceeds declared content length for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
 		requestBodyFile.write(buffer, remainingBodySize);
 		requestBodyFile.close();
 		isBodyComplete = true;
@@ -256,7 +232,7 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
 	}
 	else if (bytesRead == remainingBodySize)
 	{
-		 Logger::log(Logger::DEBUG, "POST request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+		Logger::log(Logger::DEBUG, "POST request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
 		requestBodyFile.write(buffer, bytesRead);
 		requestBodyFile.close();
 		isBodyComplete = true;

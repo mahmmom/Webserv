@@ -42,10 +42,10 @@ int main() {
     //     "Connection: close\r\n\r\n"
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
     const char* request =
-    "POST /index/index.html HTTP/1.8\r\n"
+    "POST /cgi-bin/submit.py HTTP/1.1\r\n"
     "Host: 127.0.0.1\r\n"
     "Content-Type: text/plain\r\n"
-    "Content-Length: 59\r\n"
+    "Content-Length: 12\r\n"
     "User-Agent: My-Client/1.0\r\n"
     // "Transfer-Encoding: chunked\r\n"
     "Connection: close\r\n\r\n"

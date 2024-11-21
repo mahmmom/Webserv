@@ -420,10 +420,10 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		else
 			indexPath = path + (*it);
 
-    // std::cout << "\033[31m" // Start red color
-    //           << "This is index path -> " << indexPath 
-    //           << "\033[0m"  // Reset to default color
-    //           << std::endl;
+		// std::cout << "\033[31m" // Start red color
+		// 		<< "This is index path -> " << indexPath 
+		// 		<< "\033[0m"  // Reset to default color
+		// 		<< std::endl;
 
 		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/')) // if it's the last entry in the index directive and it's an absolute path
 			return (handleSubRequest(request, (*it).substr(1)));
