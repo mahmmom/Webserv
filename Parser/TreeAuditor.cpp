@@ -20,6 +20,7 @@ TreeAuditor::TreeAuditor()
 	directiveMap["deny"] = std::make_pair(OneArg, ParentRequired);
 	directiveMap["keepalive_timeout"] = std::make_pair(OneArg, Independent);
 	directiveMap["cgi_extension"] = std::make_pair(OneOrMore, ParentRequired);
+	directiveMap["alias"] = std::make_pair(OneArg, ParentRequired);
 }
 
 void	TreeAuditor::checkDirective(DirectiveNode* dirNode, std::pair<ArgsRequired, DirectiveDependency> pair)
@@ -62,6 +63,11 @@ void	TreeAuditor::checkParent(DirectiveNode* node)
 	{
 		if (parentNode->getContextName() != "server")
 			throw (std::runtime_error("\"cgi_extension\" directive is not allowed in this context"));
+	}
+	else if (node->getDirectiveName() == "alias")
+	{
+		if (parentNode->getContextName() != "location")
+			throw (std::runtime_error("\"alias\" directive is not allowed in this context"));
 	}
 }
 
@@ -120,14 +126,18 @@ void	TreeAuditor::checkDuplicateDirectives(ConfigNode* node)
 			if ((*it)->getType() == Context) {
 				if (static_cast<ContextNode *>(*it)->getContextName() == "location") {
 					std::vector<ConfigNode *>children = static_cast<ContextNode *>(*it)->getChildren();
-					std::vector<ConfigNode *>::iterator it;
+					std::vector<ConfigNode *>::iterator it2;
 					size_t	lim_except_count = 0;
-					for (it = children.begin(); it != children.end(); it++) {
-						if ((*it)->getType() == Context && static_cast<ContextNode *>(*it)->getContextName() == "limit_except")
+					for (it2 = children.begin(); it2 != children.end(); it2++) {
+						if ((*it2)->getType() == Context && static_cast<ContextNode *>(*it2)->getContextName() == "limit_except")
 							lim_except_count++;
 						if (lim_except_count > 1)
 							throw (std::runtime_error("\"limit_except\" directive is duplicated"));
 					}
+					int aliasCount = directiveInstanceCounter(static_cast<ContextNode *>(*it), "alias");
+					int rootCount = directiveInstanceCounter(static_cast<ContextNode *>(*it), "root");
+					if (aliasCount && rootCount)
+						throw (std::runtime_error("\"root\" directive is duplicate, \"alias\" directive was specified earlier"));
 				}
 				checkDuplicateDirectives(*it);
 			}
