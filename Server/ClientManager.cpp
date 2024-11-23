@@ -81,28 +81,28 @@ void	ClientManager::parseHeaders(Server &server)
 	if (request.getMethod() == "GET")
 	{
 		Logger::log(Logger::INFO, "Received a GET request for " + request.getURI() + 
-		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", on fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handleGetRequest(server);
 	}
 	else if (request.getMethod() == "HEAD")
 	{
 		Logger::log(Logger::INFO, "Received a HEAD request for " + request.getURI() + 
-		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", on fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handleHeadRequest(server);
 	}
 	else if (request.getMethod() == "DELETE")
 	{
 		Logger::log(Logger::INFO, "Received a DELETE request for " + request.getURI() + 
-		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", on fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handleDeleteRequest(server);
 	}
 	else if (request.getMethod() == "POST")
 	{
 		Logger::log(Logger::INFO, "Received a POST request for " + request.getURI() + 
-		" from client with IP " + clientAddress + ", with fd: " + Logger::intToString(fd),
+		" from client with IP " + clientAddress + ", on fd: " + Logger::intToString(fd),
 			"ClientManager::parseHeaders");
 		handlePostRequest(server);
 	}
@@ -158,12 +158,18 @@ void	ClientManager::handlePostRequest(Server &server)
 		return ;
 	}
 
+	// // For the tester
+	// if (requestBody.empty()) {
+	// 	Logger::log(Logger::WARN, "POST request with no body " + Logger::intToString(fd), "ClientManager::handlePostRequest");
+	// 	server.handleInvalidRequest(fd, "405", "Method Not Allowed");
+	// 	return ;
+	// }
+
 	BaseSettings*		settings = &(server.getServerSettings());
 	LocationSettings* 	locationSettings = server.getServerSettings().findLocation(request.getURI());
 
 	if (locationSettings)
 		settings = locationSettings;
-
 	requestBodySize = stringToSizeT(request.getHeader("content-length"));
 	if (requestBodySize > settings->getClientMaxBodySize())
 	{

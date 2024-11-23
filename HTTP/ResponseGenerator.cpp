@@ -414,7 +414,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 		LocationSettings* locationSettings = static_cast<LocationSettings* >(settingsFull[LOCATION]);
 		if (locationSettings->getAliasDirective().getEnabled() 
 				/* && locationSettings->getAliasDirective().findMatchingURL(request.getURI()) */) {
-			path = locationSettings->getAliasDirective().updateURL(request.getURI());
+			path = locationSettings->getAliasDirective().updateURL(request.getURI(), locationSettings->getPath());
 		}
 	}
 
@@ -632,7 +632,7 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 		LocationSettings* locationSettings = static_cast<LocationSettings* >(settingsFull[LOCATION]);
 		if (locationSettings->getAliasDirective().getEnabled() 
 				/* && locationSettings->getAliasDirective().findMatchingURL(request.getURI())*/ ) {
-			path = locationSettings->getAliasDirective().updateURL(request.getURI());
+			path = locationSettings->getAliasDirective().updateURL(request.getURI(), locationSettings->getPath());
 		}
 	}
 

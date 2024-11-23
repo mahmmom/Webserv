@@ -24,19 +24,14 @@ void AliasDirective::setAliasURL(const std::string& aliasURL)
 	this->aliasURL = aliasURL;
 }
 
-std::string AliasDirective::updateURL(const std::string& originalURL) const
+std::string AliasDirective::updateURL(const std::string& originalURL, const std::string& locationPath) const
 {
-   // If alias is not enabled or URL doesn't match, return original
-   if (!isEnabled)
-       return originalURL;
-   
-   // Get the part of URL after the alias
-   std::string remainingPath;
-   if (originalURL.length() > aliasURL.length()) {
-       remainingPath = originalURL.substr(aliasURL.length());
-   }
-   
-   return (aliasURL + "/" + remainingPath);
+	// Extract the remaining path after the locationPath
+	std::string remainingPath = originalURL.substr(locationPath.length());
+
+	if (aliasURL[0] == '/')
+		return ((aliasURL + remainingPath).substr(1));	// remove the preceeding slash so that our isFile and isDirectory functions can detect them
+	return (aliasURL + remainingPath);
 }
 
 // bool AliasDirective::findMatchingURL(const std::string& URL) const
