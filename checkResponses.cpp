@@ -17,7 +17,7 @@ int main() {
     struct sockaddr_in server;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(8378); // HTTP port
+    server.sin_port = htons(8080); // HTTP port
 
     // Convert IP address to binary form
     if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) <= 0) { // example.com

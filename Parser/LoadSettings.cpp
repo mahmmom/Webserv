@@ -40,6 +40,8 @@ void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettin
 				locationSettings.setReturn(directive->getArguments());
 			else if (directive->getDirectiveName() == "keepalive_timeout")
 				locationSettings.setKeepAliveTimeout(directive->getArguments()[0]);
+			else if (directive->getDirectiveName() == "alias")
+				locationSettings.setAliasDirective(directive->getArguments()[0]);	
 		}
 	}
 

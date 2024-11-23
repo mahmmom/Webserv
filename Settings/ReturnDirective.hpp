@@ -15,11 +15,14 @@ class ReturnDirective
 		ReturnDirective(const ReturnDirective& other);
 		ReturnDirective& operator=(const ReturnDirective& other);
 		ReturnDirective();
+
 		bool		getEnabled() const;
-		void 		setStatusCode(const int& statusCode);
-		void 		setTextOrURL(const std::string& textOrURL);
 		int			getStatusCode() const;
 		std::string	getTextOrURL() const;
+
+		void 		setStatusCode(const int& statusCode);
+		void 		setTextOrURL(const std::string& textOrURL);
+
 };
 
 #endif

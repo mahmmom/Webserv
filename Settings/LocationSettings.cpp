@@ -24,6 +24,7 @@ LocationSettings& LocationSettings::operator=(const LocationSettings& other)
 	{
 		this->path = other.path;
 		this->allowedMethods = other.allowedMethods;
+		this->aliasDirective = other.aliasDirective;
 	}
 	return (*this);
 }
@@ -39,6 +40,11 @@ bool LocationSettings::isMethodAllowed(const std::string& method)
 void LocationSettings::setAllowedMethods(const std::vector<std::string>& allowedMethods)
 {
 	this->allowedMethods = allowedMethods;
+}
+
+void LocationSettings::setAliasDirective(const std::string& aliasURL)
+{
+	aliasDirective.setAliasURL(aliasURL);
 }
 
 const std::vector<std::string>&	LocationSettings::getAllowedMethods() const
@@ -90,4 +96,8 @@ void LocationSettings::debugger() const
 	for (std::vector<std::string>::const_iterator it = allowedMethods.begin(); it != allowedMethods.end(); ++it) {
 		std::cout << "  " << *it << std::endl;
 	}
+
+	// Print allowedMethods
+	std::cout << "alias:" << std::endl;
+	std::cout << aliasDirective.getAliasURL() << std::endl;
 }
