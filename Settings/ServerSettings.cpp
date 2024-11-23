@@ -260,6 +260,12 @@ LocationSettings*	ServerSettings::findLocation(const std::string& uri)
 		// 	longestPathMatch = subPath;
 		// 	location = *it;
 		// }
+
+		// Explicitly handle root location "/"
+		if ((*it)->getPath() == "/" && uri.find("/", 1) == std::string::npos)
+			return (*it);
+
+
 		std::string currentPath = "";
 		for (size_t i = 0; i < uri.size(); ) {
 			size_t pos = uri.find("/", i);

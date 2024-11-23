@@ -42,7 +42,7 @@ int main() {
     //     "Connection: close\r\n\r\n"
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
     const char* request =
-    "GET /music/Ethiopian/Ephrem.mp3 HTTP/1.1\r\n"
+    "HEAD / HTTP/1.1\r\n"
     "Host: 127.0.0.1\r\n"
     // "Content-Type: text/plain\r\n"
     // "Content-Length: 12\r\n"

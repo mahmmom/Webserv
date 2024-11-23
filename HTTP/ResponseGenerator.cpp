@@ -14,6 +14,7 @@ ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSe
 	reasonPhraseMap[400] = "Bad Request";
 	reasonPhraseMap[403] = "Forbidden";
 	reasonPhraseMap[404] = "Not Found";
+	reasonPhraseMap[405] = "Method Not Allowed";
 	reasonPhraseMap[411] = "Length Required";
 	reasonPhraseMap[500] = "Internal Server Error";
 	reasonPhraseMap[501] = "Not Implemented";
