@@ -15,6 +15,7 @@ class AliasDirective
 		AliasDirective& operator=(const AliasDirective& other);
 		AliasDirective();
 
+		std::string normalizeURI(const std::string originalURI) const;
 		std::string	updateURL(const std::string& originalURL, const std::string& locationPath) const;
 		// bool		findMatchingURL(const std::string& URL) const;		
 		void 		resetAliasDirective();
