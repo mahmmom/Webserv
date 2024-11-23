@@ -3,6 +3,7 @@
 # define ALIASDIRECTIVE_HPP
 
 #include <string>
+#include <iostream>
 
 class AliasDirective
 {
@@ -13,6 +14,10 @@ class AliasDirective
 		AliasDirective(const AliasDirective& other);
 		AliasDirective& operator=(const AliasDirective& other);
 		AliasDirective();
+
+		std::string	updateURL(const std::string& originalURL) const;
+		// bool		findMatchingURL(const std::string& URL) const;		
+		void 		resetAliasDirective();
 
 		bool		getEnabled() const;
 		std::string	getAliasURL() const;

@@ -194,8 +194,10 @@ HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std
 {
 	std::cout << "Subpath is " << path << std::endl;
 	request.setURI(path);
-	if (settingsFull[LOCATION] != NULL && !isErrorPage)
+	if (settingsFull[LOCATION] != NULL && !isErrorPage) {
+		static_cast<LocationSettings* >(settingsFull[LOCATION])->getAliasDirective().resetAliasDirective();
 		return (handleRequest(request, settingsFull[LOCATION]));
+	}
 	return (handleRequest(request, NULL));
 }
 
@@ -407,10 +409,23 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 
 	// After the if statement above, we now ensure that all URI's passed here end with a trailing slash!
 	std::string	path;
-	if (request.getURI()[0] == '/')
-		path = settings->getRoot() + request.getURI();
-	else
-		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+
+	if (settingsFull[LOCATION]) {
+		LocationSettings* locationSettings = static_cast<LocationSettings* >(settingsFull[LOCATION]);
+		if (locationSettings->getAliasDirective().getEnabled() 
+				/* && locationSettings->getAliasDirective().findMatchingURL(request.getURI()) */) {
+			path = locationSettings->getAliasDirective().updateURL(request.getURI());
+		}
+	}
+
+	if (path == "") {
+		if (request.getURI()[0] == '/')
+			path = settings->getRoot() + request.getURI();
+		else
+			path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+	}
+
+	std::cout << "Path test is " << path << std::endl << std::endl;
 
 	if (!isDirectory(path)) {
 		return (serveError(request, 404, settingsFull));
@@ -613,12 +628,22 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 	else
 		settings = settingsFull[SERVER];
 
-	if (request.getURI()[0] == '/')
-		path = settings->getRoot() + request.getURI();
-	else
-		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+	if (settingsFull[LOCATION]) {
+		LocationSettings* locationSettings = static_cast<LocationSettings* >(settingsFull[LOCATION]);
+		if (locationSettings->getAliasDirective().getEnabled() 
+				/* && locationSettings->getAliasDirective().findMatchingURL(request.getURI())*/ ) {
+			path = locationSettings->getAliasDirective().updateURL(request.getURI());
+		}
+	}
 
-	std::cout << "Path test is " << path << std::endl << std::endl;
+	if (path == "") {
+		if (request.getURI()[0] == '/')
+			path = settings->getRoot() + request.getURI();
+		else
+			path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+	}
+
+	std::cout << "rollout Path test is " << path << std::endl << std::endl;
 
 	if ((path[path.size() - 1] == '/') || isDirectory(path))
 		return (handleDirectory(request, settingsFull));
@@ -652,6 +677,7 @@ HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request, BaseSetti
 		return (handleReturnDirective(request, &serverSettings));
 
 	if (settingsFull[LOCATION]) {
+		std::cout << "Location path is " << static_cast<LocationSettings* >(settingsFull[LOCATION])->getPath() << std::endl;
 		if (!locationSettings->isMethodAllowed(request.getMethod()))
 			return (serveError(request, 405, settingsFull));
 		if (settingsFull[LOCATION]->getReturnDirective().getEnabled())

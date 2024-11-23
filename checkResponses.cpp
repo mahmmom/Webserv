@@ -17,7 +17,7 @@ int main() {
     struct sockaddr_in server;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(8080); // HTTP port
+    server.sin_port = htons(8378); // HTTP port
 
     // Convert IP address to binary form
     if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) <= 0) { // example.com
@@ -42,7 +42,7 @@ int main() {
     //     "Connection: close\r\n\r\n"
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
     const char* request =
-    "GET /directory/nop/ HTTP/1.1\r\n"
+    "GET /directory/Yeah/ HTTP/1.1\r\n"
     "Host: 127.0.0.1\r\n"
     // "Content-Type: text/plain\r\n"
     // "Content-Length: 12\r\n"

@@ -57,6 +57,11 @@ const std::string&	LocationSettings::getPath() const
 	return (this->path);
 }
 
+AliasDirective& LocationSettings::getAliasDirective()
+{
+	return (this->aliasDirective);
+}
+
 void LocationSettings::debugger() const
 {
 	// Call debugger for BaseSettings members
@@ -99,5 +104,6 @@ void LocationSettings::debugger() const
 
 	// Print allowedMethods
 	std::cout << "alias:" << std::endl;
-	std::cout << aliasDirective.getAliasURL() << std::endl;
+	std::cout << "    URL: " << aliasDirective.getAliasURL() << std::endl;
+	std::cout << "    enabled: " << aliasDirective.getEnabled() << std::endl;
 }

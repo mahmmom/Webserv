@@ -1,10 +1,20 @@
-2024/11/23 07:32:36 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/23 07:32:36 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
-2024/11/23 07:32:36 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/23 07:32:36 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 07:32:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 07:32:46 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 07:32:51 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 07:32:56 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 07:33:01 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 07:33:05 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.
+2024/11/23 10:12:08 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/23 10:12:08 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/23 10:12:08 [INFO ] [Server::setupServerSocket] Server socket with fd 6 created succesfuly
+2024/11/23 10:12:08 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/23 10:12:08 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/23 10:12:08 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/23 10:12:12 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 7
+2024/11/23 10:12:12 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 7
+2024/11/23 10:12:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/23 10:12:12 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
+2024/11/23 10:12:12 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
+2024/11/23 10:12:12 [INFO ] [ClientManager::parseHeaders] Received a GET request for /music/Ephrem.mp3 from client with IP 127.0.0.1, with fd: 7
+2024/11/23 10:12:12 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 7
+2024/11/23 10:12:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/23 10:12:12 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
+2024/11/23 10:12:12 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 7
+2024/11/23 10:12:12 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/23 10:12:17 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/23 10:12:22 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/23 10:12:23 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.

@@ -26,6 +26,7 @@ class LocationSettings : public BaseSettings
 
 		const std::vector<std::string>&	getAllowedMethods() const;
 		const std::string&				getPath() const;
+		AliasDirective&					getAliasDirective();
 
 		void debugger() const;
 };
