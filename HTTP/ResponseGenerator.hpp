@@ -49,11 +49,11 @@ class ResponseGenerator
 
 		HTTPResponse	serveDirectoryListing(HTTPRequest& request, BaseSettings* settings);
 
-		HTTPResponse 	handleSubRequest(HTTPRequest& request, const std::string& path);
+		HTTPResponse 	handleSubRequest(HTTPRequest& request, const std::string& path, bool isErrorPage, BaseSettings** settingsFull);
 
 		HTTPResponse	handleAutoIndex(HTTPRequest& request, BaseSettings** settingsFull);
 
-		HTTPResponse 	serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings);
+		HTTPResponse 	serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings, BaseSettings** settingsFull);
 		HTTPResponse	serveError(HTTPRequest& request, int statusCode, BaseSettings** settingsFull);
 
 		HTTPResponse	redirector(HTTPRequest& request, const std::string& URL);
@@ -68,9 +68,9 @@ class ResponseGenerator
 
 		HTTPResponse	handleDeleteRequest(HTTPRequest& request);
 		HTTPResponse	handlePostRequest(HTTPRequest& request);
-		HTTPResponse	handleHeadRequest(HTTPRequest& request);
-		HTTPResponse	handleGetRequest(HTTPRequest& request);
-		HTTPResponse	handleRequest(HTTPRequest& request);
+		HTTPResponse	handleHeadRequest(HTTPRequest& request, BaseSettings* fallbackLocation);
+		HTTPResponse	handleGetRequest(HTTPRequest& request, BaseSettings* fallbackLocation);
+		HTTPResponse	handleRequest(HTTPRequest& request, BaseSettings* fallbackLocation);
 };
 
 #endif

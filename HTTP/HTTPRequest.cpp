@@ -40,7 +40,7 @@ void	HTTPRequest::debugger()
 		CONSTRUCTOR
 */
 HTTPRequest::HTTPRequest(const std::string& full_request, int clientSocketFD) : 
-	status(200), clientSocketFD(clientSocketFD)
+	status(200), fallbackCounter(0), clientSocketFD(clientSocketFD)
 {
 	// (void) status;
 	tokenizeHeaderFields(full_request);
@@ -417,6 +417,11 @@ const std::string& HTTPRequest::getVersion() const
 void HTTPRequest::setURI(const std::string& uri)
 {
 	this->uri = uri;
+}
+
+void HTTPRequest::incrementFallbackCounter()
+{
+	fallbackCounter++;
 }
 
 /*

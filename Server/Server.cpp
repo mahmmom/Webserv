@@ -218,7 +218,7 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
     else {
         ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
-        HTTPResponse response = responseGenerator.handleRequest(request);
+        HTTPResponse response = responseGenerator.handleRequest(request, NULL);
 
         ResponseManager* responseManager = NULL;
         if (response.getType() == CompactResponse)
@@ -253,7 +253,7 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
     else {
         ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
-        HTTPResponse response = responseGenerator.handleRequest(request);
+        HTTPResponse response = responseGenerator.handleRequest(request, NULL);
 
         ResponseManager* responseManager = NULL;
         responseManager = new ResponseManager(response.generateResponse(), false);
@@ -268,7 +268,7 @@ void Server::processHeadRequest(int clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
-    HTTPResponse response = responseGenerator.handleRequest(request);
+    HTTPResponse response = responseGenerator.handleRequest(request, NULL);
 
     ResponseManager* responseManager = NULL;
     responseManager = new ResponseManager(response.generateResponse(), false);
@@ -282,7 +282,7 @@ void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
 {
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
-    HTTPResponse response = responseGenerator.handleRequest(request);
+    HTTPResponse response = responseGenerator.handleRequest(request, NULL);
 
     ResponseManager* responseManager = NULL;
     responseManager = new ResponseManager(response.generateResponse(), false);

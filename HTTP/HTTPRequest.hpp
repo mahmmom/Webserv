@@ -12,6 +12,7 @@ class HTTPRequest
 {
 	private:
 		int									status;
+		int									fallbackCounter;
 		std::string							uri;
 		std::string							method;
 		std::string							version;
@@ -46,6 +47,8 @@ class HTTPRequest
 
 		void	setStatus(const int& status);
 		void 	setURI(const std::string& uri);
+
+		void	incrementFallbackCounter();
 
 		void	debugger();
 

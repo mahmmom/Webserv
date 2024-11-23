@@ -154,7 +154,7 @@ void	ClientManager::handlePostRequest(Server &server)
 	if (request.getHeader("transfer-encoding") == "chunked")
 	{
 		Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
-		server.handleInvalidRequest(fd, "411", "Length Required");
+		server.handleInvalidRequest(fd, "405", "Method Not Allowed");
 		return ;
 	}
 

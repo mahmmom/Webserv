@@ -190,11 +190,13 @@ long long ResponseGenerator::getFileSize(std::string& filePath)
 		and display the error message which says: "This page isn’t working 
 		localhost redirected you too many times."
 */
-HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path)
+HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path, bool isErrorPage, BaseSettings** settingsFull)
 {
-	// std::cout << "Subpath is " << path << std::endl;
+	std::cout << "Subpath is " << path << std::endl;
 	request.setURI(path);
-	return (handleRequest(request));
+	if (settingsFull[LOCATION] != NULL && !isErrorPage)
+		return (handleRequest(request, settingsFull[LOCATION]));
+	return (handleRequest(request, NULL));
 }
 
 /*
@@ -216,7 +218,7 @@ HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std
 				directive to avoid this problem (even though Nginx does not explicitly 
 				mandate this requirement)
 */
-HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings)
+HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusCode, BaseSettings* settings, BaseSettings** settingsFull)
 {
 	HTTPResponse response;
 	std::map<int, std::string> errorPages = settings->getErrorPages();
@@ -236,10 +238,10 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 			testPath = settings->getRoot() + "/" + path;
 	}
 
-    // std::cout << "\033[31m" // Start red color
-    //           << "This is test path -> " << testPath 
-    //           << "\033[0m"  // Reset to default color
-    //           << std::endl;
+    std::cout << "\033[31m" // Start red color
+              << "This is error page test path -> " << testPath 
+              << "\033[0m"  // Reset to default color
+              << std::endl;
 
 	std::ifstream file((testPath).c_str());
 	if (!file.is_open()) { // If the error_page does not exist, return a standard 404 (or 403 in rare cases where the file does not have the right permissions)
@@ -270,7 +272,7 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 	}
 
 	if (path[0] == '/')
-		return (handleSubRequest(request, path));
+		return (handleSubRequest(request, path, true, settingsFull));
 	response.setVersion("HTTP/1.1");
 	response.setStatusCode(intToString(302));
 	response.setReasonPhrase(reasonPhraseMap[statusCode]);
@@ -303,7 +305,7 @@ HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode,
 {
 	if (settingsArray[LOCATION] == NULL) {
 		if (settingsArray[SERVER]->getErrorPages().find(statusCode) != settingsArray[SERVER]->getErrorPages().end())
-			return (serveErrorPage(request, statusCode, settingsArray[SERVER]));
+			return (serveErrorPage(request, statusCode, settingsArray[SERVER], settingsArray));
 	}
 	else {
 		const std::map<int, std::string> locationErrorPages = settingsArray[LOCATION]->getErrorPages();
@@ -311,11 +313,13 @@ HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode,
 
 		if (it != locationErrorPages.end()) {
 			std::string level = settingsArray[LOCATION]->getErrorPagesLevel().find(statusCode)->second;
-			if (level == "location")
-				return (serveErrorPage(request, statusCode, settingsArray[LOCATION]));
+			if (level == "location") {
+				std::cout << "yes there is an overriding of statuscode " << statusCode << " in location block " << static_cast<LocationSettings* >(settingsArray[LOCATION])->getPath() << std::endl;
+				return (serveErrorPage(request, statusCode, settingsArray[LOCATION], settingsArray));
+			}
 		}
 		if (settingsArray[SERVER]->getErrorPages().find(statusCode) != settingsArray[SERVER]->getErrorPages().end()) {
-			return (serveErrorPage(request, statusCode, settingsArray[SERVER]));
+			return (serveErrorPage(request, statusCode, settingsArray[SERVER], settingsArray));
 		}
 	}
 
@@ -416,23 +420,23 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 	for (it = settings->getIndex().begin(); it != settings->getIndex().end(); it++) {
 		std::string indexPath;
 		if ((*it)[0] == '/')
-			indexPath = path + (*it).substr(1);
+			indexPath = (*it).substr(1);
 		else
 			indexPath = path + (*it);
 
-		// std::cout << "\033[31m" // Start red color
-		// 		<< "This is index path -> " << indexPath 
-		// 		<< "\033[0m"  // Reset to default color
-		// 		<< std::endl;
+		std::cout << "\033[31m" // Start red color
+				<< "This is index path -> " << indexPath 
+				<< "\033[0m"  // Reset to default color
+				<< std::endl;
 
-		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/')) // if it's the last entry in the index directive and it's an absolute path
-			return (handleSubRequest(request, (*it).substr(1)));
+		if (it == settings->getIndex().end() - 1 && ((*it)[0] == '/')) // if it's the last (or the first and only) entry in the index directive and it's also an absolute path
+			return (handleSubRequest(request, indexPath, false, settingsFull));
 		if (isFile(indexPath)) // if the entry in the index directive is an actual valid file
 			return (serveFile(request, settingsFull, indexPath));
 		if (indexPath[indexPath.size() - 1] == '/') // if the entry in the index directive is a directory and has been entered with a trailing slash
 		{
 			if (isDirectory(indexPath.substr(0, indexPath.size() - 1))) // if the directory is actually valid
-				return (handleSubRequest(request, "/" + (*it)));
+				return (handleSubRequest(request, "/" + (*it), false, settingsFull));
 		}
 		if (isDirectory(indexPath)) // if the entry in the index directive is a valid directory but has NOT been entered with a trailing slash
 			return (redirector(request, request.getURI() + (*it) + "/")); // redirect to that path + "/"
@@ -588,6 +592,8 @@ HTTPResponse ResponseGenerator::serveFile(HTTPRequest& request, BaseSettings** s
 		return (serveError(request, 500, settingsFull));
 	}
 
+	// std::cout << "serve file path " << path << std::endl;
+
 	if (fileSize <= COMPACT_RESPONSE_LIMIT)
 		return (serveSmallFile(request, settingsFull, path));
 
@@ -612,7 +618,8 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 	else
 		path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 
-	// std::cout << "Path test is " << path << std::endl;
+	std::cout << "Path test is " << path << std::endl << std::endl;
+
 	if ((path[path.size() - 1] == '/') || isDirectory(path))
 		return (handleDirectory(request, settingsFull));
 	if (isFile(path))
@@ -620,17 +627,23 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 	return (serveError(request, 404, settingsFull));
 }
 
-HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request)
+HTTPResponse ResponseGenerator::handleGetRequest(HTTPRequest& request, BaseSettings* fallbackLocation)
 {
 	BaseSettings* 		settingsFull[2];
 	
 	settingsFull[SERVER] = &serverSettings;
-	LocationSettings* 	locationSettings = serverSettings.findLocation(request.getURI());
+	settingsFull[LOCATION] = NULL;
+	LocationSettings* 	locationSettings = NULL;
 
-	if (locationSettings)
-		settingsFull[LOCATION] = locationSettings;
-	else
-		settingsFull[LOCATION] = NULL;
+	if (fallbackLocation)  {
+		settingsFull[LOCATION] = fallbackLocation;
+		locationSettings = static_cast<LocationSettings* >(fallbackLocation);
+	}
+	else {
+		locationSettings = serverSettings.findLocation(request.getURI());
+		if (locationSettings)
+			settingsFull[LOCATION] = locationSettings;
+	}
 
 	if (request.getStatus() != 200)
 		return (serveError(request, request.getStatus(), settingsFull));
@@ -694,9 +707,9 @@ HTTPResponse	ResponseGenerator::handlePostRequest(HTTPRequest& request)
 	return (response);
 }
 
-HTTPResponse ResponseGenerator::handleHeadRequest(HTTPRequest& request)
+HTTPResponse ResponseGenerator::handleHeadRequest(HTTPRequest& request, BaseSettings* fallbackLocation)
 {
-	HTTPResponse response = handleGetRequest(request);
+	HTTPResponse response = handleGetRequest(request, fallbackLocation);
 	response.setType(CompactResponse);
 	response.setBody("");
 
@@ -823,12 +836,12 @@ HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
 				this case already and this function HTTPResponse won't be called by the 
 				Server class object in that scenario.
 */
-HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request)
+HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request, BaseSettings* fallbackLocation)
 {
 	if (request.getMethod() == "GET")
-		return (handleGetRequest(request));
+		return (handleGetRequest(request, fallbackLocation));
 	else if (request.getMethod() == "HEAD")
-		return (handleHeadRequest(request));
+		return (handleHeadRequest(request, fallbackLocation));
 	else if (request.getMethod() == "POST")
 		return (handlePostRequest(request));
 	else if (request.getMethod() == "DELETE")
