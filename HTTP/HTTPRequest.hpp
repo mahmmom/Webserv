@@ -16,6 +16,7 @@ class HTTPRequest
 		std::string							uri;
 		std::string							method;
 		std::string							version;
+		std::string							body;
 		std::vector<std::string>			queries;
 		std::map<std::string, std::string>	headers;
 
@@ -44,12 +45,15 @@ class HTTPRequest
 		const std::string& 					getURI() const;
 		const std::vector<std::string>& 	getQueries() const;
 		const std::string& 					getVersion() const;
+		const std::string& 					getBody() const;
 
 		void	setStatus(const int& status);
 		void 	setURI(const std::string& uri);
+		void 	setBody(const std::string& body);
 
 		void	incrementFallbackCounter();
 
+		void	accurateDebugger();
 		void	debugger();
 
 		HTTPRequest(const std::string& full_request, int clientSocketFD);

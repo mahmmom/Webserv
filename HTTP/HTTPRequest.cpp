@@ -2,6 +2,38 @@
 #include "HTTPRequest.hpp"
 #include <algorithm>
 
+void HTTPRequest::accurateDebugger()
+{
+    std::cout << "\033[33m"; // Set text color to yellow
+
+    std::cout << "Request [" << std::endl;
+
+    // Start line (Method, URI, and Version)
+    std::cout << method << " " << uri;
+    if (!queries.empty()) {
+        std::cout << "?";
+        for (size_t i = 0; i < queries.size(); ++i) {
+            if (i > 0) std::cout << "&";
+            std::cout << queries[i];
+        }
+    }
+    std::cout << " " << version << "\r\n";
+
+    // Headers
+    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
+        std::cout << it->first << ": " << it->second << "\r\n";
+    }
+
+    // Body (if present)
+    if (!body.empty()) {
+        std::cout << "\r\n" << body;
+    }
+
+    std::cout << "]" << std::endl;
+
+    std::cout << "\033[0m"; // Reset text color to default
+}
+
 void	HTTPRequest::debugger()
 {
 	std::cout << "\n*********************************************" << std::endl;
@@ -417,6 +449,11 @@ const std::string& HTTPRequest::getVersion() const
 void HTTPRequest::setURI(const std::string& uri)
 {
 	this->uri = uri;
+}
+
+void HTTPRequest::setBody(const std::string& body)
+{
+	this->body = body;
 }
 
 void HTTPRequest::incrementFallbackCounter()

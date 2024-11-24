@@ -42,14 +42,19 @@ int main() {
     //     "Connection: close\r\n\r\n"
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
     const char* request =
-    "HEAD / HTTP/1.1\r\n"
-    "Host: 127.0.0.1\r\n"
-    // "Content-Type: text/plain\r\n"
-    // "Content-Length: 12\r\n"
-    "User-Agent: My-Client/1.0\r\n"
-    // "Transfer-Encoding: chunked\r\n"
-    "Connection: close\r\n\r\n";
-    // "Honestly, sh3elio was nice but still he was a douche, idgaf";
+        "POST /directory/youpi.bla HTTP/1.1\r\n"
+        "Accept-Encoding: gzip\r\n"
+        "Content-Type: test/file\r\n"
+        "Host: localhost:8378\r\n"
+        "Transfer-Encoding: chunked\r\n"
+        "User-Agent: Go-http-client/1.1\r\n\r\n"
+
+        "4\r\n"
+        "test\r\n"
+        "6\r\n"
+        "123456\r\n"
+        "0\r\n"
+        "\r\n";
 
     // Send the request
     if (send(sock, request, strlen(request), 0) < 0) {

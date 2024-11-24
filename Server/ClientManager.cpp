@@ -2,7 +2,8 @@
 #include "ClientManager.hpp"
 
 ClientManager::ClientManager(int fd, const std::string &clientIpAddr)
-	: fd(fd), clientAddress(clientIpAddr), requestNumber(0), areHeaderComplete(false), isBodyComplete(false)
+	: fd(fd), clientAddress(clientIpAddr), requestNumber(0), areHeaderComplete(false), isBodyComplete(false),
+		isChunkedTransfer(false), requestManager(NULL)
 {
 	this->lastRequestTime = std::time(0);
 }
@@ -11,6 +12,7 @@ ClientManager::~ClientManager()
 {
 	if (requestBodyFile.is_open())
 		requestBodyFile.close();
+	delete (requestManager);
 }
 
 void	ClientManager::resetClientManager()
@@ -25,6 +27,10 @@ void	ClientManager::resetClientManager()
 	requestBodyFilePath.clear();
 	areHeaderComplete = false;
 	isBodyComplete = false;
+
+	isChunkedTransfer = false;
+	delete requestManager;
+    requestManager = NULL;
 }
 
 void	ClientManager::updateLastRequestTime()
@@ -70,7 +76,10 @@ void	ClientManager::parseHeaders(Server &server)
 		return;
 	}
 
-	this->request = HTTPRequest(requestHeaders, fd);
+	request = HTTPRequest(requestHeaders, fd);
+
+	request.setBody(requestBody);
+	request.accurateDebugger();
 
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
@@ -151,12 +160,12 @@ void	ClientManager::handleDeleteRequest(Server &server)
 
 void	ClientManager::handlePostRequest(Server &server)
 {
-	if (request.getHeader("transfer-encoding") == "chunked")
-	{
-		Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
-		server.handleInvalidRequest(fd, "405", "Method Not Allowed");
-		return ;
-	}
+	// if (request.getHeader("transfer-encoding") == "chunked")
+	// {
+	// 	Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
+	// 	server.handleInvalidRequest(fd, "405", "Method Not Allowed");
+	// 	return ;
+	// }
 
 	// // For the tester
 	// if (requestBody.empty()) {
@@ -170,6 +179,13 @@ void	ClientManager::handlePostRequest(Server &server)
 
 	if (locationSettings)
 		settings = locationSettings;
+
+    if (request.getHeader("transfer-encoding") == "chunked") {
+        isChunkedTransfer = true;
+        initializeBodyStorage(server);
+        return;
+    }
+
 	requestBodySize = stringToSizeT(request.getHeader("content-length"));
 	if (requestBodySize > settings->getClientMaxBodySize())
 	{
@@ -195,11 +211,58 @@ void	ClientManager::initializeBodyStorage(Server &server)
 	{
 		Logger::log(Logger::ERROR, "Failed to open temporary file for storing POST body for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
 		server.handleInvalidRequest(fd, "500", "Internal Server Error");
-		return;
+		return (void());
 	}
 
 	Logger::log(Logger::DEBUG, "Temporary file for POST body created: " + requestBodyFilePath, "ClientManager::initializeBodyStorage");
-	
+
+	if (isChunkedTransfer) {
+		delete requestManager; // Delete any exisitng Manager (though chances are resetClientState already handled that)
+		requestManager = new RequestManager(&requestBodyFile);
+		
+		/*
+			if (!requestBody.empty()) {
+				if (!requestManager->processChunkedData(requestBody)) {
+					Logger::log(Logger::ERROR, "Failed to process initial chunked data", 
+						"ClientManager::initializeBodyStorage");
+					server.handleInvalidRequest(fd, "400", "Bad Request");
+					return (void());
+				}
+				if (requestManager->isRequestComplete()) {
+					requestBodyFile.close();
+					isBodyComplete = true;
+					server.processPostRequest(fd, request);
+				}
+			}
+		*/
+
+		// Handle the case where we already have the complete request
+        if (!requestBody.empty()) {
+            if (!requestManager->processChunkedData(requestBody)) {
+                Logger::log(Logger::ERROR, "Failed to process initial chunked data", 
+                    "ClientManager::initializeBodyStorage");
+                server.handleInvalidRequest(fd, "400", "Bad Request");
+                return (void());
+            }
+        }
+        
+        // Check if it's a complete empty chunked request (0\r\n\r\n)
+        if (requestBody.find("0\r\n\r\n") != std::string::npos || 
+            requestManager->isRequestComplete()) {
+            Logger::log(Logger::DEBUG, "Received complete empty chunked request", 
+                "ClientManager::initializeBodyStorage");
+            requestBodyFile.close();
+            isBodyComplete = true;
+
+			request.setBody(requestManager->getOutputBuffer());
+			request.accurateDebugger();
+
+            server.processPostRequest(fd, request);
+            return (void());
+        }
+        return (void());
+    }
+
 	if (requestBody.size() == requestBodySize)
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete from the first read for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
@@ -225,6 +288,23 @@ void	ClientManager::initializeBodyStorage(Server &server)
 void	ClientManager::processBody(Server &server, const char *buffer, size_t bytesRead)
 {
 	Logger::log(Logger::DEBUG, "Processing body of POST request for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+
+    if (isChunkedTransfer && requestManager != NULL) {
+        std::string chunk(buffer, bytesRead);
+        if (!requestManager->processChunkedData(chunk)) {
+            Logger::log(Logger::ERROR, "Failed to process chunked data", 
+                "ClientManager::processBody");
+            server.handleInvalidRequest(fd, "400", "Bad Request");
+            return (void());
+        }
+        
+        if (requestManager->isRequestComplete()) {
+            requestBodyFile.close();
+            isBodyComplete = true;
+            server.processPostRequest(fd, request);
+        }
+        return (void());
+    }
 
 	size_t remainingBodySize = requestBodySize - requestBodyFile.tellp();
 	if (bytesRead > remainingBodySize)

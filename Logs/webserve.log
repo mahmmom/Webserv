@@ -1,255 +1,314 @@
-2024/11/23 23:41:15 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/23 23:41:15 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 5
-2024/11/23 23:41:15 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/23 23:41:15 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:20 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:25 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:30 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:35 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a GET request for / from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a POST request for / from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [WARN ] [ClientManager::handlePostRequest] Chunked Transfer-Encoding not supported for client with socket fd 6
-2024/11/23 23:41:39 [WARN ] [Server::handleInvalidRequest] Client with socket FD: 6 made an invalid request
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered READ event for fd 6
-2024/11/23 23:41:39 [INFO ] [Server::removeBadClients] Client with fd 6 has exhibited abnormal activity and has been removed
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (new) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [INFO ] [Server::sendCompactFile] Disconnecting client with socket fd: 6 upon sending a compact response
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new READ (new) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a HEAD request for / from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/ from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/youpi.bad_extension from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:39 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:39 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/youpi.bla from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:39 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:39 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:39 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/oulalala from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/ from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/ from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/other.pouic from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/other.pouac from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/Yeah from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/Yeah/ from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [ERROR] [ResponseGenerator::serveErrorPage] Failed to open file: /directory/Yeah/
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/Yeah/not_happy.bad_extension from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (mod) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
-2024/11/23 23:41:40 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
-2024/11/23 23:41:40 [INFO ] [ClientManager::parseHeaders] Received a POST request for /directory/youpi.bla from client with IP 127.0.0.1, on fd: 6
-2024/11/23 23:41:40 [WARN ] [ClientManager::handlePostRequest] Chunked Transfer-Encoding not supported for client with socket fd 6
-2024/11/23 23:41:40 [WARN ] [Server::handleInvalidRequest] Client with socket FD: 6 made an invalid request
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered READ event for fd 6
-2024/11/23 23:41:40 [INFO ] [Server::removeBadClients] Client with fd 6 has exhibited abnormal activity and has been removed
-2024/11/23 23:41:40 [DEBUG] [EpollManager::registerEvent] Registered new WRITE (new) event for fd 6
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:40 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
-2024/11/23 23:41:40 [DEBUG] [EpollManager::deregisterEvent] Deregistered WRITE event for fd 6
-2024/11/23 23:41:40 [INFO ] [Server::sendCompactFile] Disconnecting client with socket fd: 6 upon sending a compact response
-2024/11/23 23:41:40 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
-2024/11/23 23:41:44 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.
+2024/11/25 03:41:36 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/25 03:41:36 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/25 03:41:36 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/25 03:41:36 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for / from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a POST request for / from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [ClientManager::initializeBodyStorage] Temporary file for POST body created: Server/uploads/post_body_1732491701_6.tmp
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processBody] Processing body of POST request for client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a HEAD request for / from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/ from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/youpi.bad_extension from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/youpi.bla from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/oulalala from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/ from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/ from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/other.pouic from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/nop/other.pouac from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/Yeah from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/Yeah/ from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [ERROR] [ResponseGenerator::serveErrorPage] Failed to open file: /directory/Yeah/
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a GET request for /directory/Yeah/not_happy.bad_extension from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Received partial headers for fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 6
+2024/11/25 03:41:41 [INFO ] [ClientManager::parseHeaders] Received a POST request for /directory/youpi.bla from client with IP 127.0.0.1, on fd: 6
+2024/11/25 03:41:41 [DEBUG] [ClientManager::initializeBodyStorage] Temporary file for POST body created: Server/uploads/post_body_1732491701_6.tmp
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1
+2024/11/25 03:41:41 [DEBUG] [ClientManager::processBody] Processing body of POST request for client with socket fd 6
+2024/11/25 03:41:41 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/25 03:41:41 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 6 has sent data to server 127.0.0.1

@@ -3,6 +3,7 @@
 #define CLIENTMANAGER_HPP
 
 #include "Server.hpp"
+#include "../HTTP/RequestManager.hpp"
 
 class ClientManager
 {
@@ -22,6 +23,9 @@ class ClientManager
 		bool												areHeaderComplete;
 		bool												isBodyComplete;
 		
+		bool 												isChunkedTransfer;
+    	RequestManager* 									requestManager; 
+
 		std::string	intToString(int number);
 		size_t		stringToSizeT(const std::string str);
 	public:
