@@ -44,11 +44,12 @@ char		**CGIManager::setupEnvVars(HTTPRequest &request, ServerSettings &serverSet
 	envVector.push_back("QUERY_STRING=" + fullQuery);
 	envVector.push_back("HTTP_USER_AGENT= \"" + request.getHeader("user-agent") + "\"");
 	envVector.push_back("REQUEST_METHOD=" + request.getMethod());
-	envVector.push_back("SERVER_NAME=\"Racnhero\"");
+	envVector.push_back("SERVER_NAME=\"Ranchero\"");
 	envVector.push_back("SERVER_PROTOCOL=" + request.getVersion());
 	envVector.push_back("SCRIPT_FILENAME=" + serverSettings.getRoot() + request.getURI());
 	envVector.push_back("SERVER_NAME=" + request.getHeader("host"));
 	envVector.push_back("PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/homebrew/bin:/opt/homebrew/sbin");
+	envVector.push_back("PATH_INFO=YoupiBanane/directory/youpi.bla");
 
 	char	**envArray = new char *[envVector.size() + 1];
 	size_t i = 0;
@@ -76,6 +77,19 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 	argv = new char *[2];
 	argv[0] = new char[serverSettings.getRoot().length() + request.getURI().length() + 1];
 	strcpy(argv[0], (serverSettings.getRoot() + request.getURI()).c_str());
+
+	std::cout << "script name is " << argv[0] << std::endl;
+    if (!strcmp(argv[0], "YoupiBanane/directory/youpi.bla")) {
+        std::cout << "Match found, resetting argv[0] to 'cgi_tester'.\n";
+        // Reset argv[0] to "cgi_tester"
+        delete[] argv[0];  // Don't forget to free the old memory!
+        argv[0] = new char[strlen("cgi_tester") + 1];  // Allocate space for the new string
+        strcpy(argv[0], "cgi_tester");  // Set the new value
+
+        std::cout << "New script name is " << argv[0] << std::endl;
+    }
+
+
 	argv[1] = NULL;
 
 	if (request.getMethod() == "POST") {
@@ -92,6 +106,11 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 		return (delete2DArray(envp), delete2DArray(argv), void());
 	}
 	if (childPid == 0) {
+
+		for (char **env = envp; *env != NULL; env++) {
+				Logger::log(Logger::INFO, "ENV: " + std::string(*env), "CGIManager::handleCgiDirective");
+			}
+		Logger::log(Logger::INFO, "ARGV[0]: " + std::string(argv[0]), "CGIManager::handleCgiDirective");
 
 		close(pipeFD[0]);
 		dup2(pipeFD[1], STDOUT_FILENO);
@@ -180,9 +199,9 @@ bool	CGIManager::checkFileExtension(HTTPRequest& request, ServerSettings& server
 bool CGIManager::isValidCGI(HTTPRequest& request, ServerSettings& serverSettings)
 {
 	// std::cout << "here1" << std::endl;
-	if (serverSettings.getRoot().find("cgi-bin/") == std::string::npos 
-			&& (serverSettings.getRoot() + request.getURI()).find("cgi-bin/") == std::string::npos)
-		return (false);
+	// if (serverSettings.getRoot().find("cgi-bin/") == std::string::npos 
+	// 		&& (serverSettings.getRoot() + request.getURI()).find("cgi-bin/") == std::string::npos)
+	// 	return (false);
 	// std::cout << "here2" << std::endl;
 	if (!isFile(serverSettings.getRoot() + request.getURI()))
 		return (false);

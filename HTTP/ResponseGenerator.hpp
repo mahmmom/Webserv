@@ -42,8 +42,10 @@ class ResponseGenerator
 		
 		long long					stringToLongLong(const std::string& string);
 		std::string 				longLongToString(long long value);
+		std::string					postBody;
+
 	public:
-		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes);
+		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, const std::string& postBody = "");
 
 		HTTPResponse	handleReturnDirective(HTTPRequest& request, BaseSettings* settings);
 

@@ -78,8 +78,8 @@ void	ClientManager::parseHeaders(Server &server)
 
 	request = HTTPRequest(requestHeaders, fd);
 
-	request.setBody(requestBody);
-	request.accurateDebugger();
+	// request.setBody(requestBody);
+	// request.accurateDebugger();
 
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
@@ -248,14 +248,14 @@ void	ClientManager::initializeBodyStorage(Server &server)
         
         // Check if it's a complete empty chunked request (0\r\n\r\n)
         if (requestBody.find("0\r\n\r\n") != std::string::npos || 
-            requestManager->isRequestComplete()) {
+            	requestManager->isRequestComplete()) {
             Logger::log(Logger::DEBUG, "Received complete empty chunked request", 
                 "ClientManager::initializeBodyStorage");
             requestBodyFile.close();
             isBodyComplete = true;
 
-			request.setBody(requestManager->getOutputBuffer());
-			request.accurateDebugger();
+			// request.setBody(requestManager->getOutputBuffer());
+			// request.accurateDebugger();
 
             server.processPostRequest(fd, request);
             return (void());
@@ -266,7 +266,10 @@ void	ClientManager::initializeBodyStorage(Server &server)
 	if (requestBody.size() == requestBodySize)
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete from the first read for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
+		
 		requestBodyFile << requestBody;
+		request.setBody(requestBody);
+
 		requestBodyFile.close();
 		isBodyComplete = true;
 		server.processPostRequest(fd, request);
@@ -299,7 +302,11 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
         }
         
         if (requestManager->isRequestComplete()) {
-            requestBodyFile.close();
+			Logger::log(Logger::DEBUG, "POST chunked request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+
+			request.setBody(requestManager->getOutputBuffer());
+
+			requestBodyFile.close();
             isBodyComplete = true;
             server.processPostRequest(fd, request);
         }
@@ -319,6 +326,10 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
 	else if (bytesRead == remainingBodySize)
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+
+		std::cout << " the boj is" << requestManager->getOutputBuffer() << std::endl;
+		request.setBody(requestManager->getOutputBuffer());
+
 		requestBodyFile.write(buffer, bytesRead);
 		requestBodyFile.close();
 		isBodyComplete = true;
@@ -354,6 +365,11 @@ const std::string& ClientManager::getPostRequestFileName()
 const HTTPRequest&	ClientManager::getRequest()
 {
 	return (request);
+}
+
+const RequestManager* ClientManager::getRequestManager()
+{
+	return (requestManager);
 }
 
 bool	ClientManager::isTimedout(size_t keepaliveTimeout) const

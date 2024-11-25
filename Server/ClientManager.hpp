@@ -48,11 +48,13 @@ class ClientManager
 		void	handleDeleteRequest(Server &server);
 		void	handlePostRequest(Server &server);
 
-		int					getSocket() const;
-		const std::string&	getClientAddress() const;
-		int					getRequestCount() const;
-		const std::string&	getPostRequestFileName();
-		const HTTPRequest&	getRequest();
+		int						getSocket() const;
+		const std::string&		getClientAddress() const;
+		int						getRequestCount() const;
+		const std::string&		getPostRequestFileName();
+		const HTTPRequest&		getRequest();
+		const RequestManager*	getRequestManager();
+
 		bool				isTimedout(size_t keepaliveTimeout) const;
 };
 

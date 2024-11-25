@@ -23,11 +23,13 @@
 #include "../HTTP/ResponseManager.hpp"
 #include "../CGI/CGIManager.hpp"
 
-#define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
+#define BUFFER_SIZE 8192000 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
+// #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
 
 #define MAX_HEADER_SIZE 8192 // 8 KB
 #define MAX_URI_SIZE 2048 // 2 KB
-#define MAX_CGI_OUTPUT_SIZE 2097152 // 2 MB
+#define MAX_CGI_OUTPUT_SIZE 115343360 // 110 MB
+// #define MAX_CGI_OUTPUT_SIZE 2097152 // 2 MB
 #define CGI_TIMEOUT 20
 #define CGI_LOAD_LIMIT 3
 

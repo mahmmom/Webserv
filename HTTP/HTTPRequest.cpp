@@ -446,6 +446,11 @@ const std::string& HTTPRequest::getVersion() const
 	return (version);
 }
 
+const std::string& HTTPRequest::getBody() const
+{
+	return (body);
+}
+
 void HTTPRequest::setURI(const std::string& uri)
 {
 	this->uri = uri;

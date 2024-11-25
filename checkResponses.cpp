@@ -46,15 +46,17 @@ int main() {
         "Accept-Encoding: gzip\r\n"
         "Content-Type: test/file\r\n"
         "Host: localhost:8378\r\n"
-        "Transfer-Encoding: chunked\r\n"
+        // "Transfer-Encoding: chunked\r\n"
+        "Content-Length: 5\r\n"
         "User-Agent: Go-http-client/1.1\r\n\r\n"
 
-        "4\r\n"
-        "test\r\n"
-        "6\r\n"
-        "123456\r\n"
-        "0\r\n"
-        "\r\n";
+        "yo yo";
+        // "4\r\n"
+        // "test\r\n"
+        // "6\r\n"
+        // "123456\r\n"
+        // "0\r\n"
+        // "\r\n";
 
     // Send the request
     if (send(sock, request, strlen(request), 0) < 0) {

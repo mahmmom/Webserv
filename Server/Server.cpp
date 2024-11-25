@@ -235,9 +235,10 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 
 void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 {
+    std::cout << "cgi test dude" << std::endl;
     if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings)) {
         if (cgi.size() > CGI_LOAD_LIMIT) {
-			Logger::log(Logger::WARN, "Server is overloaded at the moment and cannot process the cgi request", "Server::processGetRequest");
+			Logger::log(Logger::WARN, "Server is overloaded at the moment and cannot process the cgi request", "Server::processPostRequest");
 			handleInvalidRequest(clientSocketFD, "503", "Service Unavailable");
 			return (void());
 		}
@@ -251,14 +252,22 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
         }
     }
     else {
-        ResponseGenerator responseGenerator(serverSettings, mimeTypes);
+
+        std::cout << "cgi not enabled dude" << std::endl;
+
+        if (clients.count(clientSocketFD) > 0)
+            clients[clientSocketFD]->resetClientManager();
+
+        ResponseGenerator responseGenerator(serverSettings, mimeTypes, 
+                                                clients[clientSocketFD]->getRequest().getBody());
 
         HTTPResponse response = responseGenerator.handleRequest(request, NULL);
+        std::cout << "Response[ " << std::endl;
+        std::cout << response.accurateDebugger() << std::endl;
+        std::cout << "]" << std::endl;
 
         ResponseManager* responseManager = NULL;
         responseManager = new ResponseManager(response.generateResponse(), false);
-        if (clients.count(clientSocketFD) > 0)
-            clients[clientSocketFD]->resetClientManager();
         responses[clientSocketFD] =  responseManager;
         eventManager->registerEvent(clientSocketFD, WRITE);
     }
@@ -315,7 +324,7 @@ void Server::handleClientRead(int clientSocketFD)
         std::map<int, ClientManager* >::iterator it = clients.find(clientSocketFD);
         if (it != clients.end())
         {
-
+            std::cout << "it done read -> " << bytesRead << std::endl;
             buffer[bytesRead] = '\0';
 
             // std::cout << "============================================================" << std::endl;
@@ -383,6 +392,7 @@ void Server::handleCgiOutput(int cgiReadFD)
 			delete cgiManager;
 			return;
         }
+        std::cout << "cgi response is | " << cgiManager->generateCgiResponse() << " | end of response" << std::endl;
         ResponseManager *responseManager = new ResponseManager(cgiManager->generateCgiResponse(), false);
         if (clients.count(cgiManager->getCgiClientSocketFD()) > 0)
 			clients[cgiManager->getCgiClientSocketFD()]->resetClientManager();
@@ -395,6 +405,7 @@ void Server::handleCgiOutput(int cgiReadFD)
     else {
         buffer[bytesRead] = '\0';
         std::string cgiResponseSnippet(buffer, bytesRead);
+
         cgiManager->appendCgiResponse(cgiResponseSnippet);
         if (cgiManager->getCgiResponse().length() >= MAX_CGI_OUTPUT_SIZE)
 		{

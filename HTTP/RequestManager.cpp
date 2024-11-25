@@ -87,7 +87,9 @@ bool RequestManager::processChunkSize(const std::string& data, size_t& position)
 
     expectedChunkSize = hexToDecimal(sizeLine);
     currentChunk.clear();
-    
+
+    // std::cout << "chunk size is " << expectedChunkSize << std::endl;
+
     if (expectedChunkSize == 0) {
         currentState = TRAILER;
         // If we have enough data, try to process the trailer immediately
@@ -108,7 +110,7 @@ bool RequestManager::processChunkSize(const std::string& data, size_t& position)
 
 bool RequestManager::processChunkData(const std::string& data, size_t& position)
 {
-    std::cout << "never" << std::endl;
+    // std::cout << "never" << std::endl;
     size_t remainingChunkSize = expectedChunkSize - currentChunk.size();
     size_t availableData = remainingChunkSize;
     if (data.size() - position < remainingChunkSize) {
@@ -120,7 +122,7 @@ bool RequestManager::processChunkData(const std::string& data, size_t& position)
 
     // Mirror data to outputBuffer for debugging
     outputBuffer.write(data.c_str() + position, availableData);
-    std::cout << "test -> " << outputBuffer.str() << std::endl;
+    // std::cout << "test -> " << outputBuffer.str() << std::endl;
 
     position += availableData;
     currentChunk += data.substr(position - availableData, availableData);
@@ -150,6 +152,7 @@ bool RequestManager::processChunkEnding(const std::string& data, size_t& positio
 
 bool RequestManager::processTrailer(const std::string& data, size_t& position)
 {
+    std::cout << "trailer hahahah" << std::endl;
     // First, check for immediate CRLF (no trailers) [basically an empty body or a POST size of 0]
     if (position + 2 <= data.size() && data.substr(position, 2) == "\r\n") {
         position += 2;
