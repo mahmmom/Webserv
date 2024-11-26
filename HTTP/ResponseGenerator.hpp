@@ -45,7 +45,7 @@ class ResponseGenerator
 		std::string					postBody;
 
 	public:
-		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, const std::string& postBody = "");
+		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes);
 
 		HTTPResponse	handleReturnDirective(HTTPRequest& request, BaseSettings* settings);
 

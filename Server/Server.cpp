@@ -258,8 +258,7 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
         if (clients.count(clientSocketFD) > 0)
             clients[clientSocketFD]->resetClientManager();
 
-        ResponseGenerator responseGenerator(serverSettings, mimeTypes, 
-                                                clients[clientSocketFD]->getRequest().getBody());
+        ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
         HTTPResponse response = responseGenerator.handleRequest(request, NULL);
         std::cout << "Response[ " << std::endl;
@@ -392,7 +391,7 @@ void Server::handleCgiOutput(int cgiReadFD)
 			delete cgiManager;
 			return;
         }
-        std::cout << "cgi response is | " << cgiManager->generateCgiResponse() << " | end of response" << std::endl;
+
         ResponseManager *responseManager = new ResponseManager(cgiManager->generateCgiResponse(), false);
         if (clients.count(cgiManager->getCgiClientSocketFD()) > 0)
 			clients[cgiManager->getCgiClientSocketFD()]->resetClientManager();
@@ -569,7 +568,8 @@ void    Server::sendCompactFile(int clientSocketFD, ResponseManager* responseMan
     }
     else
         Logger::log(Logger::DEBUG, "A compact response has been sent partially to client with socket fd " + 
-            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI(), 
+            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI()
+            + "; sent " + Logger::intToString(bytesSent) + " bytes", 
             "Server::sendCompactFile");
 }
 

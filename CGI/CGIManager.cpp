@@ -50,6 +50,12 @@ char		**CGIManager::setupEnvVars(HTTPRequest &request, ServerSettings &serverSet
 	envVector.push_back("SERVER_NAME=" + request.getHeader("host"));
 	envVector.push_back("PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/homebrew/bin:/opt/homebrew/sbin");
 	envVector.push_back("PATH_INFO=YoupiBanane/directory/youpi.bla");
+	envVector.push_back("PATH_TRANSLATED=YoupiBanane/directory/youpi.bla");
+	envVector.push_back("REQUEST_URI=YoupiBanane/directory/youpi.bla");
+	envVector.push_back("REDIRECT_STATUS=200");
+	std::string secret = request.getHeader("x-secret-header-for-test");
+	if (secret != "")
+		envVector.push_back("HTTP_X_SECRET_HEADER_FOR_TEST=" + secret);
 
 	char	**envArray = new char *[envVector.size() + 1];
 	size_t i = 0;
@@ -79,7 +85,7 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 	strcpy(argv[0], (serverSettings.getRoot() + request.getURI()).c_str());
 
 	std::cout << "script name is " << argv[0] << std::endl;
-    if (!strcmp(argv[0], "YoupiBanane/directory/youpi.bla")) {
+    if (!strcmp(argv[0], "YoupiBanane/directory/youpi.bla") || !strcmp(argv[0], "YoupiBanane/directory/youpla.bla")) {
         std::cout << "Match found, resetting argv[0] to 'cgi_tester'.\n";
         // Reset argv[0] to "cgi_tester"
         delete[] argv[0];  // Don't forget to free the old memory!
@@ -120,6 +126,17 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			dup2(postPathFD, STDIN_FILENO);
 			close(postPathFD);
 		}
+		else {
+			int nullFd = open("/dev/null", O_RDONLY);
+			if (nullFd < 0) {
+				Logger::log(Logger::ERROR, "Failed to open /dev/null", "CGIManager::handleCgiDirective");
+				errorDetected = true;
+				delete2DArray(envp), delete2DArray(argv);
+				exit(EXIT_FAILURE);
+			}
+			dup2(nullFd, STDIN_FILENO);
+			close(nullFd);
+		}
 
 		if (execve(argv[0], argv, envp) < 0) {
 			Logger::log(Logger::ERROR,"Execve failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
@@ -157,13 +174,38 @@ std::string CGIManager::generateCgiResponse()
 		response.buildDefaultErrorResponse("502", "Bad Gateway");
 		return (response.generateResponse());
 	}
+
+	size_t headersEnd = cgiResponse.find("\r\n\r\n");
+	std::string statusCode = "200"; // Default if not found
+	std::string contentType = "text/html; charset=utf-8"; // Default if not found
+	std::string cgiHeaders;
+	std::string cgiBody;
+	if (headersEnd != std::string::npos) {
+		cgiHeaders = cgiResponse.substr(0, headersEnd);
+		cgiBody = cgiResponse.substr(headersEnd + 4);
+
+		// 2. Remove `Status: ...` and `Content-Type: ...`
+		std::istringstream headersStream(cgiHeaders);
+		std::string line;
+		while (std::getline(headersStream, line)) {
+			if (line.find("Status: ") == 0) {
+				statusCode = line.substr(8, 3); // Extract 3-digit status code
+			} else if (line.find("Content-Type: ") == 0) {
+				contentType = line.substr(14); // Extract content-type
+			}
+		}
+	}
+	else {
+		cgiBody = cgiResponse;
+	}
+
 	response.setVersion("HTTP/1.1");
 	response.setStatusCode("200");
 	response.setReasonPhrase("OK");
-	response.setBody(cgiResponse);
+	response.setBody(cgiBody);
 	response.setHeaders("Server", "Ranchero");
-	response.setHeaders("Content-Type", "text/html");
-	response.setHeaders("Content-Length", sizeTToString(cgiResponse.length()));
+	response.setHeaders("Content-Type", "text/html; charset=utf-8");
+	response.setHeaders("Content-Length", sizeTToString(cgiBody.length()));
 	response.setHeaders("Connection", "keep-alive");
 
 	return (response.generateResponse());
@@ -203,8 +245,9 @@ bool CGIManager::isValidCGI(HTTPRequest& request, ServerSettings& serverSettings
 	// 		&& (serverSettings.getRoot() + request.getURI()).find("cgi-bin/") == std::string::npos)
 	// 	return (false);
 	// std::cout << "here2" << std::endl;
-	if (!isFile(serverSettings.getRoot() + request.getURI()))
-		return (false);
+	// if (!isFile(serverSettings.getRoot() + request.getURI()))
+	// 	return (false);
+
 	// std::cout << "here3" << std::endl;
 	if (!checkFileExtension(request, serverSettings))
 		return (false);

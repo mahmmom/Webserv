@@ -167,13 +167,6 @@ void	ClientManager::handlePostRequest(Server &server)
 	// 	return ;
 	// }
 
-	// // For the tester
-	// if (requestBody.empty()) {
-	// 	Logger::log(Logger::WARN, "POST request with no body " + Logger::intToString(fd), "ClientManager::handlePostRequest");
-	// 	server.handleInvalidRequest(fd, "405", "Method Not Allowed");
-	// 	return ;
-	// }
-
 	BaseSettings*		settings = &(server.getServerSettings());
 	LocationSettings* 	locationSettings = server.getServerSettings().findLocation(request.getURI());
 

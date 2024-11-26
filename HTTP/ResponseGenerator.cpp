@@ -2,8 +2,8 @@
 #include "ResponseGenerator.hpp"
 #include "HTTPResponse.hpp"
 
-ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes, const std::string& postBody) : 
-	serverSettings(serverSettings), mimeTypes(mimeTypes), postBody(postBody)
+ResponseGenerator::ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes) : 
+	serverSettings(serverSettings), mimeTypes(mimeTypes)
 {
 	reasonPhraseMap[200] = "OK";
 	reasonPhraseMap[301] = "Moved Permanently";
@@ -705,6 +705,8 @@ HTTPResponse	ResponseGenerator::handlePostRequest(HTTPRequest& request)
 		return (handleReturnDirective(request, &serverSettings));
 
 	if (settingsFull[LOCATION]) {
+		request.accurateDebugger();
+		std::cout << "path is " << locationSettings->getPath() << " and method is " << request.getMethod() << std::endl;
 		if (!locationSettings->isMethodAllowed(request.getMethod()))
 			return (serveError(request, 405, settingsFull));
 		if (settingsFull[LOCATION]->getReturnDirective().getEnabled())
@@ -713,35 +715,16 @@ HTTPResponse	ResponseGenerator::handlePostRequest(HTTPRequest& request)
 
 	HTTPResponse response;
 
-	// response.setVersion("HTTP/1.1");
-	// response.setStatusCode("200");
-	// response.setReasonPhrase("OK");
- 	// std::string body =	"<html>"
-	// 						"<head><title>Request Processed</title></head>"
-	// 						"<body>"
-	// 							"<h2>Request Successfully Processed</h2>"
-	// 							"<p>Your request has been processed by our server. Thank you!</p>"
-	// 						"</body>"
-	// 					"</html>";
-	// response.setBody(body);
-	// response.setHeaders("Content-Length", longLongToString(body.length()));
-	// response.setHeaders("Content-Type", "text/html");
-	// response.setHeaders("Server", "Ranchero");
-	// response.setHeaders("Connection", "keep-alive");
-
 	response.setVersion("HTTP/1.1");
 	response.setStatusCode("200");
 	response.setReasonPhrase("OK");
- 	// std::string body =	"<html>"
-	// 						"<head><title>Request Processed</title></head>"
-	// 						"<body>"
-	// 							"<h2>Request Successfully Processed</h2>"
-	// 							"<p>Your request has been processed by our server. Thank you!</p>"
-	// 						"</body>"
-	// 					"</html>";
-	// response.setBody(body);
-	// response.setHeaders("Content-Length", longLongToString(body.length()));
-	std::string body = postBody;
+ 	std::string body =	"<html>"
+							"<head><title>Request Processed</title></head>"
+							"<body>"
+								"<h2>Request Successfully Processed</h2>"
+								"<p>Your request has been processed by our server. Thank you!</p>"
+							"</body>"
+						"</html>";
 	response.setBody(body);
 	response.setHeaders("Content-Length", longLongToString(body.length()));
 	response.setHeaders("Content-Type", "text/html");

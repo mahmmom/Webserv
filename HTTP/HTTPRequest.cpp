@@ -24,10 +24,10 @@ void HTTPRequest::accurateDebugger()
         std::cout << it->first << ": " << it->second << "\r\n";
     }
 
-    // Body (if present)
-    if (!body.empty()) {
-        std::cout << "\r\n" << body;
-    }
+    // // Body (if present)
+    // if (!body.empty()) {
+    //     std::cout << "\r\n" << body;
+    // }
 
     std::cout << "]" << std::endl;
 
