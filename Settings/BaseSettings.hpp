@@ -3,7 +3,7 @@
 # define BASESETTINGS_HPP
 
 #define MIN_KEEPALIVE_TIMEOUT 5
-#define MAX_KEEPALIVE_TIMEOUT 200
+#define MAX_KEEPALIVE_TIMEOUT 300
 
 // #include 
 #include <vector>

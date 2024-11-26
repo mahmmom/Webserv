@@ -123,7 +123,7 @@ void Server::bindAndListenServerSocket()
         serverSocket = -1;
         return ;
     }
-	if (listen(serverSocket, 5) < 0) {
+	if (listen(serverSocket, 1024) < 0) {
         Logger::log(Logger::ERROR, "Failed to listen on socket: " + std::string(strerror(errno)), "Server::bindAndListenServerSocket");
         serverSocket = -1;
     }

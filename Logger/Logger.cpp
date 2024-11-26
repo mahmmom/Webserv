@@ -79,14 +79,18 @@ void Logger::init(Logger::Level logLevel, const std::string& logFilePath)
     std::cout << "\n\033[0;92m🤠 Ranchero is running.\033[0m\n" 
               << "\n🗃️  You can find logs at: \033[1;94mlogs/webserv.log\033[0m" 
               << std::endl;
-              
+
     if (!logFilePath.empty())
     {
         logFile.open(logFilePath.c_str()); // C++98 requires c_str()
         if (logFile.is_open())
         {
-            setOutput(logFile);
+            setOutput(logFile); // Use the file output stream
         }
+    }
+    else
+    {
+        setOutput(std::cout); // Switch to stdout if no file path is provided
     }
 }
 

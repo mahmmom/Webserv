@@ -6,8 +6,7 @@
 #define DEFAULT_HTTP_INDEX "index.html"
 #define DEFAULT_HTTP_AUTOINDEX "off"
 #define DEFAULT_HTTP_CLIENT_MAX_BODY_SIZE "1M" // 1 Mebibyte
-#define DEFAULT_HTTP_KEEPALIVE_TIMEOUT "199s"
-// #define DEFAULT_HTTP_KEEPALIVE_TIMEOUT "10s"
+#define DEFAULT_HTTP_KEEPALIVE_TIMEOUT "10s"
 
 #include <vector>
 #include <string>

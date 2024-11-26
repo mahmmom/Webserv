@@ -176,14 +176,24 @@ void ServerArena::run()
 	lastTimeoutCheck = std::time(0);
 	lastCgiTimeoutCheck = std::time(0);
 
+
+	time_t lastLogTime = time(NULL); 
+
     while (running)
     {
 		if (!running)
 			break ;
-	
+
 		manageTimeouts();
 
-		Logger::log(Logger::DEBUG, "⌛ Waiting for events ⌛", "ServerArena::run");
+    	time_t currentTime = time(NULL);
+    	double elapsedTime = difftime(currentTime, lastLogTime);
+		if (elapsedTime >= 5)
+		{
+			Logger::log(Logger::DEBUG, "⌛ Waiting for events ⌛", "ServerArena::run");
+			lastLogTime = currentTime;  // Update the last log time
+		}
+
 
         int nev = eventManager->eventListener();
 
