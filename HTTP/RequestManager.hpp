@@ -24,7 +24,10 @@ class RequestManager {
 		std::ofstream*  	outputFile;  // Changed to pointer for C++98
 		std::ostringstream	outputBuffer; // Mirror buffer for debugging
 		bool            	isComplete;
-		
+		size_t totalBytesReceived;
+    	size_t maxBodySize;
+    	bool hasExceededLimit;
+
 		bool processChunkSize(const std::string& data, size_t& position);
 		bool processChunkData(const std::string& data, size_t& position);
 		bool processChunkEnding(const std::string& data, size_t& position);
@@ -32,7 +35,7 @@ class RequestManager {
 		size_t hexToDecimal(const std::string& hex);
 
 	public:
-		explicit RequestManager(std::ofstream* file); // Changed to take pointer
+		explicit RequestManager(std::ofstream* file, size_t maxBodySize); // Changed to take pointer
 		~RequestManager();
 
 		// Disable copy constructor and assignment operator
@@ -43,6 +46,9 @@ class RequestManager {
 		bool isRequestComplete() const;
 
 		std::string getOutputBuffer() const;
+
+		void setMaxBodySize(size_t size);
+    	bool hasExceededMaxSize() const;
 };
 
 #endif

@@ -173,9 +173,10 @@ void	ClientManager::handlePostRequest(Server &server)
 	if (locationSettings)
 		settings = locationSettings;
 
-    if (request.getHeader("transfer-encoding") == "chunked") {
+    if (request.getHeader("transfer-encoding") == "chunked")
+	{
         isChunkedTransfer = true;
-        initializeBodyStorage(server);
+        initializeBodyStorage(server, settings);
         return;
     }
 
@@ -186,10 +187,10 @@ void	ClientManager::handlePostRequest(Server &server)
 		server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
 		return ;
 	}
-	initializeBodyStorage(server);
+	initializeBodyStorage(server, settings);
 }
 
-void	ClientManager::initializeBodyStorage(Server &server)
+void	ClientManager::initializeBodyStorage(Server &server, BaseSettings* settings)
 {
 	std::string filename;
 	{
@@ -211,8 +212,8 @@ void	ClientManager::initializeBodyStorage(Server &server)
 
 	if (isChunkedTransfer) {
 		delete requestManager; // Delete any exisitng Manager (though chances are resetClientState already handled that)
-		requestManager = new RequestManager(&requestBodyFile);
-		
+		requestManager = new RequestManager(&requestBodyFile, settings->getClientMaxBodySize());
+
 		/*
 			if (!requestBody.empty()) {
 				if (!requestManager->processChunkedData(requestBody)) {
@@ -231,10 +232,16 @@ void	ClientManager::initializeBodyStorage(Server &server)
 
 		// Handle the case where we already have the complete request
         if (!requestBody.empty()) {
-            if (!requestManager->processChunkedData(requestBody)) {
-                Logger::log(Logger::ERROR, "Failed to process initial chunked data", 
-                    "ClientManager::initializeBodyStorage");
-                server.handleInvalidRequest(fd, "400", "Bad Request");
+			if (!requestManager->processChunkedData(requestBody)) {
+				if (requestManager->hasExceededMaxSize()) {
+					Logger::log(Logger::WARN, "Body size of chunked POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+					server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
+				} 
+				else {
+					Logger::log(Logger::ERROR, "Failed to process initial chunked data", 
+						"ClientManager::processBody");
+					server.handleInvalidRequest(fd, "400", "Bad Request");
+				}
                 return (void());
             }
         }
@@ -285,15 +292,23 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
 {
 	Logger::log(Logger::DEBUG, "Processing body of POST request for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
 
-    if (isChunkedTransfer && requestManager != NULL) {
+    if (isChunkedTransfer && requestManager != NULL) 
+	{
         std::string chunk(buffer, bytesRead);
-        if (!requestManager->processChunkedData(chunk)) {
-            Logger::log(Logger::ERROR, "Failed to process chunked data", 
-                "ClientManager::processBody");
-            server.handleInvalidRequest(fd, "400", "Bad Request");
-            return (void());
-        }
-        
+		
+		if (!requestManager->processChunkedData(chunk)) {
+			if (requestManager->hasExceededMaxSize()) {
+				Logger::log(Logger::WARN, "Body size of chunked POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+				server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
+			} 
+			else {
+				Logger::log(Logger::ERROR, "Failed to process chunked data", 
+					"ClientManager::processBody");
+				server.handleInvalidRequest(fd, "400", "Bad Request");
+			}
+			return (void());
+		}
+
         if (requestManager->isRequestComplete()) {
 			Logger::log(Logger::DEBUG, "POST chunked request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
 

@@ -1,11 +1,14 @@
 
 #include "RequestManager.hpp"
 
-RequestManager::RequestManager(std::ofstream* file)
+RequestManager::RequestManager(std::ofstream* file, size_t maxBodySize)
     : currentState(CHUNK_REQUEST_SIZE), 
       expectedChunkSize(0), 
       outputFile(file), 
-      isComplete(false)
+      isComplete(false),
+      totalBytesReceived(0),
+      maxBodySize(maxBodySize),
+      hasExceededLimit(false)
 {}
 
 RequestManager::~RequestManager() {}
@@ -15,7 +18,10 @@ RequestManager::RequestManager(const RequestManager& other)
     : currentState(CHUNK_REQUEST_SIZE), 
       expectedChunkSize(0), 
       outputFile(NULL), 
-      isComplete(false)
+      isComplete(false),
+      totalBytesReceived(0),
+      maxBodySize(0),
+      hasExceededLimit(false)
 {
     (void)other;
 }
@@ -117,6 +123,11 @@ bool RequestManager::processChunkData(const std::string& data, size_t& position)
         availableData = data.size() - position;
     }
     
+    if (maxBodySize > 0 && (totalBytesReceived + availableData) > maxBodySize) {
+        hasExceededLimit = true;
+        return false;
+    }
+
     // Write to file
     outputFile->write(data.c_str() + position, availableData);
 
@@ -190,7 +201,17 @@ bool RequestManager::isRequestComplete() const
     return isComplete; 
 }
 
+bool RequestManager::hasExceededMaxSize() const 
+{ 
+    return hasExceededLimit;
+}
+
 std::string RequestManager::getOutputBuffer() const
 {
     return (outputBuffer.str());
+}
+
+void RequestManager::setMaxBodySize(size_t size) 
+{ 
+    maxBodySize = size;
 }

@@ -41,7 +41,7 @@ class ClientManager
 		void	processHeaders(Server &server, const char *buffer, size_t bytesRead);
 		void	processBody(Server &server, const char *buffer, size_t bytesRead);
 		void	parseHeaders(Server &server);
-		void	initializeBodyStorage(Server &server);
+		void	initializeBodyStorage(Server &server, BaseSettings* settings);
 
 		void	handleGetRequest(Server &server);
 		void	handleHeadRequest(Server &server);
