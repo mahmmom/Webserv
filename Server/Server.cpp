@@ -300,7 +300,7 @@ void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
 void Server::handleClientRead(int clientSocketFD)
 {
 	char buffer[BUFFER_SIZE + 1] = {0};
-    int bytesRead = recv(clientSocketFD, buffer, sizeof(buffer), 0);
+    int bytesRead = recv(clientSocketFD, buffer, BUFFER_SIZE, 0);
 
     if (bytesRead < 0) {
         Logger::log(Logger::ERROR, "Failed to recieve data from client with socket fd: "
