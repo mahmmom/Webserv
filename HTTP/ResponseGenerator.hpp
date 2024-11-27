@@ -49,7 +49,7 @@ class ResponseGenerator
 
 		HTTPResponse	handleReturnDirective(HTTPRequest& request, BaseSettings* settings);
 
-		HTTPResponse	serveDirectoryListing(HTTPRequest& request, BaseSettings* settings);
+		HTTPResponse	serveDirectoryListing(HTTPRequest& request, BaseSettings** settingsFull);
 
 		HTTPResponse 	handleSubRequest(HTTPRequest& request, const std::string& path, bool isErrorPage, BaseSettings** settingsFull);
 

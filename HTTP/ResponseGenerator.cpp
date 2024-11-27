@@ -66,7 +66,15 @@ HTTPResponse ResponseGenerator::handleReturnDirective(HTTPRequest& request, Base
 	return response;
 }
 
-HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, BaseSettings* settings) {
+HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, BaseSettings** settingsFull)
+{
+	BaseSettings* settings;
+
+	if (settingsFull[LOCATION])
+		settings = settingsFull[LOCATION];
+	else
+		settings = settingsFull[SERVER];
+
     HTTPResponse response;
     response.setVersion("HTTP/1.1");
     response.setStatusCode("200");
@@ -92,7 +100,7 @@ HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, Base
         // Handle error case
         response.setStatusCode("404");
         response.setReasonPhrase("Not Found");
-        return response;
+        return (serveError(request, 404, settingsFull));
     }
 
     struct dirent* entry;
@@ -386,7 +394,7 @@ HTTPResponse ResponseGenerator::handleAutoIndex(HTTPRequest& request, BaseSettin
 	if (settings->getAutoindex() == "off")
 		return (serveError(request, 403, settingsFull));
 
-	return (serveDirectoryListing(request, settings));
+	return (serveDirectoryListing(request, settingsFull));
 }
 
 /*

@@ -115,7 +115,7 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
         dup2(pipeFD[1], STDOUT_FILENO);
         close(pipeFD[1]);
 
-        if (request.getMethod() == "POST")
+		if (request.getMethod() == "POST")
 		{
             FILE* temp = tmpfile();
 			long	tempFd = fileno(temp);
