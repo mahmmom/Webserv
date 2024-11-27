@@ -25,17 +25,18 @@ class CGIManager
 		bool		errorDetected;
 		std::string	cgiResponse;
 		std::time_t	cgiRequestTime;
+		std::string	requestBody;
 
 		std::string sizeTToString(size_t value);
 		char**		setupEnvVars(HTTPRequest& request, ServerSettings& serverSettings);
 		void		delete2DArray(char **arr);
 	public:
 		CGIManager(HTTPRequest& request, ServerSettings& serverSettings,
-					EventManager *eventManager, int clientSocket,  const std::string &postPath = "");
+					EventManager *eventManager, int clientSocket);
 		~CGIManager();
 		
 		void			handleCgiDirective(HTTPRequest& request, ServerSettings& serverSetings, 
-											EventManager *eventManager, const std::string &postPath);
+											EventManager *eventManager);
 		std::string		generateCgiResponse();
 		void			appendCgiResponse(std::string& cgiResponseSnippet);
 

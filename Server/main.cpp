@@ -35,16 +35,41 @@
                 could simply be re-establishing the connection.
 */
 
-void    signalHandler(int SIGNUM)
+// void    signalHandler(int SIGNUM)
+// {
+//     if (SIGNUM == SIGINT ||  SIGNUM == SIGTERM)
+//         running = 0;
+//     else if (SIGNUM == SIGCHLD)
+// 	{
+// 		int status;
+// 		pid_t pid;
+// 		while ((pid = waitpid(-1, &status, WNOHANG)) > 0) { }
+// 	}
+// }
+
+void signalHandler(int SIGNUM)
 {
-    if (SIGNUM == SIGINT ||  SIGNUM == SIGTERM)
+    if (SIGNUM == SIGINT || SIGNUM == SIGTERM)
         running = 0;
     else if (SIGNUM == SIGCHLD)
-	{
-		int status;
-		pid_t pid;
-		while ((pid = waitpid(-1, &status, WNOHANG)) > 0) { }
-	}
+    {
+        int status;
+        pid_t pid;
+
+        // Wait for any child process that has terminated (non-blocking)
+        while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+            // Check if the child process exited normally
+            if (WIFEXITED(status)) {
+                int exitStatus = WEXITSTATUS(status);
+                std::cout << "Child process (PID: " << pid << ") finished with exit status: " << exitStatus << std::endl;
+            }
+            // Check if the child process was terminated by a signal
+            else if (WIFSIGNALED(status)) {
+                int signalNumber = WTERMSIG(status);
+                std::cout << "Child process (PID: " << pid << ") terminated by signal: " << signalNumber << std::endl;
+            }
+        }
+    }
 }
 
 /*

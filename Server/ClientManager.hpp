@@ -17,9 +17,13 @@ class ClientManager
 		HTTPRequest											request;
 		std::string											requestHeaders;
 		std::string											requestBody;
-		std::ofstream										requestBodyFile;
+
+		// std::ofstream										requestBodyFile;
+		std::string 										requestBuffer;
+
 		size_t												requestBodySize;
-		std::string											requestBodyFilePath;
+		// std::string											requestBodyFilePath;
+
 		bool												areHeaderComplete;
 		bool												isBodyComplete;
 		
@@ -51,7 +55,6 @@ class ClientManager
 		int						getSocket() const;
 		const std::string&		getClientAddress() const;
 		int						getRequestCount() const;
-		const std::string&		getPostRequestFileName();
 		const HTTPRequest&		getRequest();
 		const RequestManager*	getRequestManager();
 

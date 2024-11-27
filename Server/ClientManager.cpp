@@ -10,8 +10,6 @@ ClientManager::ClientManager(int fd, const std::string &clientIpAddr)
 
 ClientManager::~ClientManager()
 {
-	if (requestBodyFile.is_open())
-		requestBodyFile.close();
 	delete (requestManager);
 }
 
@@ -19,12 +17,7 @@ void	ClientManager::resetClientManager()
 {
 	requestHeaders.clear();
 	requestBody.clear();
-	if (requestBodyFile.is_open())
-		requestBodyFile.close();
-	if (requestBodyFilePath.size())
-		remove(requestBodyFilePath.c_str());
 	requestBodySize = 0;
-	requestBodyFilePath.clear();
 	areHeaderComplete = false;
 	isBodyComplete = false;
 
@@ -192,43 +185,9 @@ void	ClientManager::handlePostRequest(Server &server)
 
 void	ClientManager::initializeBodyStorage(Server &server, BaseSettings* settings)
 {
-	std::string filename;
-	{
-		std::ostringstream oss;
-		oss << "post_body_" << Logger::intToString(static_cast<int>(time(0))) << "_" << Logger::intToString(fd) << ".tmp";
-		filename = oss.str();
-	}
-	requestBodyFilePath = TEMP_FILE_DIRECTORY + filename;
-
-	requestBodyFile.open(requestBodyFilePath.c_str(), std::ios::out | std::ios::binary);
-	if (!requestBodyFile.is_open())
-	{
-		Logger::log(Logger::ERROR, "Failed to open temporary file for storing POST body for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		server.handleInvalidRequest(fd, "500", "Internal Server Error");
-		return (void());
-	}
-
-	Logger::log(Logger::DEBUG, "Temporary file for POST body created: " + requestBodyFilePath, "ClientManager::initializeBodyStorage");
-
 	if (isChunkedTransfer) {
 		delete requestManager; // Delete any exisitng Manager (though chances are resetClientState already handled that)
-		requestManager = new RequestManager(&requestBodyFile, settings->getClientMaxBodySize());
-
-		/*
-			if (!requestBody.empty()) {
-				if (!requestManager->processChunkedData(requestBody)) {
-					Logger::log(Logger::ERROR, "Failed to process initial chunked data", 
-						"ClientManager::initializeBodyStorage");
-					server.handleInvalidRequest(fd, "400", "Bad Request");
-					return (void());
-				}
-				if (requestManager->isRequestComplete()) {
-					requestBodyFile.close();
-					isBodyComplete = true;
-					server.processPostRequest(fd, request);
-				}
-			}
-		*/
+		requestManager = new RequestManager(settings->getClientMaxBodySize());
 
 		// Handle the case where we already have the complete request
         if (!requestBody.empty()) {
@@ -245,16 +204,16 @@ void	ClientManager::initializeBodyStorage(Server &server, BaseSettings* settings
                 return (void());
             }
         }
-        
+
         // Check if it's a complete empty chunked request (0\r\n\r\n)
         if (requestBody.find("0\r\n\r\n") != std::string::npos || 
             	requestManager->isRequestComplete()) {
             Logger::log(Logger::DEBUG, "Received complete empty chunked request", 
                 "ClientManager::initializeBodyStorage");
-            requestBodyFile.close();
+
             isBodyComplete = true;
 
-			// request.setBody(requestManager->getOutputBuffer());
+			request.setBody(requestManager->getBuffer());
 			// request.accurateDebugger();
 
             server.processPostRequest(fd, request);
@@ -267,24 +226,20 @@ void	ClientManager::initializeBodyStorage(Server &server, BaseSettings* settings
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete from the first read for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
 		
-		requestBodyFile << requestBody;
-		request.setBody(requestBody);
-
-		requestBodyFile.close();
+		requestBuffer = requestBody;
+		request.setBody(requestBuffer);
 		isBodyComplete = true;
 		server.processPostRequest(fd, request);
 	}
 	else if (requestBody.size() > requestBodySize)
 	{
 		Logger::log(Logger::WARN, "POST request body exceeds the declared content length for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		requestBodyFile.close();
-		remove(requestBodyFilePath.c_str());
 		server.handleInvalidRequest(fd, "400", "Bad Request");
 	}
 	else
 	{
 		Logger::log(Logger::DEBUG, "POST request body is incomplete from the first read for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		requestBodyFile << requestBody;
+		requestBuffer = requestBody;
 	}
 }
 
@@ -311,42 +266,26 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
 
         if (requestManager->isRequestComplete()) {
 			Logger::log(Logger::DEBUG, "POST chunked request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
-
-			request.setBody(requestManager->getOutputBuffer());
-
-			requestBodyFile.close();
+			request.setBody(requestManager->getBuffer());
             isBodyComplete = true;
             server.processPostRequest(fd, request);
         }
         return (void());
     }
 
-	size_t remainingBodySize = requestBodySize - requestBodyFile.tellp();
-	if (bytesRead > remainingBodySize)
-	{
-		requestBodyFile.write(buffer, remainingBodySize);
-		requestBodyFile.close();
-		isBodyComplete = true;
-		server.processPostRequest(fd, request);
-		// server.processPostRequest(fd, request, true);
-		// server.removeBadClients(fd);
-	}
-	else if (bytesRead == remainingBodySize)
+	size_t remainingBodySize = requestBodySize - requestBuffer.size();
+	if (bytesRead >= remainingBodySize)
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
-
-		std::cout << " the boj is" << requestManager->getOutputBuffer() << std::endl;
-		request.setBody(requestManager->getOutputBuffer());
-
-		requestBodyFile.write(buffer, bytesRead);
-		requestBodyFile.close();
+		requestBuffer.append(buffer, remainingBodySize);
+		request.setBody(requestBuffer);
 		isBodyComplete = true;
 		server.processPostRequest(fd, request);
 	}
 	else
 	{
 		Logger::log(Logger::DEBUG, "Appending to POST request body for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
-		requestBodyFile.write(buffer, bytesRead);
+		requestBuffer.append(buffer, bytesRead);
 	}
 }
 
@@ -363,11 +302,6 @@ const std::string& ClientManager::getClientAddress() const
 int		ClientManager::getRequestCount() const
 {
 	return requestNumber;
-}
-
-const std::string& ClientManager::getPostRequestFileName()
-{
-	return (requestBodyFilePath);
 }
 
 const HTTPRequest&	ClientManager::getRequest()

@@ -1,217 +1,133 @@
-
 #include "RequestManager.hpp"
 
-RequestManager::RequestManager(std::ofstream* file, size_t maxBodySize)
-    : currentState(CHUNK_REQUEST_SIZE), 
-      expectedChunkSize(0), 
-      outputFile(file), 
-      isComplete(false),
-      totalBytesReceived(0),
-      maxBodySize(maxBodySize),
-      hasExceededLimit(false)
-{}
+RequestManager::RequestManager(size_t maxBodySize) 
+    : maxBodySize(maxBodySize), 
+      currentBodySize(0), 
+      currentState(CHUNK_REQUEST_SIZE), 
+      currentChunkSize(0), 
+      requestComplete(false),
+      exceededMaxSize(false) {}
 
 RequestManager::~RequestManager() {}
 
-// Implement these to prevent copying
-RequestManager::RequestManager(const RequestManager& other)
-    : currentState(CHUNK_REQUEST_SIZE), 
-      expectedChunkSize(0), 
-      outputFile(NULL), 
-      isComplete(false),
-      totalBytesReceived(0),
-      maxBodySize(0),
-      hasExceededLimit(false)
-{
-    (void)other;
-}
+bool RequestManager::processChunkedData(const std::string& chunk) {
+    parseBuffer += chunk;
 
-RequestManager& RequestManager::operator=(const RequestManager& other)
-{
-    (void)other;
-    return *this;
-}
-
-bool RequestManager::processChunkedData(const std::string& data)
-{
-    size_t position = 0;
-    
-    // std::cout << "uhm did we 0" << std::endl;
-
-    while (position < data.size() && !isComplete) {
-        bool success = false;
-        
+    while (!parseBuffer.empty()) {
         switch (currentState) {
-            case CHUNK_REQUEST_SIZE:
-                success = processChunkSize(data, position);
+            case CHUNK_REQUEST_SIZE: {
+                size_t crlfPos = parseBuffer.find("\r\n");
+                if (crlfPos == std::string::npos) return true; // Wait for more data
+
+                std::string chunkSizeStr = parseBuffer.substr(0, crlfPos);
+                trimWhitespace(chunkSizeStr);
+
+                // Check for valid hex digits
+                if (!isHexDigits(chunkSizeStr)) {
+                    return false; // Invalid chunk size
+                }
+
+                currentChunkSize = parseChunkSize(chunkSizeStr);
+
+                // Check for 0-length chunk (end of chunked transfer)
+                if (currentChunkSize == 0) {
+                    currentState = CHUNK_TRAILER;
+                    parseBuffer.erase(0, crlfPos + 2);
+                    continue;
+                }
+    
+                // Check if total body size would exceed limit
+                if (currentBodySize + currentChunkSize > maxBodySize) {
+                    exceededMaxSize = true;
+                    return false; // Body too large
+                }
+
+                parseBuffer.erase(0, crlfPos + 2);
+                currentState = CHUNK_DATA;
                 break;
-            case CHUNK_DATA:
-                success = processChunkData(data, position);
+            }
+
+            case CHUNK_DATA: {
+                // Need at least chunk size + 2 bytes for CRLF
+                if (parseBuffer.length() < currentChunkSize + 2) return true; // Wait for more data
+
+                // Validate chunk data ends with CRLF
+                if (!validateChunkData(parseBuffer)) return false;
+
+                // Add chunk to request buffer
+                requestBuffer += parseBuffer.substr(0, currentChunkSize);
+                currentBodySize += currentChunkSize;
+
+                // Remove chunk and CRLF
+                parseBuffer.erase(0, currentChunkSize + 2);
+                currentState = CHUNK_REQUEST_SIZE;
                 break;
-            case CHUNK_ENDING:
-                success = processChunkEnding(data, position);
+            }
+
+            case CHUNK_TRAILER: {
+                // Look for final CRLF to complete request
+                if (parseBuffer.substr(0, 2) == "\r\n") {
+                    requestComplete = true;
+                    return true;
+                }
+                return true; // Wait for final CRLF
+            }
+
+            case CHUNK_EXTENSION: {
+                // Ignore chunk extensions for simplicity
+                currentState = CHUNK_DATA;
                 break;
-            case TRAILER:
-                success = processTrailer(data, position);
-                break;
-            case COMPLETE:
-                return true;
+            }
         }
-        
-        if (!success) {
+    }
+
+    return true;
+}
+
+size_t RequestManager::parseChunkSize(const std::string& chunk) {
+    char* endptr;
+    return static_cast<size_t>(std::strtoul(chunk.c_str(), &endptr, 16));
+}
+
+bool RequestManager::validateChunkData(const std::string& chunk) {
+    // Ensure chunk data is followed by CRLF
+    return chunk.substr(currentChunkSize, 2) == "\r\n";
+}
+
+bool RequestManager::isRequestComplete() const {
+    return requestComplete;
+}
+
+bool RequestManager::hasExceededMaxSize() const {
+    return exceededMaxSize;
+}
+
+std::string RequestManager::getBuffer() const {
+    return requestBuffer;
+}
+
+void RequestManager::trimWhitespace(std::string& str) {
+    // Trim leading whitespace
+    std::string::size_type nonWhiteStart = str.find_first_not_of(" \t");
+    if (nonWhiteStart != std::string::npos) {
+        str = str.substr(nonWhiteStart);
+    } else {
+        str.clear();
+        return;
+    }
+
+    // Trim trailing whitespace
+    std::string::size_type nonWhiteEnd = str.find_last_not_of(" \t");
+    if (nonWhiteEnd != std::string::npos) {
+        str = str.substr(0, nonWhiteEnd + 1);
+    }
+}
+
+bool RequestManager::isHexDigits(const std::string& str) {
+    for (std::string::size_type i = 0; i < str.length(); ++i) {
+        if (!std::isxdigit(str[i])) {
             return false;
         }
     }
-    
     return true;
-}
-
-bool RequestManager::processChunkSize(const std::string& data, size_t& position)
-{
-    size_t lineEnd = data.find("\r\n", position);
-
-    if (lineEnd == std::string::npos) {
-        currentChunk += data.substr(position);
-        position = data.size();
-        return true;
-    }
-
-    std::string sizeLine = currentChunk + data.substr(position, lineEnd - position);
-    position = lineEnd + 2;
-    
-    // Remove chunk extensions if present
-    size_t semicolon = sizeLine.find(';');
-    if (semicolon != std::string::npos) {
-        sizeLine = sizeLine.substr(0, semicolon);
-    }
-
-    // Trim whitespace from sizeLine
-    while (!sizeLine.empty() && isspace(sizeLine[0]))
-        sizeLine.erase(0, 1);
-    while (!sizeLine.empty() && isspace(sizeLine[sizeLine.size() - 1]))
-        sizeLine.erase(sizeLine.size() - 1);
-
-    expectedChunkSize = hexToDecimal(sizeLine);
-    currentChunk.clear();
-
-    // std::cout << "chunk size is " << expectedChunkSize << std::endl;
-
-    if (expectedChunkSize == 0) {
-        currentState = TRAILER;
-        // If we have enough data, try to process the trailer immediately
-        if (position < data.size()) {
-            size_t savedPosition = position;
-            if (processTrailer(data, position)) {
-                return true;
-            }
-            position = savedPosition;
-        }
-    }
-    else {
-        currentState = CHUNK_DATA;
-    }
-
-    return true;
-}
-
-bool RequestManager::processChunkData(const std::string& data, size_t& position)
-{
-    // std::cout << "never" << std::endl;
-    size_t remainingChunkSize = expectedChunkSize - currentChunk.size();
-    size_t availableData = remainingChunkSize;
-    if (data.size() - position < remainingChunkSize) {
-        availableData = data.size() - position;
-    }
-    
-    if (maxBodySize > 0 && (totalBytesReceived + availableData) > maxBodySize) {
-        hasExceededLimit = true;
-        return false;
-    }
-
-    // Write to file
-    outputFile->write(data.c_str() + position, availableData);
-
-    // Mirror data to outputBuffer for debugging
-    outputBuffer.write(data.c_str() + position, availableData);
-    // std::cout << "test -> " << outputBuffer.str() << std::endl;
-
-    position += availableData;
-    currentChunk += data.substr(position - availableData, availableData);
-    
-    if (currentChunk.size() == expectedChunkSize) {
-        currentChunk.clear();
-        currentState = CHUNK_ENDING;
-    }
-    
-    return true;
-}
-
-bool RequestManager::processChunkEnding(const std::string& data, size_t& position)
-{
-    if (position + 2 > data.size()) {
-        return true;
-    }
-    
-    if (data.substr(position, 2) != "\r\n") {
-        return false;
-    }
-    
-    position += 2;
-    currentState = CHUNK_REQUEST_SIZE;
-    return true;
-}
-
-bool RequestManager::processTrailer(const std::string& data, size_t& position)
-{
-    std::cout << "trailer hahahah" << std::endl;
-    // First, check for immediate CRLF (no trailers) [basically an empty body or a POST size of 0]
-    if (position + 2 <= data.size() && data.substr(position, 2) == "\r\n") {
-        position += 2;
-        currentState = COMPLETE;
-        isComplete = true;
-        return true;
-    }
-    
-    // Otherwise, look for the end of trailers
-    size_t endOfTrailers = data.find("\r\n\r\n", position);
-    if (endOfTrailers == std::string::npos) {
-        currentChunk += data.substr(position);
-        position = data.size();
-        return true;
-    }
-    
-    position = endOfTrailers + 4;
-    currentState = COMPLETE;
-    isComplete = true;
-
-    return true;
-}
-
-size_t RequestManager::hexToDecimal(const std::string& hex)
-{
-    std::stringstream ss;
-    ss << std::hex << hex;
-    size_t result;
-    ss >> result;
-    return result;
-}
-
-bool RequestManager::isRequestComplete() const 
-{ 
-    return isComplete; 
-}
-
-bool RequestManager::hasExceededMaxSize() const 
-{ 
-    return hasExceededLimit;
-}
-
-std::string RequestManager::getOutputBuffer() const
-{
-    return (outputBuffer.str());
-}
-
-void RequestManager::setMaxBodySize(size_t size) 
-{ 
-    maxBodySize = size;
 }

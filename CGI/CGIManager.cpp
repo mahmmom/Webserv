@@ -2,13 +2,13 @@
 #include "CGIManager.hpp"
 
 CGIManager::CGIManager(HTTPRequest& request, ServerSettings& serverSettings,
-				EventManager *eventManager, int clientSocketFD,  const std::string &postPath)
+				EventManager *eventManager, int clientSocketFD)
 				: clientSocketFD(clientSocketFD), postPathFD(-1), errorDetected(false)
 {
 	pipeFD[0] = -1;
 	pipeFD[1] = -1;
 	cgiRequestTime = std::time(0);
-	handleCgiDirective(request, serverSettings, eventManager, postPath);
+	handleCgiDirective(request, serverSettings, eventManager);
 }
 
 CGIManager::~CGIManager()
@@ -69,7 +69,7 @@ char		**CGIManager::setupEnvVars(HTTPRequest &request, ServerSettings &serverSet
 }
 
 void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& serverSettings,
-										EventManager *eventManager, const std::string &postPath)
+										EventManager *eventManager)
 {
 	if (pipe(pipeFD) == -1) {
 		Logger::log(Logger::ERROR,"Pipe creation failed", "CGIManager::handleCgiDirective");
@@ -94,39 +94,54 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 
         std::cout << "New script name is " << argv[0] << std::endl;
     }
-
-
 	argv[1] = NULL;
 
-	if (request.getMethod() == "POST") {
-		if ((postPathFD = open(postPath.c_str(), O_RDONLY)) < 0)  {
-				Logger::log(Logger::ERROR,"Opening path containing the POST method body failed", "CGIManager::handleCgiDirective");				
-				errorDetected = true;
-				return (delete2DArray(envp), delete2DArray(argv), void());
-		}
-	}
 
 	if ((childPid = fork()) < 0) {
 		Logger::log(Logger::ERROR,"Forking child process failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
 		errorDetected = true;
 		return (delete2DArray(envp), delete2DArray(argv), void());
 	}
-	if (childPid == 0) {
+
+	if (childPid == 0)
+	{
 
 		for (char **env = envp; *env != NULL; env++) {
 				Logger::log(Logger::INFO, "ENV: " + std::string(*env), "CGIManager::handleCgiDirective");
-			}
+		}
 		Logger::log(Logger::INFO, "ARGV[0]: " + std::string(argv[0]), "CGIManager::handleCgiDirective");
 
 		close(pipeFD[0]);
-		dup2(pipeFD[1], STDOUT_FILENO);
-		close(pipeFD[1]);
+        dup2(pipeFD[1], STDOUT_FILENO);
+        close(pipeFD[1]);
 
-		if (request.getMethod() == "POST") {
-			dup2(postPathFD, STDIN_FILENO);
-			close(postPathFD);
+        if (request.getMethod() == "POST")
+		{
+            FILE* temp = tmpfile();
+			long	tempFd = fileno(temp);
+            if (tempFd < 0)
+			{
+                Logger::log(Logger::ERROR, "Failed to create temporary file", "CGIManager::handleCgiDirective");
+				errorDetected = true;
+				delete2DArray(envp), delete2DArray(argv);
+                exit(EXIT_FAILURE);
+			}
+            
+            const std::string& requestBody = request.getBody();
+			ssize_t bytesWritten = write(tempFd, requestBody.c_str(), requestBody.length());
+			if (bytesWritten != static_cast<ssize_t>(requestBody.length())) {
+				Logger::log(Logger::ERROR, "Failed to write entire body", "CGIManager::handleCgiDirective");
+				errorDetected = true;
+				delete2DArray(envp), delete2DArray(argv);
+				exit(EXIT_FAILURE);
+			}
+			
+			lseek(tempFd, 0, SEEK_SET);
+			dup2(tempFd, STDIN_FILENO);
+			close(tempFd);
 		}
-		else {
+		else
+		{
 			int nullFd = open("/dev/null", O_RDONLY);
 			if (nullFd < 0) {
 				Logger::log(Logger::ERROR, "Failed to open /dev/null", "CGIManager::handleCgiDirective");
@@ -138,13 +153,17 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			close(nullFd);
 		}
 
+		dup2(pipeFD[1], STDOUT_FILENO);
+		close(pipeFD[1]);
+
 		if (execve(argv[0], argv, envp) < 0) {
 			Logger::log(Logger::ERROR,"Execve failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
 			delete2DArray(envp), delete2DArray(argv);
 			exit(EXIT_FAILURE);
 		}
 	}
-	else {
+	else
+	{
 		close(pipeFD[1]);
 		int flags = fcntl(pipeFD[0], F_GETFL, NULL);
 		if (flags < 0) {

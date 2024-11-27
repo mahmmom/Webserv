@@ -243,7 +243,7 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 			return (void());
 		}
         CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
-                                                    clientSocketFD, clients[clientSocketFD]->getPostRequestFileName());
+                                                    clientSocketFD);
         if (!(cgiManager->getErrorDetected()))
             cgi[cgiManager->getCgiFD()] = cgiManager;
         else {
@@ -323,8 +323,8 @@ void Server::handleClientRead(int clientSocketFD)
         std::map<int, ClientManager* >::iterator it = clients.find(clientSocketFD);
         if (it != clients.end())
         {
-            std::cout << "it done read -> " << bytesRead << std::endl;
             buffer[bytesRead] = '\0';
+            std::cout << "it done read -> " << bytesRead << std::endl;
 
             // std::cout << "============================================================" << std::endl;
             // std::cout << "Recieved from "
