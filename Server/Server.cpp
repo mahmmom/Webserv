@@ -324,7 +324,6 @@ void Server::handleClientRead(int clientSocketFD)
         if (it != clients.end())
         {
             buffer[bytesRead] = '\0';
-            std::cout << "it done read -> " << bytesRead << std::endl;
 
             // std::cout << "============================================================" << std::endl;
             // std::cout << "Recieved from "
@@ -368,10 +367,24 @@ void Server::handleClientWrite(int clientSocketFD)
 void Server::handleCgiOutput(int cgiReadFD)
 {
     Logger::log(Logger::DEBUG, "Handling CGI output from pipe with fd " + Logger::intToString(cgiReadFD), "Server::handleCgiOutput");
+    
+    CGIManager* cgiManager = cgi[cgiReadFD];
+
+    if (cgiManager->getTesterMode()) {
+        ResponseManager *responseManager = new ResponseManager(cgiManager->generateCgiTesterResponse(), false);
+        if (clients.count(cgiManager->getCgiClientSocketFD()) > 0)
+			clients[cgiManager->getCgiClientSocketFD()]->resetClientManager();
+        responses[cgiManager->getCgiClientSocketFD()] = responseManager;
+		eventManager->registerEvent(cgiManager->getCgiClientSocketFD(), WRITE);
+		eventManager->deregisterEvent(cgiReadFD, READ);
+		cgi.erase(cgiReadFD);
+		delete cgiManager;
+
+        return ;
+    }
 
     char   buffer[BUFFER_SIZE + 1];
     ssize_t bytesRead = read(cgiReadFD, buffer, BUFFER_SIZE);
-    CGIManager* cgiManager = cgi[cgiReadFD];
 
     if (bytesRead < 0) {
         kill(cgiManager->getChildPid(), SIGKILL);

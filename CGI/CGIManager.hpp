@@ -15,6 +15,8 @@
 #include <ctime>
 #include <sys/fcntl.h>
 
+# define CGI_TESTER_BUFFER_SIZE 65536 // 64 KB
+
 class CGIManager
 {
 	private:
@@ -23,9 +25,11 @@ class CGIManager
 		int			pipeFD[2];
 		int			postPathFD;
 		bool		errorDetected;
+		bool		testerMode;
 		std::string	cgiResponse;
 		std::time_t	cgiRequestTime;
 		std::string	requestBody;
+		std::string	testerBody;
 
 		std::string sizeTToString(size_t value);
 		char**		setupEnvVars(HTTPRequest& request, ServerSettings& serverSettings);
@@ -37,7 +41,9 @@ class CGIManager
 		
 		void			handleCgiDirective(HTTPRequest& request, ServerSettings& serverSetings, 
 											EventManager *eventManager);
+
 		std::string		generateCgiResponse();
+		std::string		generateCgiTesterResponse();
 		void			appendCgiResponse(std::string& cgiResponseSnippet);
 
 		bool		getErrorDetected();
@@ -45,6 +51,7 @@ class CGIManager
 		int			getCgiFD();
 		int			getCgiClientSocketFD();
 		std::string	getCgiResponse();
+		bool		getTesterMode();
 
 		bool		isCgiTimedOut(size_t timeoutValue);
 		static bool	isFile(const std::string& requestURI);

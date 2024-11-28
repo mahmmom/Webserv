@@ -42,10 +42,12 @@ int main() {
     //     "Connection: close\r\n\r\n"
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
 const char* request =
-    "GET cart32.exe HTTP/1.1\r\n"
+    "POST /directory/youpi.bla HTTP/1.1\r\n"
     "Accept-Encoding: gzip\r\n"
     "Content-Type: test/file\r\n"
-    "Host: localhost:8378\r\n\r\n";
+    "Content-Length: 20\r\n"
+    "Host: localhost:8378\r\n\r\n"
+    "girl look at the boj";
 
     // Send the request
     if (send(sock, request, strlen(request), 0) < 0) {

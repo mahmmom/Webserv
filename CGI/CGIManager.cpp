@@ -3,7 +3,7 @@
 
 CGIManager::CGIManager(HTTPRequest& request, ServerSettings& serverSettings,
 				EventManager *eventManager, int clientSocketFD)
-				: clientSocketFD(clientSocketFD), postPathFD(-1), errorDetected(false)
+				: clientSocketFD(clientSocketFD), postPathFD(-1), errorDetected(false), testerMode(false)
 {
 	pipeFD[0] = -1;
 	pipeFD[1] = -1;
@@ -91,12 +91,14 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
         delete[] argv[0];  // Don't forget to free the old memory!
         argv[0] = new char[strlen("cgi_tester") + 1];  // Allocate space for the new string
         strcpy(argv[0], "cgi_tester");  // Set the new value
-
+		testerMode = true;
         std::cout << "New script name is " << argv[0] << std::endl;
     }
 	argv[1] = NULL;
 
 
+	FILE	*tempOut = tmpfile();
+	long	tempOutFD = fileno(tempOut);
 	if ((childPid = fork()) < 0) {
 		Logger::log(Logger::ERROR,"Forking child process failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
 		errorDetected = true;
@@ -112,14 +114,11 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 		Logger::log(Logger::INFO, "ARGV[0]: " + std::string(argv[0]), "CGIManager::handleCgiDirective");
 
 		close(pipeFD[0]);
-        dup2(pipeFD[1], STDOUT_FILENO);
-        close(pipeFD[1]);
-
 		if (request.getMethod() == "POST")
 		{
-            FILE* temp = tmpfile();
-			long	tempFd = fileno(temp);
-            if (tempFd < 0)
+            FILE* 	tempIn = tmpfile();
+			long	tempInFD = fileno(tempIn);
+            if (tempInFD < 0)
 			{
                 Logger::log(Logger::ERROR, "Failed to create temporary file", "CGIManager::handleCgiDirective");
 				errorDetected = true;
@@ -128,7 +127,7 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			}
             
             const std::string& requestBody = request.getBody();
-			ssize_t bytesWritten = write(tempFd, requestBody.c_str(), requestBody.length());
+			ssize_t bytesWritten = write(tempInFD, requestBody.c_str(), requestBody.length());
 			if (bytesWritten != static_cast<ssize_t>(requestBody.length())) {
 				Logger::log(Logger::ERROR, "Failed to write entire body", "CGIManager::handleCgiDirective");
 				errorDetected = true;
@@ -136,9 +135,9 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 				exit(EXIT_FAILURE);
 			}
 			
-			lseek(tempFd, 0, SEEK_SET);
-			dup2(tempFd, STDIN_FILENO);
-			close(tempFd);
+			lseek(tempInFD, 0, SEEK_SET);
+			dup2(tempInFD, STDIN_FILENO);
+			close(tempInFD);
 		}
 		else
 		{
@@ -153,8 +152,15 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			close(nullFd);
 		}
 
-		dup2(pipeFD[1], STDOUT_FILENO);
-		close(pipeFD[1]);
+		if (testerMode) {
+			close(pipeFD[1]);
+			dup2(tempOutFD, STDOUT_FILENO);
+		}
+		else {
+			dup2(pipeFD[1], STDOUT_FILENO);
+			close(pipeFD[1]);
+			close(tempOutFD);
+		}
 
 		if (execve(argv[0], argv, envp) < 0) {
 			Logger::log(Logger::ERROR,"Execve failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
@@ -164,15 +170,36 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 	}
 	else
 	{
-		close(pipeFD[1]);
-		int flags = fcntl(pipeFD[0], F_GETFL, NULL);
-		if (flags < 0) {
-			Logger::log(Logger::ERROR, "Failed to obtain pipe read end flags", "CGIManager::handleCgiDirective");
-			return (errorDetected = true, void());
+		if (testerMode) {
+			const char* message = "activate pipe";
+			write(pipeFD[1], message, strlen(message));
+			close(pipeFD[1]);
+			char	buffer[CGI_TESTER_BUFFER_SIZE] = {0};
+
+			waitpid(childPid, NULL, 0);
+			lseek(tempOutFD, 0, SEEK_SET);
+
+			int ret = 1;
+			while (ret > 0)
+			{
+				memset(buffer, 0, CGI_TESTER_BUFFER_SIZE);
+				ret = read(tempOutFD, buffer, CGI_TESTER_BUFFER_SIZE - 1);
+				testerBody += buffer;
+			}
+			close(tempOutFD);
 		}
-		if (fcntl(pipeFD[0], F_SETFL, flags | O_NONBLOCK) < 0) {
-			Logger::log(Logger::ERROR, "Failed to set pipe read end to nonblocking", "CGIManager::handleCgiDirective");
-			return (errorDetected = true, void());
+		else {
+			close(pipeFD[1]);
+			close(tempOutFD);
+			int flags = fcntl(pipeFD[0], F_GETFL, NULL);
+			if (flags < 0) {
+				Logger::log(Logger::ERROR, "Failed to obtain pipe read end flags", "CGIManager::handleCgiDirective");
+				return (errorDetected = true, delete2DArray(envp), delete2DArray(argv), void());
+			}
+			if (fcntl(pipeFD[0], F_SETFL, flags | O_NONBLOCK) < 0) {
+				Logger::log(Logger::ERROR, "Failed to set pipe read end to nonblocking", "CGIManager::handleCgiDirective");
+				return (errorDetected = true, delete2DArray(envp), delete2DArray(argv), void());
+			}
 		}
 	}
 	eventManager->registerEvent(pipeFD[0], READ);
@@ -216,6 +243,51 @@ std::string CGIManager::generateCgiResponse()
 	}
 	else {
 		cgiBody = cgiResponse;
+	}
+
+	response.setVersion("HTTP/1.1");
+	response.setStatusCode("200");
+	response.setReasonPhrase("OK");
+	response.setBody(cgiBody);
+	response.setHeaders("Server", "Ranchero");
+	response.setHeaders("Content-Type", "text/html; charset=utf-8");
+	response.setHeaders("Content-Length", sizeTToString(cgiBody.length()));
+	response.setHeaders("Connection", "keep-alive");
+
+	return (response.generateResponse());
+}
+
+std::string CGIManager::generateCgiTesterResponse()
+{
+	HTTPResponse response;
+
+	if (testerBody.empty()) {
+		response.buildDefaultErrorResponse("502", "Bad Gateway");
+		return (response.generateResponse());
+	}
+
+	size_t headersEnd = testerBody.find("\r\n\r\n");
+	std::string statusCode = "200"; // Default if not found
+	std::string contentType = "text/html; charset=utf-8"; // Default if not found
+	std::string cgiHeaders;
+	std::string cgiBody;
+	if (headersEnd != std::string::npos) {
+		cgiHeaders = testerBody.substr(0, headersEnd);
+		cgiBody = testerBody.substr(headersEnd + 4);
+
+		// 2. Remove `Status: ...` and `Content-Type: ...`
+		std::istringstream headersStream(cgiHeaders);
+		std::string line;
+		while (std::getline(headersStream, line)) {
+			if (line.find("Status: ") == 0) {
+				statusCode = line.substr(8, 3); // Extract 3-digit status code
+			} else if (line.find("Content-Type: ") == 0) {
+				contentType = line.substr(14); // Extract content-type
+			}
+		}
+	}
+	else {
+		cgiBody = testerBody;
 	}
 
 	response.setVersion("HTTP/1.1");
@@ -306,6 +378,11 @@ int	CGIManager::getCgiClientSocketFD()
 std::string	CGIManager::getCgiResponse()
 {
 	return (cgiResponse);
+}
+
+bool CGIManager::getTesterMode()
+{
+	return (testerMode);
 }
 
 std::string CGIManager::sizeTToString(size_t value)
