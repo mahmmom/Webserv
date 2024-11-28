@@ -9,7 +9,7 @@ void HTTPRequest::accurateDebugger()
     std::cout << "Request [" << std::endl;
 
     // Start line (Method, URI, and Version)
-    std::cout << method << " " << uri;
+    std::cout << method << " " << uri << " " << version;
     if (!queries.empty()) {
         std::cout << "?";
         for (size_t i = 0; i < queries.size(); ++i) {

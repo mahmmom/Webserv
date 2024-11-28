@@ -43,7 +43,7 @@ int main() {
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
 
     const char* request =
-        "POST /directory/youpi.bla HTTP/1.1\r\n"
+        "POST  HTTP/1.1\r\n"
         "Accept-Encoding: gzip\r\n"
         "Content-Type: test/file\r\n"
         "Host: localhost:8378\r\n"

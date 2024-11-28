@@ -57,6 +57,17 @@ void	ClientManager::processHeaders(Server &server, const char *buffer, size_t by
 		Logger::log(Logger::DEBUG, "Received partial headers for fd " + Logger::intToString(fd), "ClientManager::processHeaders");
 }
 
+/*
+	NOTES
+
+		Note 1:	If we go off the way we designed the HTTPRequest class, then in the request line is missing a token, 
+				meaning that it did not have all three of nethod, uri, & version, then we do not even proceed to 
+				fill out the request line (we just return false and set status to 400). So in that case, if 
+				someone did something like POST HTTP/1.1; that's only 2 tokens, the uri is missining. Hence, the 
+				request method would indeed be empty cause it was never assigned something. That's why we are 
+				checking that in the else clause. Of course, if someone did something like TRACE /example HTTP/1.1, 
+				that would also be picked up by this clause but instead assigned a status code of 501.
+*/
 void	ClientManager::parseHeaders(Server &server)
 {
 	size_t endOfHeaders = requestHeaders.find("\r\n\r\n") + 4;
@@ -70,9 +81,6 @@ void	ClientManager::parseHeaders(Server &server)
 	}
 
 	request = HTTPRequest(requestHeaders, fd);
-
-	// request.setBody(requestBody);
-	// request.accurateDebugger();
 
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
@@ -108,10 +116,18 @@ void	ClientManager::parseHeaders(Server &server)
 			"ClientManager::parseHeaders");
 		handlePostRequest(server);
 	}
-	else
+	else // Note 1
 	{
-		Logger::log(Logger::WARN, "Unsupported HTTP method for fd " + Logger::intToString(fd), "ClientManager::parseHeaders");
-		server.handleInvalidRequest(fd, "501", "Not Implemented");
+		Logger::log(Logger::WARN, "An HTTP request containing issues within the request-line was "
+						"made by client with IP " + clientAddress + ", on fd: " + Logger::intToString(fd),
+			"ClientManager::parseHeaders");
+
+		if (request.getStatus() == 400)
+			server.handleInvalidRequest(fd, "400", "Bad Request");
+		else if (request.getStatus() == 505)
+			server.handleInvalidRequest(fd, "505", "HTTP Version Not Supported");
+		else
+			server.handleInvalidRequest(fd, "501", "Not Implemented");
 	}
 }
 
