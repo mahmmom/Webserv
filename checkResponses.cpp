@@ -42,19 +42,10 @@ int main() {
     //     "Connection: close\r\n\r\n"
     //     "This is some random text for testing purposes. It could be anything you'd like to test with!";
 const char* request =
-    "POST /directory/youpi.bla HTTP/1.1\r\n"
+    "GET cart32.exe HTTP/1.1\r\n"
     "Accept-Encoding: gzip\r\n"
     "Content-Type: test/file\r\n"
-    "Host: localhost:8378\r\n"
-    "Transfer-Encoding: chunked\r\n"
-    "User-Agent: Go-http-client/1.1\r\n\r\n"
-    
-    "C8\r\n"
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\r\n"
-    "22\r\n"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\r\n"
-    "0\r\n"
-    "\r\n";
+    "Host: localhost:8378\r\n\r\n";
 
     // Send the request
     if (send(sock, request, strlen(request), 0) < 0) {

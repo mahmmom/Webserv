@@ -273,7 +273,7 @@ bool	HTTPRequest::processRequestLine(const std::string& requestLine)
 		return(setStatus(400), false);
 	uriTok = requestLine.substr(i, pos - i);
 	if (!processURI(uriTok))
-		return(false);
+		return(setStatus(400), false);
 
 	i = requestLine.find_first_not_of(" ", pos);
 	if (i == std::string::npos)
@@ -351,7 +351,10 @@ bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields)
 				return (setStatus(400), false);
 		}
 		pos = field.find_first_not_of(" ", pos + 1); // pos + 1 to skip the ":"
-		value = field.substr(pos, field.length());
+		if (pos != std::string::npos)
+			value = field.substr(pos, field.length());
+		else
+			value = "";
 		headers[name] = value;
 		if (name == "host") {
 			if (!processHostField(value))
