@@ -166,16 +166,26 @@ void	ClientManager::handlePostRequest(Server &server)
 	if (locationSettings)
 		settings = locationSettings;
 
+	if (request.getStatus() == 411 || request.getStatus() == 400)
+	{
+		if (request.getStatus() == 411)
+			server.handleInvalidRequest(fd, "411", "Length Required");
+		else
+			server.handleInvalidRequest(fd, "400", "Bad Request");
+		return ;
+	}
+
     if (request.getHeader("transfer-encoding") == "chunked")
 	{
         isChunkedTransfer = true;
         initializeBodyStorage(server, settings);
-        return;
+        return ;
     }
 
 	requestBodySize = stringToSizeT(request.getHeader("content-length"));
 	if (requestBodySize > settings->getClientMaxBodySize())
 	{
+		// std::cout << "size is " << request.getHeader("content-length") << std::endl;
 		Logger::log(Logger::WARN, "Body size of POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
 		server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
 		return ;

@@ -823,7 +823,7 @@ void Server::handleInvalidRequest(int clientSocketFD, std::string statusCode, st
     }
 
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
-                + " made an invalid request", 
+                + " made an invalid request with status code " + statusCode, 
                 "Server::handleInvalidRequest");
 
     removeBadClients(clientSocketFD);

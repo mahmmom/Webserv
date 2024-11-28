@@ -1,0 +1,16 @@
+2024/11/28 17:52:00 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/28 17:52:00 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/28 17:52:00 [INFO ] [Server::setupServerSocket] Server socket with fd 6 created succesfuly
+2024/11/28 17:52:00 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/28 17:52:00 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/28 17:52:03 [INFO ] [Server::acceptNewConnection] Accepted new connection on socket fd: 7
+2024/11/28 17:52:03 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 7
+2024/11/28 17:52:03 [DEBUG] [ServerArena::manageReadEvent] Client with socket fd: 7 has sent data to server 127.0.0.1
+2024/11/28 17:52:03 [DEBUG] [ClientManager::processHeaders] Headers completed for fd 7
+2024/11/28 17:52:03 [INFO ] [ClientManager::parseHeaders] Received a POST request for /directory/youpi.bla from client with IP 127.0.0.1, on fd: 7
+2024/11/28 17:52:03 [DEBUG] [ClientManager::initializeBodyStorage] Received complete empty chunked request
+2024/11/28 17:52:03 [DEBUG] [KqueueManager::registerEvent] Registered new WRITE event for fd 7
+2024/11/28 17:52:03 [DEBUG] [Server::sendCompactFile] A compact response has been fully sent to client with socket fd 7
+2024/11/28 17:52:03 [DEBUG] [KqueueManager::deregisterEvent] Deregistered WRITE event for fd 7
+2024/11/28 17:52:08 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/28 17:52:09 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.

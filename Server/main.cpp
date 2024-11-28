@@ -150,8 +150,8 @@ int main(int argc, char *argv[])
 
     configureSignalHanlding();
 
-	// Logger::init(Logger::DEBUG, "Logs/webserve.log");
-    Logger::init(Logger::DEBUG, "");
+	Logger::init(Logger::DEBUG, "Logs/webserve.log");
+    // Logger::init(Logger::DEBUG, "");
     ServerArena serverArena(serverSettings, mimeTypesSettings, eventHandler);
     Logger::log(Logger::DEBUG, "🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️", "main");
     serverArena.run();
