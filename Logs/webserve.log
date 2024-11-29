@@ -1,6 +1,7 @@
-2024/11/30 01:36:45 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
-2024/11/30 01:36:45 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
-2024/11/30 01:36:45 [INFO ] [Server::setupServerSocket] Server socket with fd 6 created succesfuly
-2024/11/30 01:36:45 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
-2024/11/30 01:36:45 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
-2024/11/30 01:36:46 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.
+2024/11/30 03:42:32 [INFO ] [Server::setupServerSocket] Server socket with fd 5 created succesfuly
+2024/11/30 03:42:32 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 5
+2024/11/30 03:42:32 [INFO ] [Server::setupServerSocket] Server socket with fd 6 created succesfuly
+2024/11/30 03:42:32 [DEBUG] [KqueueManager::registerEvent] Registered new READ event for fd 6
+2024/11/30 03:42:32 [DEBUG] [main] 🏟️ Welcome to the Ranchero Grand Server Arena! 🏟️
+2024/11/30 03:42:37 [DEBUG] [ServerArena::run] ⌛ Waiting for events ⌛
+2024/11/30 03:42:37 [DEBUG] [ServerArena::run] 🤠 Ranchero has been shut down.

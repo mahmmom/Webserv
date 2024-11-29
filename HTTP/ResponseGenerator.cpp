@@ -864,11 +864,17 @@ HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
     HTTPResponse response;
     std::string filePath;
 
-    // Construct the file path based on the root directory and request URI
-    if (request.getURI()[0] == '/')
-        filePath = serverSettings.getRoot() + request.getURI();
-    else
-        filePath = serverSettings.getRoot() + "/" + request.getURI();
+	if (settingsFull[LOCATION] && locationSettings->getAliasDirective().getEnabled()) 
+			filePath = locationSettings->getAliasDirective().updateURL(request.getURI(), locationSettings->getPath());
+	else {
+		// Construct the file path based on the root directory and request URI
+		if (request.getURI()[0] == '/')
+			filePath = serverSettings.getRoot() + request.getURI();
+		else
+			filePath = serverSettings.getRoot() + "/" + request.getURI();
+	}
+
+	std::cout << "DELETING -> " << filePath << std::endl;
 
     // Use isSafeToDelete to check the file and get the status code
     int statusCode = isSafeToDelete(filePath);

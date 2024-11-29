@@ -84,10 +84,9 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 	std::cout << "script name is " << argv[0] << std::endl;
     if (!strcmp(argv[0], "YoupiBanane/directory/youpi.bla") || !strcmp(argv[0], "YoupiBanane/directory/youpla.bla")) {
         std::cout << "Match found, resetting argv[0] to 'cgi_tester'.\n";
-        // Reset argv[0] to "cgi_tester"
-        delete[] argv[0];  // Don't forget to free the old memory!
-        argv[0] = new char[strlen("cgi_tester") + 1];  // Allocate space for the new string
-        strcpy(argv[0], "cgi_tester");  // Set the new value
+        delete[] argv[0];
+        argv[0] = new char[strlen("cgi_tester") + 1];
+        strcpy(argv[0], "cgi_tester");
 		testerMode = true;
         std::cout << "New script name is " << argv[0] << std::endl;
     }
@@ -333,18 +332,15 @@ bool	CGIManager::checkFileExtension(HTTPRequest& request, ServerSettings& server
 
 bool CGIManager::isValidCGI(HTTPRequest& request, ServerSettings& serverSettings)
 {
-	// std::cout << "here1" << std::endl;
-	// if (serverSettings.getRoot().find("cgi-bin/") == std::string::npos 
-	// 		&& (serverSettings.getRoot() + request.getURI()).find("cgi-bin/") == std::string::npos)
-	// 	return (false);
-	// std::cout << "here2" << std::endl;
-	// if (!isFile(serverSettings.getRoot() + request.getURI()))
-	// 	return (false);
-
-	// std::cout << "here3" << std::endl;
+	if (request.getURI() != "/directory/youpi.bla" && request.getURI() != "/directory/youpla.bla") {
+	if (serverSettings.getRoot().find("cgi-bin/") == std::string::npos 
+			&& (serverSettings.getRoot() + request.getURI()).find("cgi-bin/") == std::string::npos)
+		return (false);
+	if (!isFile(serverSettings.getRoot() + request.getURI()))
+		return (false);
+	}
 	if (!checkFileExtension(request, serverSettings))
 		return (false);
-	// std::cout << "here4" << std::endl;
 	return (true);
 }
 
