@@ -21,7 +21,12 @@ AliasDirective& AliasDirective::operator=(const AliasDirective& other)
 void AliasDirective::setAliasURL(const std::string& aliasURL)
 {
 	this->isEnabled = true;
-	this->aliasURL = aliasURL;
+
+	// Remove the preceeding slash so that our isFile and isDirectory functions can detect them
+	if (aliasURL[0] == '/')
+		this->aliasURL = normalizeURI((aliasURL).substr(1)); 
+	else
+		this->aliasURL = aliasURL;
 }
 
 /*
@@ -66,9 +71,6 @@ std::string AliasDirective::updateURL(const std::string& originalURL, const std:
 	// Extract the remaining path after the locationPath
 	std::string remainingPath = originalURL.substr(locationPath.length());
 
-	// Remove the preceeding slash so that our isFile and isDirectory functions can detect them
-	if (aliasURL[0] == '/')
-		return (normalizeURI((aliasURL + remainingPath).substr(1))); 
 	return (normalizeURI(aliasURL + remainingPath));
 }
 

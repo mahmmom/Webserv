@@ -49,10 +49,7 @@ char		**CGIManager::setupEnvVars(HTTPRequest &request, ServerSettings &serverSet
 	envVector.push_back("SCRIPT_FILENAME=" + serverSettings.getRoot() + request.getURI());
 	envVector.push_back("SERVER_NAME=" + request.getHeader("host"));
 	envVector.push_back("PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/homebrew/bin:/opt/homebrew/sbin");
-	envVector.push_back("PATH_INFO=YoupiBanane/directory/youpi.bla");
-	envVector.push_back("PATH_TRANSLATED=YoupiBanane/directory/youpi.bla");
-	envVector.push_back("REQUEST_URI=YoupiBanane/directory/youpi.bla");
-	envVector.push_back("REDIRECT_STATUS=200");
+	envVector.push_back("PATH_INFO=" + serverSettings.getRoot() + request.getURI());
 	std::string secret = request.getHeader("x-secret-header-for-test");
 	if (secret != "")
 		envVector.push_back("HTTP_X_SECRET_HEADER_FOR_TEST=" + secret);
@@ -98,7 +95,12 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 
 
 	FILE	*tempOut = tmpfile();
+	if (!tempOut) {
+		Logger::log(Logger::ERROR, "Failed to create a temporary out file", "CGIManager::handleCgiDirective");
+		return (errorDetected = true, delete2DArray(envp), delete2DArray(argv), void());
+	}
 	long	tempOutFD = fileno(tempOut);
+
 	if ((childPid = fork()) < 0) {
 		Logger::log(Logger::ERROR,"Forking child process failed due to " + std::string(strerror(errno)), "CGIManager::handleCgiDirective");
 		errorDetected = true;
@@ -117,14 +119,14 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 		if (request.getMethod() == "POST")
 		{
             FILE* 	tempIn = tmpfile();
-			long	tempInFD = fileno(tempIn);
-            if (tempInFD < 0)
-			{
-                Logger::log(Logger::ERROR, "Failed to create temporary file", "CGIManager::handleCgiDirective");
-				errorDetected = true;
+			if (!tempIn) {
+				Logger::log(Logger::ERROR, "Failed to create temporary in file", "CGIManager::handleCgiDirective");
+						errorDetected = true;
+				close(tempOutFD);
 				delete2DArray(envp), delete2DArray(argv);
-                exit(EXIT_FAILURE);
+				exit(EXIT_FAILURE);
 			}
+			long	tempInFD = fileno(tempIn);
             
             const std::string& requestBody = request.getBody();
 			ssize_t bytesWritten = write(tempInFD, requestBody.c_str(), requestBody.length());

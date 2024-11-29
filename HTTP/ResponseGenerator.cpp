@@ -90,10 +90,19 @@ HTTPResponse ResponseGenerator::serveDirectoryListing(HTTPRequest& request, Base
            "<h1>Index of " + request.getURI() + "</h1><hr><pre><a href=\"../\">../</a>\n";
 
 	std::string dirPath;
-	if (request.getURI()[0] == '/')
-		dirPath = settings->getRoot() + request.getURI();
-	else
-		dirPath = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+	if (settingsFull[LOCATION]) {
+		LocationSettings* locationSettings = static_cast<LocationSettings* >(settingsFull[LOCATION]);
+		if (locationSettings->getAliasDirective().getEnabled()) {
+			dirPath = locationSettings->getAliasDirective().updateURL(request.getURI(), locationSettings->getPath());
+		}
+	}
+
+	if (dirPath == "") {
+		if (request.getURI()[0] == '/')
+			dirPath = settings->getRoot() + request.getURI();
+		else
+			dirPath = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
+	}
 
     DIR* dir = opendir(dirPath.c_str());
     if (dir == NULL) {
@@ -198,12 +207,31 @@ long long ResponseGenerator::getFileSize(std::string& filePath)
 		If this limit is exceeded, the browser itself will stop making requests 
 		and display the error message which says: "This page isn’t working 
 		localhost redirected you too many times."
+	
+	NOTES
+
+		Note 1:	The reason why there is a !isErrorPage check is mainly due to the 
+				root directive. You see if the fallbackURI being sent here was an 
+				error_page and the error_page was defined in the server context, 
+				the fallbackURI takes the root of the server on the subrequest; 
+				even if the error was triggered in a location block that had a 
+				different root. So error_page is a context-sensitive directive.
+
+				The other directive that can trigger a fallbackURI (or a subrequest) 
+				is the index directive. However, index directive is a location-sensitive
+				one. That means index directly affects file resolution within the same 
+				location; so it will append the file listed as an entry relative to 
+				the root defined in the current location block. This is why I had to 
+				change HandleRequest from just taking the request as an argument and 
+				intsead to also take a fallbackLocation argument. Basically, if the 
+				URI was /dir/index.html in a particular location
 */
 HTTPResponse ResponseGenerator::handleSubRequest(HTTPRequest& request, const std::string& path, bool isErrorPage, BaseSettings** settingsFull)
 {
-	std::cout << "Subpath is " << path << std::endl;
+	std::cout << "Fallback subpath is " << path << " for " << request.getURI() << std::endl;
+	std::cout << "========================================================" << std::endl;
 	request.setURI(path);
-	if (settingsFull[LOCATION] != NULL && !isErrorPage) {
+	if (settingsFull[LOCATION] != NULL && !isErrorPage) { // Note 1
 		static_cast<LocationSettings* >(settingsFull[LOCATION])->getAliasDirective().resetAliasDirective();
 		return (handleRequest(request, settingsFull[LOCATION]));
 	}
@@ -236,28 +264,30 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 	std::map<int, std::string> errorPagesLevel = settings->getErrorPagesLevel();
 	std::string path = errorPages[statusCode];
 	std::string level = errorPagesLevel[statusCode];
-
 	std::string testPath; // Must check if the error_page listed in the error_page directive actually exists
 	if (path[0] == '/') // Checking if the error_page directive entry was an absolute path 
 		testPath = settings->getRoot() + path;
 	else {
 		LocationSettings* derivedPtr = dynamic_cast<LocationSettings*>(settings);
 		if (derivedPtr != NULL && level == "location") {
-			testPath = settings->getRoot() + derivedPtr->getPath() + "/" + path;
+			if (derivedPtr->getAliasDirective().getEnabled())
+				testPath = derivedPtr->getAliasDirective().getAliasURL() + "/" + path;
+			else
+				testPath = settings->getRoot() + derivedPtr->getPath() + "/" + path;
 		}
 		else
 			testPath = settings->getRoot() + "/" + path;
 	}
 
     std::cout << "\033[31m" // Start red color
-              << "This is error page test path -> " << testPath 
+              << "Testing error page path -> " << testPath << " for request " << request.getURI()
               << "\033[0m"  // Reset to default color
               << std::endl;
 
 	std::ifstream file((testPath).c_str());
 	if (!file.is_open()) { // If the error_page does not exist, return a standard 404 (or 403 in rare cases where the file does not have the right permissions)
 		int statusCode = 0;
-		Logger::log(Logger::ERROR, "Failed to open file: " + request.getURI(), "ResponseGenerator::serveErrorPage");
+		Logger::log(Logger::ERROR, "Failed to open file: " + testPath, "ResponseGenerator::serveErrorPage");
 		if (errno == EACCES)
 			statusCode = 403;
 		else
@@ -303,7 +333,20 @@ HTTPResponse ResponseGenerator::serveErrorPage(HTTPRequest& request, int statusC
 }
 
 /*
-	Note 1: My reasonPhraseMap does not cover every status code in HTTP. So, since 
+	NOTES
+
+	Note 1:	This is mainly why I had to use a BaseSettings[2] array of size 2. If 
+			we have a location block with its own custom root and an error was 
+			experienced in that block BUT (no error_page was defined in that block 
+			AND an error_page was defined in the server block instead), then serveErrorPage 
+			would take the server's root and append the path of the error page to the server's 
+			root instead (EVEN THOUGH THE ERROR WAS EXPERIENCE IN A LOCATION WITH ITS 
+			OWN ROOT). The error_page directive is context-sensitive (unlike index which 
+			is directive-sensitive) and that is why it exhibits such behavior. You can 
+			read more about this in Note 1 of ResponseGenerator::hanldeSubRequest().
+
+
+	Note 2: My reasonPhraseMap does not cover every status code in HTTP. So, since 
 			I am the one setting the errors I handle here manually, that should be 
 			fine for the most part. However, it could be that a CGI script that I 
 			run might return a status code I did not handle. In that case, I wouldn't 
@@ -318,7 +361,7 @@ HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode,
 		if (settingsArray[SERVER]->getErrorPages().find(statusCode) != settingsArray[SERVER]->getErrorPages().end())
 			return (serveErrorPage(request, statusCode, settingsArray[SERVER], settingsArray));
 	}
-	else {
+	else { // Note 1
 		const std::map<int, std::string> locationErrorPages = settingsArray[LOCATION]->getErrorPages();
 		std::map<int, std::string>::const_iterator it = locationErrorPages.find(statusCode);
 
@@ -341,7 +384,7 @@ HTTPResponse ResponseGenerator::serveError(HTTPRequest& request, int statusCode,
 	response.setStatusCode(intToString(statusCode));
 	response.setHeaders("Server", "Ranchero");
 	response.setHeaders("Content-Type", "text/plain");
-	if (reasonPhraseMap.find(statusCode) != reasonPhraseMap.end()) // Note 1
+	if (reasonPhraseMap.find(statusCode) != reasonPhraseMap.end()) // Note 2
 	{
 		response.setReasonPhrase(reasonPhraseMap[statusCode]);
 		response.setHeaders("Content-Type", "text/html");
@@ -433,7 +476,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 			path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 	}
 
-	std::cout << "Path test is " << path << std::endl << std::endl;
+	std::cout << "Currently testing potential directory: " << path << std::endl << std::endl;
 
 	if (!isDirectory(path)) {
 		return (serveError(request, 404, settingsFull));
@@ -448,7 +491,7 @@ HTTPResponse ResponseGenerator::handleDirectory(HTTPRequest& request, BaseSettin
 			indexPath = path + (*it);
 
 		std::cout << "\033[31m" // Start red color
-				<< "This is index path -> " << indexPath 
+				<< "Attempting to test index path -> " << indexPath << " for " << path
 				<< "\033[0m"  // Reset to default color
 				<< std::endl;
 
@@ -650,7 +693,7 @@ HTTPResponse ResponseGenerator::serveRequest(HTTPRequest& request, BaseSettings*
 			path = settings->getRoot() + "/" + request.getURI(); // There is always a slash at the beginning of a URI made by chrome but just in case we get a non-chrome request
 	}
 
-	std::cout << "rollout Path test is " << path << std::endl << std::endl;
+	std::cout << "Path sent to ResponseGenerator::serveRequest is " << path << std::endl << std::endl;
 
 	if ((path[path.size() - 1] == '/') || isDirectory(path))
 		return (handleDirectory(request, settingsFull));
@@ -873,6 +916,11 @@ HTTPResponse ResponseGenerator::handleDeleteRequest(HTTPRequest& request)
 */
 HTTPResponse ResponseGenerator::handleRequest(HTTPRequest& request, BaseSettings* fallbackLocation)
 {
+
+	std::cout << "========================================================" << std::endl;
+	if (fallbackLocation)
+		std::cout << "currently handling fallback subPath for request -> " << request.getURI() << std::endl;
+
 	if (request.getMethod() == "GET")
 		return (handleGetRequest(request, fallbackLocation));
 	else if (request.getMethod() == "HEAD")
