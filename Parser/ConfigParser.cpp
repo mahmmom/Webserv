@@ -1,7 +1,7 @@
 
 #include "ConfigParser.hpp"
 
-ConfigParser::ConfigParser(const std::string& filename) : configFileName(filename) {}
+ConfigParser::ConfigParser(const std::string& filename) : configFileName(filename), configTreeRoot(NULL) {}
 
 ConfigParser::~ConfigParser()
 {
