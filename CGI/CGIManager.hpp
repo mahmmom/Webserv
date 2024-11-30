@@ -14,6 +14,7 @@
 #include <cerrno>
 #include <ctime>
 #include <sys/fcntl.h>
+#include <sys/wait.h>
 
 # define CGI_TESTER_BUFFER_SIZE 65536 // 64 KB
 
