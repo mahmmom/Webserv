@@ -16,6 +16,9 @@
 #include <cerrno>
 #include <cstdio>
 #include <signal.h>
+#include <sstream>
+#include <ctime>
+#include <cstdlib>
 
 #include "../Events/EventManager.hpp"
 #include "../HTTP/HTTPRequest.hpp"
@@ -102,5 +105,7 @@ class Server
 		std::map<int, ResponseManager* >&	getResponses();
 		std::map<int, CGIManager* >&		getCgiMap();
 };
+
+std::string	intToString(int n);
 
 #endif

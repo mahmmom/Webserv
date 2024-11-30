@@ -220,6 +220,13 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 
         HTTPResponse response = responseGenerator.handleRequest(request, NULL);
 
+        srand(static_cast<unsigned int>(time(NULL)));
+        int randomNumber = rand() % 10000;
+        if (!request.getHeader("cookie").empty())
+            response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+        else
+            response.setHeaders("Set-Cookie", intToString(randomNumber));
+
         ResponseManager* responseManager = NULL;
         if (response.getType() == CompactResponse)
             responseManager = new ResponseManager(response.generateResponse(), false);
@@ -265,6 +272,13 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
         std::cout << response.accurateDebugger() << std::endl;
         std::cout << "]" << std::endl;
 
+        srand(static_cast<unsigned int>(time(NULL)));
+        int randomNumber = rand() % 10000;
+        if (!request.getHeader("cookie").empty())
+            response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+        else
+            response.setHeaders("Set-Cookie", intToString(randomNumber));
+
         ResponseManager* responseManager = NULL;
         responseManager = new ResponseManager(response.generateResponse(), false);
         responses[clientSocketFD] =  responseManager;
@@ -277,6 +291,13 @@ void Server::processHeadRequest(int clientSocketFD, HTTPRequest& request)
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request, NULL);
+
+    srand(static_cast<unsigned int>(time(NULL)));
+    int randomNumber = rand() % 10000;
+    if (!request.getHeader("cookie").empty())
+        response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+    else
+        response.setHeaders("Set-Cookie", intToString(randomNumber));
 
     ResponseManager* responseManager = NULL;
     responseManager = new ResponseManager(response.generateResponse(), false);
@@ -291,6 +312,13 @@ void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request, NULL);
+
+    srand(static_cast<unsigned int>(time(NULL)));
+    int randomNumber = rand() % 10000;
+    if (!request.getHeader("cookie").empty())
+        response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+    else
+        response.setHeaders("Set-Cookie", intToString(randomNumber));
 
     ResponseManager* responseManager = NULL;
     responseManager = new ResponseManager(response.generateResponse(), false);
@@ -919,4 +947,11 @@ std::map<int, ResponseManager* >& Server::getResponses()
 std::map<int, CGIManager* >& Server::getCgiMap()
 {
     return (cgi);
+}
+
+std::string intToString(int n)
+{
+    std::stringstream ss;
+    ss << n;
+    return (ss.str());
 }
