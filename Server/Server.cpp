@@ -444,7 +444,7 @@ void Server::handleCgiOutput(int cgiReadFD)
                 separate client. Thus, if all are on the same socket and all are requesting 
                 a large file sent in chunks, the buffer can easily get full. In that case, I 
                 don't want to disconnect the client, instead, let him wait till the buffer is 
-                full and request again. If you're worried about what if the client disconnected 
+                emptied and request again. If you're worried about what if the client disconnected 
                 (not that the buffer is full), then who cares what happens to him haha? Chances 
                 are he'll trigger an EOF masked READ event which will gracefully terminate him on 
                 the next run of the eventListener in ServerArena; or he will just time out if for 
@@ -467,6 +467,17 @@ void Server::sendChunkedHeaders(int clientSocketFD, ResponseManager* responseMan
         delete (responseManager);
         // removeBadClients(clientSocketFD);    // Note 1
         // close(clientSocketFD);
+        return ;
+    }
+    else if (bytesSent == 0)
+    {
+        Logger::log(Logger::ERROR, "Client disconnected, failed to send headers for a chunked response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
         return ;
     }
 
@@ -503,6 +514,17 @@ void Server::sendChunkedBody(int clientSocketFD, ResponseManager* responseManage
         // close(clientSocketFD);
         return ;
     }
+    else if (bytesSent == 0)
+    {
+        Logger::log(Logger::ERROR, "Client disconnected, failed to send body for a chunked response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
+        return ;
+    }
 
     responseManager->updateBytesSent(bytesSent);
     if (static_cast<size_t>(responseManager->getBytesSent()) >= chunk.length())
@@ -529,8 +551,20 @@ void Server::sendChunkedBody(int clientSocketFD, ResponseManager* responseManage
             // close(clientSocketFD);
             return ;
         }
+        else if (bytesSent == 0)
+        {
+            Logger::log(Logger::ERROR, "Client disconnected, failed to send closing chunked response to client with "
+                "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+            eventManager->deregisterEvent(clientSocketFD, WRITE);
+            responses.erase(clientSocketFD);
+            delete (responseManager);
+            removeBadClients(clientSocketFD);
+            close(clientSocketFD);
+            return ;
+        }
+
         Logger::log(Logger::DEBUG, "All chunked responses have been fully sent to client with socket fd " + 
-            Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+        Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         delete (responseManager);
@@ -562,6 +596,17 @@ void    Server::sendCompactFile(int clientSocketFD, ResponseManager* responseMan
         delete (responseManager);
         // removeBadClients(clientSocketFD);
         // close(clientSocketFD);
+        return ;
+    }
+    else if (bytesSent == 0)
+    {
+        Logger::log(Logger::ERROR, "Client disconnected, failed to send compact response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
         return ;
     }
 

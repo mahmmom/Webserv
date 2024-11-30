@@ -620,7 +620,7 @@ HTTPResponse ResponseGenerator::serveRangedResponse(HTTPRequest& request, BaseSe
 	long long		endByte;
 
 	if (parseRangedResponse(rangeHeader, startByte, endByte, fileSize) == false) {
-		Logger::log(Logger::ERROR, "Invalid range header", "ResponseGenerator::serveRangedResponse");
+		Logger::log(Logger::ERROR, "Invalid range header -> Range: " + request.getHeader("range"), "ResponseGenerator::serveRangedResponse");
 		return (serveError(request, 416, settingsFull));
 	}
 

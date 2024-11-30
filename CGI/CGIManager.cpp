@@ -121,7 +121,8 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			if (!tempIn) {
 				Logger::log(Logger::ERROR, "Failed to create temporary in file", "CGIManager::handleCgiDirective");
 						errorDetected = true;
-				close(tempOutFD);
+				if (tempOut)
+					fclose(tempOut);
 				delete2DArray(envp), delete2DArray(argv);
 				exit(EXIT_FAILURE);
 			}
@@ -138,7 +139,8 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 			
 			lseek(tempInFD, 0, SEEK_SET);
 			dup2(tempInFD, STDIN_FILENO);
-			close(tempInFD);
+			if (tempIn)
+				fclose(tempIn);
 		}
 		else
 		{
@@ -160,7 +162,8 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 		else {
 			dup2(pipeFD[1], STDOUT_FILENO);
 			close(pipeFD[1]);
-			close(tempOutFD);
+			if (tempOut)
+				fclose(tempOut);
 		}
 
 		if (execve(argv[0], argv, envp) < 0) {
@@ -187,11 +190,13 @@ void CGIManager::handleCgiDirective(HTTPRequest& request, ServerSettings& server
 				ret = read(tempOutFD, buffer, CGI_TESTER_BUFFER_SIZE - 1);
 				testerBody += buffer;
 			}
-			close(tempOutFD);
+			if (tempOut)
+				fclose(tempOut);
 		}
 		else {
 			close(pipeFD[1]);
-			close(tempOutFD);
+			if (tempOut)
+				fclose(tempOut);
 			int flags = fcntl(pipeFD[0], F_GETFL, NULL);
 			if (flags < 0) {
 				Logger::log(Logger::ERROR, "Failed to obtain pipe read end flags", "CGIManager::handleCgiDirective");
