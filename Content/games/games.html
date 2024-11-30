@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Selection</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        .game-card {
+            margin: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            width: 200px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .game-card:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        .game-card a {
+            display: block;
+            padding: 15px 0;
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        .game-card:nth-child(1) a {
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+        }
+        .game-card:nth-child(2) a {
+            background: linear-gradient(45deg, #24c6dc, #514a9d);
+        }
+        .game-card:nth-child(3) a {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+        }
+        .game-card:nth-child(4) a {
+            background: linear-gradient(45deg, #fc00ff, #00dbde);
+        }
+        .game-card:nth-child(5) a {
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+        }
+        .game-card a:hover {
+            opacity: 0.9;
+        }
+        @media (max-width: 600px) {
+            .game-card {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1 style="display: flex; justify-content: center; align-items: center; color:#f6ff00;">Select a Game</h1>
+        <div class="game-container">
+            <div class="game-card">
+                <a href="/games/SpaceHuggers/index.html">Space Huggers</a>
+            </div>
+            <div class="game-card">
+                <a href="/games/Nano-Wirebot/index.html">Nano-Wirebot</a>
+            </div>
+            <div class="game-card">
+                <a href="/games/Racer/index.html">Racer</a>
+            </div>
+            <div class="game-card">
+                <a href="/games/ReWire/index.html">ReWire</a>
+            </div>
+            <div class="game-card">
+                <a href="/games/the-way-of-the-dodo/index.html">The Way of the Dodo</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
