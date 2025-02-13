@@ -42,12 +42,14 @@ class ResponseGenerator
 		
 		long long					stringToLongLong(const std::string& string);
 		std::string 				longLongToString(long long value);
+		std::string					postBody;
+
 	public:
 		ResponseGenerator(ServerSettings& serverSettings, MimeTypesSettings& mimeTypes);
 
 		HTTPResponse	handleReturnDirective(HTTPRequest& request, BaseSettings* settings);
 
-		HTTPResponse	serveDirectoryListing(HTTPRequest& request, BaseSettings* settings);
+		HTTPResponse	serveDirectoryListing(HTTPRequest& request, BaseSettings** settingsFull);
 
 		HTTPResponse 	handleSubRequest(HTTPRequest& request, const std::string& path, bool isErrorPage, BaseSettings** settingsFull);
 

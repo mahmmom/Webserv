@@ -44,6 +44,8 @@ class HTTPResponse
 		const long long& 	getFileSize();
 		const ResponseType& getType();
 		const std::string& 	getReasonPhrase();
+
+		std::string 		accurateDebugger();
 };
 
 #endif

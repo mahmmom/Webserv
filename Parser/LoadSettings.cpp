@@ -55,6 +55,8 @@ void LoadSettings::processLocationNode(ContextNode* locationNode, LocationSettin
 			ContextNode* limExceptNode = static_cast<ContextNode* >(*it);
 			locationSettings.setAllowedMethods(limExceptNode->getMethods());
 			std::vector<ConfigNode* > limDirectives = limExceptNode->getChildren();
+			if (limDirectives.empty())
+				throw (std::runtime_error("\"limit_except\" directive cannot be empty!"));
 			DirectiveNode* denyDirective = static_cast<DirectiveNode* >(limDirectives[0]);
 			if (denyDirective->getArguments()[0] != "all")
 				throw (std::runtime_error("server only supports \"deny=all\""));

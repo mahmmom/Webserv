@@ -220,6 +220,13 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 
         HTTPResponse response = responseGenerator.handleRequest(request, NULL);
 
+        srand(static_cast<unsigned int>(time(NULL)));
+        int randomNumber = rand() % 10000;
+        if (!request.getHeader("cookie").empty())
+            response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+        else
+            response.setHeaders("Set-Cookie", intToString(randomNumber));
+
         ResponseManager* responseManager = NULL;
         if (response.getType() == CompactResponse)
             responseManager = new ResponseManager(response.generateResponse(), false);
@@ -235,14 +242,15 @@ void Server::processGetRequest(int clientSocketFD, HTTPRequest& request)
 
 void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
 {
+    std::cout << "cgi test dude" << std::endl;
     if (serverSettings.getCgiDirective().isEnabled() && CGIManager::isValidCGI(request, serverSettings)) {
         if (cgi.size() > CGI_LOAD_LIMIT) {
-			Logger::log(Logger::WARN, "Server is overloaded at the moment and cannot process the cgi request", "Server::processGetRequest");
+			Logger::log(Logger::WARN, "Server is overloaded at the moment and cannot process the cgi request", "Server::processPostRequest");
 			handleInvalidRequest(clientSocketFD, "503", "Service Unavailable");
 			return (void());
 		}
         CGIManager* cgiManager = new CGIManager(request, serverSettings, eventManager, 
-                                                    clientSocketFD, clients[clientSocketFD]->getPostRequestFileName());
+                                                    clientSocketFD);
         if (!(cgiManager->getErrorDetected()))
             cgi[cgiManager->getCgiFD()] = cgiManager;
         else {
@@ -251,14 +259,28 @@ void Server::processPostRequest(int clientSocketFD, HTTPRequest& request)
         }
     }
     else {
+
+        std::cout << "cgi not enabled dude" << std::endl;
+
+        if (clients.count(clientSocketFD) > 0)
+            clients[clientSocketFD]->resetClientManager();
+
         ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
         HTTPResponse response = responseGenerator.handleRequest(request, NULL);
+        std::cout << "Response[ " << std::endl;
+        std::cout << response.accurateDebugger() << std::endl;
+        std::cout << "]" << std::endl;
+
+        srand(static_cast<unsigned int>(time(NULL)));
+        int randomNumber = rand() % 10000;
+        if (!request.getHeader("cookie").empty())
+            response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+        else
+            response.setHeaders("Set-Cookie", intToString(randomNumber));
 
         ResponseManager* responseManager = NULL;
         responseManager = new ResponseManager(response.generateResponse(), false);
-        if (clients.count(clientSocketFD) > 0)
-            clients[clientSocketFD]->resetClientManager();
         responses[clientSocketFD] =  responseManager;
         eventManager->registerEvent(clientSocketFD, WRITE);
     }
@@ -269,6 +291,13 @@ void Server::processHeadRequest(int clientSocketFD, HTTPRequest& request)
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request, NULL);
+
+    srand(static_cast<unsigned int>(time(NULL)));
+    int randomNumber = rand() % 10000;
+    if (!request.getHeader("cookie").empty())
+        response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+    else
+        response.setHeaders("Set-Cookie", intToString(randomNumber));
 
     ResponseManager* responseManager = NULL;
     responseManager = new ResponseManager(response.generateResponse(), false);
@@ -283,6 +312,13 @@ void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
     ResponseGenerator responseGenerator(serverSettings, mimeTypes);
 
     HTTPResponse response = responseGenerator.handleRequest(request, NULL);
+
+    srand(static_cast<unsigned int>(time(NULL)));
+    int randomNumber = rand() % 10000;
+    if (!request.getHeader("cookie").empty())
+        response.setHeaders("Set-Cookie", request.getHeader("cookie"));
+    else
+        response.setHeaders("Set-Cookie", intToString(randomNumber));
 
     ResponseManager* responseManager = NULL;
     responseManager = new ResponseManager(response.generateResponse(), false);
@@ -315,7 +351,6 @@ void Server::handleClientRead(int clientSocketFD)
         std::map<int, ClientManager* >::iterator it = clients.find(clientSocketFD);
         if (it != clients.end())
         {
-
             buffer[bytesRead] = '\0';
 
             // std::cout << "============================================================" << std::endl;
@@ -360,10 +395,24 @@ void Server::handleClientWrite(int clientSocketFD)
 void Server::handleCgiOutput(int cgiReadFD)
 {
     Logger::log(Logger::DEBUG, "Handling CGI output from pipe with fd " + Logger::intToString(cgiReadFD), "Server::handleCgiOutput");
+    
+    CGIManager* cgiManager = cgi[cgiReadFD];
+
+    if (cgiManager->getTesterMode()) {
+        ResponseManager *responseManager = new ResponseManager(cgiManager->generateCgiTesterResponse(), false);
+        if (clients.count(cgiManager->getCgiClientSocketFD()) > 0)
+			clients[cgiManager->getCgiClientSocketFD()]->resetClientManager();
+        responses[cgiManager->getCgiClientSocketFD()] = responseManager;
+		eventManager->registerEvent(cgiManager->getCgiClientSocketFD(), WRITE);
+		eventManager->deregisterEvent(cgiReadFD, READ);
+		cgi.erase(cgiReadFD);
+		delete cgiManager;
+
+        return ;
+    }
 
     char   buffer[BUFFER_SIZE + 1];
     ssize_t bytesRead = read(cgiReadFD, buffer, BUFFER_SIZE);
-    CGIManager* cgiManager = cgi[cgiReadFD];
 
     if (bytesRead < 0) {
         kill(cgiManager->getChildPid(), SIGKILL);
@@ -383,6 +432,7 @@ void Server::handleCgiOutput(int cgiReadFD)
 			delete cgiManager;
 			return;
         }
+
         ResponseManager *responseManager = new ResponseManager(cgiManager->generateCgiResponse(), false);
         if (clients.count(cgiManager->getCgiClientSocketFD()) > 0)
 			clients[cgiManager->getCgiClientSocketFD()]->resetClientManager();
@@ -395,6 +445,7 @@ void Server::handleCgiOutput(int cgiReadFD)
     else {
         buffer[bytesRead] = '\0';
         std::string cgiResponseSnippet(buffer, bytesRead);
+
         cgiManager->appendCgiResponse(cgiResponseSnippet);
         if (cgiManager->getCgiResponse().length() >= MAX_CGI_OUTPUT_SIZE)
 		{
@@ -421,7 +472,7 @@ void Server::handleCgiOutput(int cgiReadFD)
                 separate client. Thus, if all are on the same socket and all are requesting 
                 a large file sent in chunks, the buffer can easily get full. In that case, I 
                 don't want to disconnect the client, instead, let him wait till the buffer is 
-                full and request again. If you're worried about what if the client disconnected 
+                emptied and request again. If you're worried about what if the client disconnected 
                 (not that the buffer is full), then who cares what happens to him haha? Chances 
                 are he'll trigger an EOF masked READ event which will gracefully terminate him on 
                 the next run of the eventListener in ServerArena; or he will just time out if for 
@@ -444,6 +495,17 @@ void Server::sendChunkedHeaders(int clientSocketFD, ResponseManager* responseMan
         delete (responseManager);
         // removeBadClients(clientSocketFD);    // Note 1
         // close(clientSocketFD);
+        return ;
+    }
+    else if (bytesSent == 0)
+    {
+        Logger::log(Logger::ERROR, "Client disconnected, failed to send headers for a chunked response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
         return ;
     }
 
@@ -480,6 +542,17 @@ void Server::sendChunkedBody(int clientSocketFD, ResponseManager* responseManage
         // close(clientSocketFD);
         return ;
     }
+    else if (bytesSent == 0)
+    {
+        Logger::log(Logger::ERROR, "Client disconnected, failed to send body for a chunked response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
+        return ;
+    }
 
     responseManager->updateBytesSent(bytesSent);
     if (static_cast<size_t>(responseManager->getBytesSent()) >= chunk.length())
@@ -506,8 +579,20 @@ void Server::sendChunkedBody(int clientSocketFD, ResponseManager* responseManage
             // close(clientSocketFD);
             return ;
         }
+        else if (bytesSent == 0)
+        {
+            Logger::log(Logger::ERROR, "Client disconnected, failed to send closing chunked response to client with "
+                "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+            eventManager->deregisterEvent(clientSocketFD, WRITE);
+            responses.erase(clientSocketFD);
+            delete (responseManager);
+            removeBadClients(clientSocketFD);
+            close(clientSocketFD);
+            return ;
+        }
+
         Logger::log(Logger::DEBUG, "All chunked responses have been fully sent to client with socket fd " + 
-            Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
+        Logger::intToString(clientSocketFD), "Server::sendChunkedBody");
         eventManager->deregisterEvent(clientSocketFD, WRITE);
         responses.erase(clientSocketFD);
         delete (responseManager);
@@ -541,6 +626,17 @@ void    Server::sendCompactFile(int clientSocketFD, ResponseManager* responseMan
         // close(clientSocketFD);
         return ;
     }
+    else if (bytesSent == 0)
+    {
+        Logger::log(Logger::ERROR, "Client disconnected, failed to send compact response to client with "
+            "socket fd " + Logger::intToString(clientSocketFD), "Server::sendChunkedHeaders");
+        eventManager->deregisterEvent(clientSocketFD, WRITE);
+        responses.erase(clientSocketFD);
+        delete (responseManager);
+        removeBadClients(clientSocketFD);
+        close(clientSocketFD);
+        return ;
+    }
 
     responseManager->updateBytesSent(bytesSent);
     if (responseManager->isFinished())
@@ -558,7 +654,8 @@ void    Server::sendCompactFile(int clientSocketFD, ResponseManager* responseMan
     }
     else
         Logger::log(Logger::DEBUG, "A compact response has been sent partially to client with socket fd " + 
-            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI(), 
+            Logger::intToString(clientSocketFD) + " for resource " + clients[clientSocketFD]->getRequest().getURI()
+            + "; sent " + Logger::intToString(bytesSent) + " bytes", 
             "Server::sendCompactFile");
 }
 
@@ -799,7 +896,7 @@ void Server::handleInvalidRequest(int clientSocketFD, std::string statusCode, st
     }
 
     Logger::log(Logger::WARN, "Client with socket FD: " + Logger::intToString(clientSocketFD)
-                + " made an invalid request", 
+                + " made an invalid request with status code " + statusCode, 
                 "Server::handleInvalidRequest");
 
     removeBadClients(clientSocketFD);
@@ -850,4 +947,11 @@ std::map<int, ResponseManager* >& Server::getResponses()
 std::map<int, CGIManager* >& Server::getCgiMap()
 {
     return (cgi);
+}
+
+std::string intToString(int n)
+{
+    std::stringstream ss;
+    ss << n;
+    return (ss.str());
 }

@@ -2,29 +2,28 @@
 #include "ClientManager.hpp"
 
 ClientManager::ClientManager(int fd, const std::string &clientIpAddr)
-	: fd(fd), clientAddress(clientIpAddr), requestNumber(0), areHeaderComplete(false), isBodyComplete(false)
+	: fd(fd), clientAddress(clientIpAddr), requestNumber(0), areHeaderComplete(false), isBodyComplete(false),
+		isChunkedTransfer(false), requestManager(NULL)
 {
 	this->lastRequestTime = std::time(0);
 }
 
 ClientManager::~ClientManager()
 {
-	if (requestBodyFile.is_open())
-		requestBodyFile.close();
+	delete (requestManager);
 }
 
 void	ClientManager::resetClientManager()
 {
 	requestHeaders.clear();
 	requestBody.clear();
-	if (requestBodyFile.is_open())
-		requestBodyFile.close();
-	if (requestBodyFilePath.size())
-		remove(requestBodyFilePath.c_str());
 	requestBodySize = 0;
-	requestBodyFilePath.clear();
 	areHeaderComplete = false;
 	isBodyComplete = false;
+
+	isChunkedTransfer = false;
+	delete requestManager;
+    requestManager = NULL;
 }
 
 void	ClientManager::updateLastRequestTime()
@@ -58,6 +57,17 @@ void	ClientManager::processHeaders(Server &server, const char *buffer, size_t by
 		Logger::log(Logger::DEBUG, "Received partial headers for fd " + Logger::intToString(fd), "ClientManager::processHeaders");
 }
 
+/*
+	NOTES
+
+		Note 1:	If we go off the way we designed the HTTPRequest class, then in the request line is missing a token, 
+				meaning that it did not have all three of nethod, uri, & version, then we do not even proceed to 
+				fill out the request line (we just return false and set status to 400). So in that case, if 
+				someone did something like POST HTTP/1.1; that's only 2 tokens, the uri is missining. Hence, the 
+				request method would indeed be empty cause it was never assigned something. That's why we are 
+				checking that in the else clause. Of course, if someone did something like TRACE /example HTTP/1.1, 
+				that would also be picked up by this clause but instead assigned a status code of 501.
+*/
 void	ClientManager::parseHeaders(Server &server)
 {
 	size_t endOfHeaders = requestHeaders.find("\r\n\r\n") + 4;
@@ -70,7 +80,7 @@ void	ClientManager::parseHeaders(Server &server)
 		return;
 	}
 
-	this->request = HTTPRequest(requestHeaders, fd);
+	request = HTTPRequest(requestHeaders, fd);
 
 	if (request.getURI().size() > MAX_URI_SIZE)
 	{
@@ -106,10 +116,18 @@ void	ClientManager::parseHeaders(Server &server)
 			"ClientManager::parseHeaders");
 		handlePostRequest(server);
 	}
-	else
+	else // Note 1
 	{
-		Logger::log(Logger::WARN, "Unsupported HTTP method for fd " + Logger::intToString(fd), "ClientManager::parseHeaders");
-		server.handleInvalidRequest(fd, "501", "Not Implemented");
+		Logger::log(Logger::WARN, "An HTTP request containing issues within the request-line was "
+						"made by client with IP " + clientAddress + ", on fd: " + Logger::intToString(fd),
+			"ClientManager::parseHeaders");
+
+		if (request.getStatus() == 400)
+			server.handleInvalidRequest(fd, "400", "Bad Request");
+		else if (request.getStatus() == 505)
+			server.handleInvalidRequest(fd, "505", "HTTP Version Not Supported");
+		else
+			server.handleInvalidRequest(fd, "501", "Not Implemented");
 	}
 }
 
@@ -151,16 +169,9 @@ void	ClientManager::handleDeleteRequest(Server &server)
 
 void	ClientManager::handlePostRequest(Server &server)
 {
-	if (request.getHeader("transfer-encoding") == "chunked")
-	{
-		Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
-		server.handleInvalidRequest(fd, "405", "Method Not Allowed");
-		return ;
-	}
-
-	// // For the tester
-	// if (requestBody.empty()) {
-	// 	Logger::log(Logger::WARN, "POST request with no body " + Logger::intToString(fd), "ClientManager::handlePostRequest");
+	// if (request.getHeader("transfer-encoding") == "chunked")
+	// {
+	// 	Logger::log(Logger::WARN, "Chunked Transfer-Encoding not supported for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
 	// 	server.handleInvalidRequest(fd, "405", "Method Not Allowed");
 	// 	return ;
 	// }
@@ -170,55 +181,91 @@ void	ClientManager::handlePostRequest(Server &server)
 
 	if (locationSettings)
 		settings = locationSettings;
+
+	if (request.getStatus() == 411 || request.getStatus() == 400)
+	{
+		if (request.getStatus() == 411)
+			server.handleInvalidRequest(fd, "411", "Length Required");
+		else
+			server.handleInvalidRequest(fd, "400", "Bad Request");
+		return ;
+	}
+
+    if (request.getHeader("transfer-encoding") == "chunked")
+	{
+        isChunkedTransfer = true;
+        initializeBodyStorage(server, settings);
+        return ;
+    }
+
 	requestBodySize = stringToSizeT(request.getHeader("content-length"));
 	if (requestBodySize > settings->getClientMaxBodySize())
 	{
+		// std::cout << "size is " << request.getHeader("content-length") << std::endl;
 		Logger::log(Logger::WARN, "Body size of POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::handlePostRequest");
 		server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
 		return ;
 	}
-	initializeBodyStorage(server);
+	initializeBodyStorage(server, settings);
 }
 
-void	ClientManager::initializeBodyStorage(Server &server)
+void	ClientManager::initializeBodyStorage(Server &server, BaseSettings* settings)
 {
-	std::string filename;
-	{
-		std::ostringstream oss;
-		oss << "post_body_" << Logger::intToString(static_cast<int>(time(0))) << "_" << Logger::intToString(fd) << ".tmp";
-		filename = oss.str();
-	}
-	requestBodyFilePath = TEMP_FILE_DIRECTORY + filename;
+	if (isChunkedTransfer) {
+		delete requestManager; // Delete any exisitng Manager (though chances are resetClientState already handled that)
+		requestManager = new RequestManager(settings->getClientMaxBodySize());
 
-	requestBodyFile.open(requestBodyFilePath.c_str(), std::ios::out | std::ios::binary);
-	if (!requestBodyFile.is_open())
-	{
-		Logger::log(Logger::ERROR, "Failed to open temporary file for storing POST body for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		server.handleInvalidRequest(fd, "500", "Internal Server Error");
-		return;
-	}
+		// Handle the case where we already have the complete request
+        if (!requestBody.empty()) {
+			if (!requestManager->processChunkedData(requestBody)) {
+				if (requestManager->hasExceededMaxSize()) {
+					Logger::log(Logger::WARN, "Body size of chunked POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+					server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
+				} 
+				else {
+					Logger::log(Logger::ERROR, "Failed to process initial chunked data", 
+						"ClientManager::processBody");
+					server.handleInvalidRequest(fd, "400", "Bad Request");
+				}
+                return (void());
+            }
+        }
 
-	Logger::log(Logger::DEBUG, "Temporary file for POST body created: " + requestBodyFilePath, "ClientManager::initializeBodyStorage");
-	
+        // Check if it's a complete empty chunked request (0\r\n\r\n)
+        if (requestBody.find("0\r\n\r\n") != std::string::npos || 
+            	requestManager->isRequestComplete()) {
+            Logger::log(Logger::DEBUG, "Received complete empty chunked request", 
+                "ClientManager::initializeBodyStorage");
+
+            isBodyComplete = true;
+
+			request.setBody(requestManager->getBuffer());
+			// request.accurateDebugger();
+
+            server.processPostRequest(fd, request);
+            return (void());
+        }
+        return (void());
+    }
+
 	if (requestBody.size() == requestBodySize)
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete from the first read for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		requestBodyFile << requestBody;
-		requestBodyFile.close();
+		
+		requestBuffer = requestBody;
+		request.setBody(requestBuffer);
 		isBodyComplete = true;
 		server.processPostRequest(fd, request);
 	}
 	else if (requestBody.size() > requestBodySize)
 	{
 		Logger::log(Logger::WARN, "POST request body exceeds the declared content length for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		requestBodyFile.close();
-		remove(requestBodyFilePath.c_str());
 		server.handleInvalidRequest(fd, "400", "Bad Request");
 	}
 	else
 	{
 		Logger::log(Logger::DEBUG, "POST request body is incomplete from the first read for client with socket fd " + Logger::intToString(fd), "ClientManager::initializeBodyStorage");
-		requestBodyFile << requestBody;
+		requestBuffer = requestBody;
 	}
 }
 
@@ -226,28 +273,45 @@ void	ClientManager::processBody(Server &server, const char *buffer, size_t bytes
 {
 	Logger::log(Logger::DEBUG, "Processing body of POST request for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
 
-	size_t remainingBodySize = requestBodySize - requestBodyFile.tellp();
-	if (bytesRead > remainingBodySize)
+    if (isChunkedTransfer && requestManager != NULL) 
 	{
-		requestBodyFile.write(buffer, remainingBodySize);
-		requestBodyFile.close();
-		isBodyComplete = true;
-		server.processPostRequest(fd, request);
-		// server.processPostRequest(fd, request, true);
-		// server.removeBadClients(fd);
-	}
-	else if (bytesRead == remainingBodySize)
+        std::string chunk(buffer, bytesRead);
+		
+		if (!requestManager->processChunkedData(chunk)) {
+			if (requestManager->hasExceededMaxSize()) {
+				Logger::log(Logger::WARN, "Body size of chunked POST request exceeds client max body size for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+				server.handleInvalidRequest(fd, "413", "Request Entity Too Large");
+			} 
+			else {
+				Logger::log(Logger::ERROR, "Failed to process chunked data", 
+					"ClientManager::processBody");
+				server.handleInvalidRequest(fd, "400", "Bad Request");
+			}
+			return (void());
+		}
+
+        if (requestManager->isRequestComplete()) {
+			Logger::log(Logger::DEBUG, "POST chunked request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
+			request.setBody(requestManager->getBuffer());
+            isBodyComplete = true;
+            server.processPostRequest(fd, request);
+        }
+        return (void());
+    }
+
+	size_t remainingBodySize = requestBodySize - requestBuffer.size();
+	if (bytesRead >= remainingBodySize)
 	{
 		Logger::log(Logger::DEBUG, "POST request body is complete for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
-		requestBodyFile.write(buffer, bytesRead);
-		requestBodyFile.close();
+		requestBuffer.append(buffer, remainingBodySize);
+		request.setBody(requestBuffer);
 		isBodyComplete = true;
 		server.processPostRequest(fd, request);
 	}
 	else
 	{
 		Logger::log(Logger::DEBUG, "Appending to POST request body for client with socket fd " + Logger::intToString(fd), "ClientManager::processBody");
-		requestBodyFile.write(buffer, bytesRead);
+		requestBuffer.append(buffer, bytesRead);
 	}
 }
 
@@ -266,14 +330,14 @@ int		ClientManager::getRequestCount() const
 	return requestNumber;
 }
 
-const std::string& ClientManager::getPostRequestFileName()
-{
-	return (requestBodyFilePath);
-}
-
 const HTTPRequest&	ClientManager::getRequest()
 {
 	return (request);
+}
+
+const RequestManager* ClientManager::getRequestManager()
+{
+	return (requestManager);
 }
 
 bool	ClientManager::isTimedout(size_t keepaliveTimeout) const

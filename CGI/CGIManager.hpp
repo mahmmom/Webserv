@@ -14,6 +14,9 @@
 #include <cerrno>
 #include <ctime>
 #include <sys/fcntl.h>
+#include <sys/wait.h>
+
+# define CGI_TESTER_BUFFER_SIZE 65536 // 64 KB
 
 class CGIManager
 {
@@ -23,20 +26,25 @@ class CGIManager
 		int			pipeFD[2];
 		int			postPathFD;
 		bool		errorDetected;
+		bool		testerMode;
 		std::string	cgiResponse;
 		std::time_t	cgiRequestTime;
+		std::string	requestBody;
+		std::string	testerBody;
 
 		std::string sizeTToString(size_t value);
 		char**		setupEnvVars(HTTPRequest& request, ServerSettings& serverSettings);
 		void		delete2DArray(char **arr);
 	public:
 		CGIManager(HTTPRequest& request, ServerSettings& serverSettings,
-					EventManager *eventManager, int clientSocket,  const std::string &postPath = "");
+					EventManager *eventManager, int clientSocket);
 		~CGIManager();
 		
 		void			handleCgiDirective(HTTPRequest& request, ServerSettings& serverSetings, 
-											EventManager *eventManager, const std::string &postPath);
+											EventManager *eventManager);
+
 		std::string		generateCgiResponse();
+		std::string		generateCgiTesterResponse();
 		void			appendCgiResponse(std::string& cgiResponseSnippet);
 
 		bool		getErrorDetected();
@@ -44,6 +52,7 @@ class CGIManager
 		int			getCgiFD();
 		int			getCgiClientSocketFD();
 		std::string	getCgiResponse();
+		bool		getTesterMode();
 
 		bool		isCgiTimedOut(size_t timeoutValue);
 		static bool	isFile(const std::string& requestURI);

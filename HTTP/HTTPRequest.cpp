@@ -2,6 +2,38 @@
 #include "HTTPRequest.hpp"
 #include <algorithm>
 
+void HTTPRequest::accurateDebugger()
+{
+    std::cout << "\033[33m"; // Set text color to yellow
+
+    std::cout << "Request [" << std::endl;
+
+    // Start line (Method, URI, and Version)
+    std::cout << method << " " << uri << " " << version;
+    if (!queries.empty()) {
+        std::cout << "?";
+        for (size_t i = 0; i < queries.size(); ++i) {
+            if (i > 0) std::cout << "&";
+            std::cout << queries[i];
+        }
+    }
+    std::cout << " " << version << "\r\n";
+
+    // Headers
+    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
+        std::cout << it->first << ": " << it->second << "\r\n";
+    }
+
+    // // Body (if present)
+    // if (!body.empty()) {
+    //     std::cout << "\r\n" << body;
+    // }
+
+    std::cout << "]" << std::endl;
+
+    std::cout << "\033[0m"; // Reset text color to default
+}
+
 void	HTTPRequest::debugger()
 {
 	std::cout << "\n*********************************************" << std::endl;
@@ -241,7 +273,7 @@ bool	HTTPRequest::processRequestLine(const std::string& requestLine)
 		return(setStatus(400), false);
 	uriTok = requestLine.substr(i, pos - i);
 	if (!processURI(uriTok))
-		return(false);
+		return(setStatus(400), false);
 
 	i = requestLine.find_first_not_of(" ", pos);
 	if (i == std::string::npos)
@@ -319,7 +351,10 @@ bool	HTTPRequest::buildHeaderMap(std::vector<std::string>& headerFields)
 				return (setStatus(400), false);
 		}
 		pos = field.find_first_not_of(" ", pos + 1); // pos + 1 to skip the ":"
-		value = field.substr(pos, field.length());
+		if (pos != std::string::npos)
+			value = field.substr(pos, field.length());
+		else
+			value = "";
 		headers[name] = value;
 		if (name == "host") {
 			if (!processHostField(value))
@@ -414,9 +449,19 @@ const std::string& HTTPRequest::getVersion() const
 	return (version);
 }
 
+const std::string& HTTPRequest::getBody() const
+{
+	return (body);
+}
+
 void HTTPRequest::setURI(const std::string& uri)
 {
 	this->uri = uri;
+}
+
+void HTTPRequest::setBody(const std::string& body)
+{
+	this->body = body;
 }
 
 void HTTPRequest::incrementFallbackCounter()

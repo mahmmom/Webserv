@@ -39,7 +39,7 @@ class ResponseManager
 
 		const bool&			getHeadersFullySent();
 		const bool&			getCloseConnection();
-		const int&		getBytesSent();
+		const int&			getBytesSent();
 		const std::string&	getCompactResponse();
 		const ResponseType& getType();
 		const std::string&	getHeaders();

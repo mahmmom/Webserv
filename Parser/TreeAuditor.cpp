@@ -145,8 +145,8 @@ void	TreeAuditor::checkDuplicateDirectives(ConfigNode* node)
 				ContextNode *parentNode = static_cast<ContextNode *>(node);
 				DirectiveNode *dirNode = static_cast<DirectiveNode* >(*it);
 				if (directiveInstanceCounter(parentNode, dirNode->getDirectiveName()) != 1)
-					if (dirNode->getDirectiveName() != "error_page" && dirNode->getDirectiveName() != "listen"
-							&& dirNode->getDirectiveName() != "index" && dirNode->getDirectiveName() != "cgi_extension")
+					if (dirNode->getDirectiveName() != "error_page" && dirNode->getDirectiveName() != "index"
+							&& dirNode->getDirectiveName() != "cgi_extension")
 						throw (std::runtime_error("\"" + static_cast<DirectiveNode* >(*it)->getDirectiveName() + "\" directive is duplicated"));
 			}
 		}

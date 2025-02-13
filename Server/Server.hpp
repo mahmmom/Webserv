@@ -16,6 +16,9 @@
 #include <cerrno>
 #include <cstdio>
 #include <signal.h>
+#include <sstream>
+#include <ctime>
+#include <cstdlib>
 
 #include "../Events/EventManager.hpp"
 #include "../HTTP/HTTPRequest.hpp"
@@ -23,13 +26,18 @@
 #include "../HTTP/ResponseManager.hpp"
 #include "../CGI/CGIManager.hpp"
 
-#define BUFFER_SIZE 65536 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
+#define BUFFER_SIZE 65536 // 64 KB
+// #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
+// #define BUFFER_SIZE 8192 // 8 KB as per https://www.ibm.com/docs/en/was-nd/9.0.5?topic=environment-tuning-tcpip-buffer-sizes
 
 #define MAX_HEADER_SIZE 8192 // 8 KB
 #define MAX_URI_SIZE 2048 // 2 KB
-#define MAX_CGI_OUTPUT_SIZE 2097152 // 2 MB
+#define MAX_CGI_OUTPUT_SIZE 115343360 // 110 MB
+// #define MAX_CGI_OUTPUT_SIZE 2097152 // 2 MB
 #define CGI_TIMEOUT 20
-#define CGI_LOAD_LIMIT 3
+// #define CGI_TIMEOUT 20
+#define CGI_LOAD_LIMIT 21
+// #define CGI_LOAD_LIMIT 3
 
 #define TEMP_FILE_DIRECTORY "Server/uploads/"
 
@@ -97,5 +105,7 @@ class Server
 		std::map<int, ResponseManager* >&	getResponses();
 		std::map<int, CGIManager* >&		getCgiMap();
 };
+
+std::string	intToString(int n);
 
 #endif

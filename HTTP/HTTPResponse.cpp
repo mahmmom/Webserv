@@ -11,6 +11,7 @@ std::string& HTTPResponse::generateResponse()
 		fullResponse += (it->first) + ":";
 		fullResponse += " " + (it->second) + "\r\n";
 	}
+
 	fullResponse += "\r\n";
 	if (!body.empty())
 		fullResponse += body;
@@ -120,4 +121,26 @@ std::string HTTPResponse::sizeTToString(size_t value)
     std::stringstream ss;
     ss << value;
     return ss.str();
+}
+
+std::string HTTPResponse::accurateDebugger()
+{
+    std::string completeResponse = version + " " + statusCode + " " + reasonPhrase + "\r\n";
+    std::map<std::string, std::string>::iterator it;
+    for (it = headers.begin(); it != headers.end(); ++it) {
+        completeResponse += (it->first) + ": " + (it->second) + "\r\n";
+    }
+
+    completeResponse += "\r\n";
+
+    if (!body.empty()) {
+        if (body.length() > 100) {
+            completeResponse += body.substr(0, 100) + "...";
+            completeResponse += body.substr(body.length() - 10);
+        } else {
+            completeResponse += body;
+        }
+    }
+
+    return completeResponse;
 }
