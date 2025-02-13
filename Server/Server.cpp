@@ -123,7 +123,7 @@ void Server::bindAndListenServerSocket()
         serverSocket = -1;
         return ;
     }
-	if (listen(serverSocket, 5) < 0) {
+	if (listen(serverSocket, 1024) < 0) {
         Logger::log(Logger::ERROR, "Failed to listen on socket: " + std::string(strerror(errno)), "Server::bindAndListenServerSocket");
         serverSocket = -1;
     }
@@ -300,7 +300,7 @@ void Server::processDeleteRequest(int clientSocketFD, HTTPRequest& request)
 void Server::handleClientRead(int clientSocketFD)
 {
 	char buffer[BUFFER_SIZE + 1] = {0};
-    int bytesRead = recv(clientSocketFD, buffer, sizeof(buffer), 0);
+    int bytesRead = recv(clientSocketFD, buffer, BUFFER_SIZE, 0);
 
     if (bytesRead < 0) {
         Logger::log(Logger::ERROR, "Failed to recieve data from client with socket fd: "
